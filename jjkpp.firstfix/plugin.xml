@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.2"?>
+<plugin>
+   <extension
+         point="org.eclipse.ui.popupMenus">
+      <objectContribution
+            adaptable="false"
+            id="quick.fix.npe.objectContribution1"
+            objectClass="java.lang.Object">
+         <action
+               class="jjkpp.firstfix.Action1"
+               enablesFor="+"
+               id="jjkpp.firstfix.action1"
+               label="First Fix">
+         </action>
+      </objectContribution>
+   </extension>
+<!--
+   <extension
+         point="org.eclipse.jdt.ui.quickFixProcessors">
+      <quickFixProcessor
+            class="quick.fix.npe.QuickFixProcessor1"
+            id="quick.fix.npe.quickFixProcessor1"
+            name="QuickFixNullibility">
+      </quickFixProcessor>
+   </extension>
+-->
+</plugin>
