@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+   <feature url="features/jjkpp.jdt.feature_1.0.0.200908091101.jar" id="jjkpp.jdt.feature" version="1.0.0.200908091101"/>
+   <feature url="features/jjkpp.firstfix.feature_1.0.0.200908091101.jar" id="jjkpp.firstfix.feature" version="1.0.0.200908091101"/>
+</site>
