@@ -1,3 +1,8 @@
+/**
+ * TODO
+ * org.eclipse.jdt.internal.ui.javaeditor.ASTProvider#getAST() :
+ * isActiveElement auf FALSE setzen in zeile 220
+ */
 package jjkpp.firstfix;
 
 import java.lang.reflect.Field;
