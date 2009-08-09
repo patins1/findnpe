@@ -1,5 +1,6 @@
 package jjkpp.jdt.test;
 
+import java.io.File;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -11,11 +12,13 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceVisitor;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.ui.IEditorDescriptor;
@@ -32,11 +35,18 @@ public class TestErrors extends TestCase {
 
 	protected IProject project;
 	
+	int totalChecks=0;
+	
 	public void testErrors() throws CoreException {
 		final IWorkbenchPage page = PlatformUI.getWorkbench()
 				.getActiveWorkbenchWindow().getActivePage();
+				
+		IProjectDescription description = ResourcesPlugin
+		   .getWorkspace().loadProjectDescription(
+		        new Path("C:/dev/jjkpp/jjkpp.javaproject.test/.project"));		
 		project = ResourcesPlugin.getWorkspace().getRoot().getProject(
-				"jjkpp.javaproject.test");
+				description.getName());
+		project.create(description, new NullProgressMonitor());		
 		this.project.open(new NullProgressMonitor());
 		this.project.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
 		IFolder src = project.getFolder("src");
@@ -70,6 +80,7 @@ public class TestErrors extends TestCase {
 					for (String line : content.split("\n")) {
 						int errorIndex = line.indexOf("/*error");
 						if (errorIndex!=-1) {
+							totalChecks++;
 							int errorIndexTo=line.indexOf("*/",errorIndex)+2;
 							String errorContent=line.substring(errorIndex,errorIndexTo);
 							boolean easyError =errorContent.contains("easy");
@@ -165,6 +176,7 @@ public class TestErrors extends TestCase {
 				return null;
 			}
 		});
+		System.out.println("TOTAL CHECKS = "+totalChecks);
 	}
 
 }
