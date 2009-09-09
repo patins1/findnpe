@@ -16,15 +16,26 @@
       [Enter License Description here.]
    </license>
 
+   <includes
+         id="org.eclipse.contribution.weaving"
+         version="0.0.0"/>
+
+   <includes
+         id="org.eclipse.equinox.weaving"
+         version="0.0.0"/>
+
    <requires>
       <import plugin="org.eclipse.ui"/>
       <import plugin="org.eclipse.core.runtime"/>
-      <import plugin="org.eclipse.jdt.core"/>
-      <import plugin="org.eclipse.jdt.ui"/>
-      <import plugin="jjkpp.jdt.core"/>
-      <import plugin="org.eclipse.text"/>
-      <import plugin="org.eclipse.ltk.core.refactoring"/>
-      <import plugin="org.aspectj.runtime"/>
+      <import plugin="org.eclipse.jdt.core" version="3.5.0" match="greaterOrEqual"/>
+      <import plugin="org.aspectj.runtime" version="1.6.5" match="greaterOrEqual"/>
+      <import plugin="org.eclipse.jdt.ui" version="3.5.0" match="greaterOrEqual"/>
+      <import plugin="jjkpp.jdt.core" version="1.0.0" match="greaterOrEqual"/>
+      <import plugin="org.eclipse.text" version="3.5.0" match="greaterOrEqual"/>
+      <import plugin="org.eclipse.ltk.core.refactoring" version="3.5.0" match="greaterOrEqual"/>
+      <import feature="org.eclipse.contribution.weaving" version="2.0.0.e35x-20090624-1600"/>
+      <import feature="org.eclipse.equinox.weaving" version="1.0.0.200906171200"/>
+      <import plugin="org.aspectj.weaver"/>
    </requires>
 
    <plugin
@@ -40,5 +51,17 @@
          install-size="0"
          version="0.0.0"
          unpack="false"/>
+
+   <plugin
+         id="org.aspectj.weaver"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.aspectj.runtime"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
 
 </feature>

@@ -1,5 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <site>
-   <feature url="features/jjkpp.jdt.feature_1.0.0.200908091101.jar" id="jjkpp.jdt.feature" version="1.0.0.200908091101"/>
-   <feature url="features/jjkpp.firstfix.feature_1.0.0.200908091101.jar" id="jjkpp.firstfix.feature" version="1.0.0.200908091101"/>
+   <description>
+      JJKPP Update Site
+   </description>
+   <feature url="features/jjkpp.firstfix.feature_1.0.0.200909092348.jar" id="jjkpp.firstfix.feature" version="1.0.0.200909092348">
+      <category name="category_1"/>
+   </feature>
+   <feature url="features/jjkpp.jdt.feature_1.0.0.200909092348.jar" id="jjkpp.jdt.feature" version="1.0.0.200909092348">
+      <category name="category_1"/>
+   </feature>
+   <category-def name="category_1" label="Java Tools">
+      <description>
+         Set of Java tools
+      </description>
+   </category-def>
 </site>
