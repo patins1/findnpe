@@ -34,8 +34,7 @@ import org.eclipse.text.edits.TextEditGroup;
 
 public class NullibilityCodeFix extends CompilationUnitRewriteOperationsFix {
 
-	public static final class MakeTypeAbstractOperation extends
-			CompilationUnitRewriteOperation {
+	public static final class MakeTypeAbstractOperation extends CompilationUnitRewriteOperation {
 
 		public final NullibilityProposalStructure proposal;
 
@@ -46,22 +45,17 @@ public class NullibilityCodeFix extends CompilationUnitRewriteOperationsFix {
 		/**
 		 * {@inheritDoc}
 		 */
-		public void rewriteAST(CompilationUnitRewrite cuRewrite,
-				LinkedProposalModel linkedProposalPositions)
-				throws CoreException {
+		public void rewriteAST(CompilationUnitRewrite cuRewrite, LinkedProposalModel linkedProposalPositions) throws CoreException {
 
 			AST ast = cuRewrite.getAST();
 			ASTRewrite rewrite = cuRewrite.getASTRewrite();
-//			 AST ast = proposal.getAst();
-//			 ASTRewrite rewrite = ASTRewrite.create(ast);
+			// AST ast = proposal.getAst();
+			// ASTRewrite rewrite = ASTRewrite.create(ast);
 
 			Annotation annot = ast.newMarkerAnnotation();
 			annot.setTypeName(ast.newName(proposal.marker));
-			TextEditGroup textEditGroup = createTextEditGroup(
-					CorrectionMessages.UnimplementedCodeFix_TextEditGroup_label,
-					cuRewrite);
-			rewrite.getListRewrite(proposal.decl, proposal.modifiers)
-					.insertFirst(annot, textEditGroup);
+			TextEditGroup textEditGroup = createTextEditGroup(CorrectionMessages.UnimplementedCodeFix_TextEditGroup_label, cuRewrite);
+			rewrite.getListRewrite(proposal.decl, proposal.modifiers).insertFirst(annot, textEditGroup);
 
 			ImportRewrite imports = cuRewrite.getImportRewrite();
 			imports.addImport(proposal.getImport());
@@ -69,29 +63,23 @@ public class NullibilityCodeFix extends CompilationUnitRewriteOperationsFix {
 		}
 	}
 
-	public static NullibilityCodeFix createMakeTypeAbstractFix(
-			CompilationUnit root, IProblemLocation problem, List proposals) {
+	public static NullibilityCodeFix createMakeTypeAbstractFix(CompilationUnit root, IProblemLocation problem, List proposals) {
 
 		for (int i = 0; i < proposals.size(); i++) {
-			NullibilityProposalStructure proposal = (NullibilityProposalStructure) proposals
-					.get(i);
+			NullibilityProposalStructure proposal = (NullibilityProposalStructure) proposals.get(i);
 
-			MakeTypeAbstractOperation operation = new MakeTypeAbstractOperation(
-					proposal);
+			MakeTypeAbstractOperation operation = new MakeTypeAbstractOperation(proposal);
 
-			return new NullibilityCodeFix(proposal.name, proposal.getRoot(),
-					new CompilationUnitRewriteOperation[] { operation });
+			return new NullibilityCodeFix(proposal.name, proposal.getRoot(), new CompilationUnitRewriteOperation[] { operation });
 		}
 		return null;
 	}
 
-	public NullibilityCodeFix(String name, CompilationUnit compilationUnit,
-			CompilationUnitRewriteOperation[] fixRewriteOperations) {
+	public NullibilityCodeFix(String name, CompilationUnit compilationUnit, CompilationUnitRewriteOperation[] fixRewriteOperations) {
 		super(name, compilationUnit, fixRewriteOperations);
 	}
 
-	public static ICleanUpFix createCleanUp(CompilationUnit root,
-			IProblemLocation[] problems) throws CoreException {
+	public static ICleanUpFix createCleanUp(CompilationUnit root, IProblemLocation[] problems) throws CoreException {
 
 		if (problems.length == 0)
 			return null;
@@ -101,16 +89,13 @@ public class NullibilityCodeFix extends CompilationUnitRewriteOperationsFix {
 		for (int i = 0; i < problems.length; i++) {
 			IProblemLocation problem = problems[i];
 			NullibilityAnnosUI nullibilityAnnosUI = new NullibilityAnnosUI();
-			nullibilityAnnosUI.fetchProposalStructures((ICompilationUnit) root
-					.getJavaElement(), root, problem);
+			nullibilityAnnosUI.fetchProposalStructures((ICompilationUnit) root.getJavaElement(), root, problem);
 			if (!nullibilityAnnosUI.proposals.isEmpty()) {
-				NullibilityProposalStructure proposal = (NullibilityProposalStructure) nullibilityAnnosUI.proposals
-						.iterator().next();
+				NullibilityProposalStructure proposal = (NullibilityProposalStructure) nullibilityAnnosUI.proposals.iterator().next();
 				if (proposal.getRoot() != root)
 					continue;
 				for (int x = 0; x < operations.size(); x++) {
-					MakeTypeAbstractOperation operation = (MakeTypeAbstractOperation) operations
-							.get(x);
+					MakeTypeAbstractOperation operation = (MakeTypeAbstractOperation) operations.get(x);
 					if (operation.proposal.decl == proposal.decl) {
 						if (operation.proposal.marker.equals(proposal.marker)) {
 							proposal = null;
@@ -120,8 +105,7 @@ public class NullibilityCodeFix extends CompilationUnitRewriteOperationsFix {
 					}
 				}
 				if (proposal != null) {
-					MakeTypeAbstractOperation operation = new MakeTypeAbstractOperation(
-							proposal);
+					MakeTypeAbstractOperation operation = new MakeTypeAbstractOperation(proposal);
 					operations.add(operation);
 				}
 			}
@@ -131,9 +115,6 @@ public class NullibilityCodeFix extends CompilationUnitRewriteOperationsFix {
 			return null;
 
 		String label = "Solve Nullibility";
-		return new NullibilityCodeFix(label, root,
-				(CompilationUnitRewriteOperation[]) operations
-						.toArray(new CompilationUnitRewriteOperation[operations
-								.size()]));
+		return new NullibilityCodeFix(label, root, (CompilationUnitRewriteOperation[]) operations.toArray(new CompilationUnitRewriteOperation[operations.size()]));
 	}
 }

@@ -23,19 +23,18 @@ import org.eclipse.jdt.ui.cleanup.ICleanUpFix;
 import org.eclipse.jdt.ui.text.java.IProblemLocation;
 
 public class NullibilityCodeCleanUp extends AbstractMultiFix {
-	
-// TO ENABLE QUICKFIX, ADD FOLLOWING TO PLUGIN.XML of JDT.UI
-//    <cleanUp
-//    class="org.eclipse.jdt.internal.ui.fix.NullibilityCodeCleanUp"
-//    id="org.eclipse.jdt.ui.cleanup.nullibility_code"
-//    runAfter="org.eclipse.jdt.ui.cleanup.unimplemented_code">
-//    </cleanUp>
-//    <cleanUp
-//    class="org.eclipse.jdt.internal.ui.fix.SortMembersCleanUp"
-//    ...
 
+	// TO ENABLE QUICKFIX, ADD FOLLOWING TO PLUGIN.XML of JDT.UI
+	// <cleanUp
+	// class="org.eclipse.jdt.internal.ui.fix.NullibilityCodeCleanUp"
+	// id="org.eclipse.jdt.ui.cleanup.nullibility_code"
+	// runAfter="org.eclipse.jdt.ui.cleanup.unimplemented_code">
+	// </cleanUp>
+	// <cleanUp
+	// class="org.eclipse.jdt.internal.ui.fix.SortMembersCleanUp"
+	// ...
 
-	public static final String MAKE_TYPE_ABSTRACT= "cleanup.make_type_abstract_if_missing_method"; //$NON-NLS-1$
+	public static final String MAKE_TYPE_ABSTRACT = "cleanup.make_type_abstract_if_missing_method"; //$NON-NLS-1$
 
 	public NullibilityCodeCleanUp() {
 		super();
@@ -49,14 +48,14 @@ public class NullibilityCodeCleanUp extends AbstractMultiFix {
 	 * {@inheritDoc}
 	 */
 	public String[] getStepDescriptions() {
-			return new String[] { "Add nullibility annotations" };
+		return new String[] { "Add nullibility annotations" };
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	public String getPreview() {
-		StringBuffer buf= new StringBuffer();
+		StringBuffer buf = new StringBuffer();
 		return buf.toString();
 	}
 
@@ -71,25 +70,25 @@ public class NullibilityCodeCleanUp extends AbstractMultiFix {
 	 * {@inheritDoc}
 	 */
 	protected ICleanUpFix createFix(CompilationUnit unit) throws CoreException {
-		IProblemLocation[] problemLocations= convertProblems(unit.getProblems());
-		problemLocations= filter(problemLocations, new int[] { NullibilityAnnos.RequireCanBeNull });
+		IProblemLocation[] problemLocations = convertProblems(unit.getProblems());
+		problemLocations = filter(problemLocations, new int[] { NullibilityAnnos.RequireCanBeNull });
 
-		return NullibilityCodeFix.createCleanUp(unit,  problemLocations);
+		return NullibilityCodeFix.createCleanUp(unit, problemLocations);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	protected ICleanUpFix createFix(CompilationUnit unit, IProblemLocation[] problems) throws CoreException {
-		IProblemLocation[] problemLocations= filter(problems, new int[] { NullibilityAnnos.RequireCanBeNull });
-		return NullibilityCodeFix.createCleanUp(unit,  problemLocations);
+		IProblemLocation[] problemLocations = filter(problems, new int[] { NullibilityAnnos.RequireCanBeNull });
+		return NullibilityCodeFix.createCleanUp(unit, problemLocations);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	public boolean canFix(ICompilationUnit compilationUnit, IProblemLocation problem) {
-		int id= problem.getProblemId();
+		int id = problem.getProblemId();
 		if (id == NullibilityAnnos.RequireCanBeNull)
 			return true;
 
@@ -100,8 +99,8 @@ public class NullibilityCodeCleanUp extends AbstractMultiFix {
 	 * {@inheritDoc}
 	 */
 	public int computeNumberOfFixes(CompilationUnit compilationUnit) {
-		
-		IProblemLocation[] locations= filter(convertProblems(compilationUnit.getProblems()), new int[] { NullibilityAnnos.RequireCanBeNull });
+
+		IProblemLocation[] locations = filter(convertProblems(compilationUnit.getProblems()), new int[] { NullibilityAnnos.RequireCanBeNull });
 
 		return locations.length;
 	}
