@@ -16,12 +16,18 @@ import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Annotation;
 import org.eclipse.jdt.internal.compiler.ast.Argument;
 import org.eclipse.jdt.internal.compiler.ast.Assignment;
+import org.eclipse.jdt.internal.compiler.ast.CastExpression;
+import org.eclipse.jdt.internal.compiler.ast.Expression;
 import org.eclipse.jdt.internal.compiler.ast.NullLiteral;
 import org.eclipse.jdt.internal.compiler.ast.QualifiedNameReference;
+import org.eclipse.jdt.internal.compiler.ast.ReturnStatement;
+import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding;
+import org.eclipse.jdt.internal.compiler.lookup.BaseTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.BinaryTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
+import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
@@ -351,6 +357,35 @@ public class NullibilityAnnos {
 			return true;
 		}
 		return false;
+	}
+
+	public static boolean callNeedValueStore(ReturnStatement rewrite) {
+		try {
+			Method method = ReturnStatement.class.getDeclaredMethod("needValueStore");
+			method.setAccessible(true);
+			return (Boolean) method.invoke(rewrite);
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	public static boolean isAlwaysNull(Expression t) {
+		if (t instanceof NullLiteral)
+			return true;
+		if (t instanceof CastExpression)
+			return isAlwaysNull(((CastExpression) t).expression);
+		return false;
+	}
+
+	static public void checkEasyNPE(Expression t, BlockScope scope, FlowContext flowContext, FlowInfo flowInfo) {
+		if (enableNullibility())
+			if ((flowInfo.tagBits & FlowInfo.UNREACHABLE) == 0 && checkScope(scope) && t.nullStatus(flowInfo) != FlowInfo.NON_NULL && !(t.resolvedType instanceof BaseTypeBinding && !"null".equals(new String(t.resolvedType.sourceName())))) {
+				if (NullibilityAnnos.isAlwaysNull(t)) {
+					invalidNullibility(scope.problemReporter(), t, null, 0, "Easy Nullibility problem"); //$NON-NLS-1$
+				} else {
+					invalidNullibility(scope.problemReporter(), t, null, 0, "Nullibility problem"); //$NON-NLS-1$
+				}
+			}
 	}
 
 	private static String getClassName(ReferenceBinding declaringClass) {

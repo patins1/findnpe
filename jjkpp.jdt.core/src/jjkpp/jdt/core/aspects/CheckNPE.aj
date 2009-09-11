@@ -1,22 +1,19 @@
 package jjkpp.jdt.core.aspects;
 
-import java.lang.reflect.Method;
 
 import jjkpp.jdt.core.classes.NullibilityAnnos;
 import jjkpp.jdt.core.classes.ProposalCollector;
 
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
-import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration; 
 import org.eclipse.jdt.internal.compiler.ast.AllocationExpression;
 import org.eclipse.jdt.internal.compiler.ast.Assignment;
-import org.eclipse.jdt.internal.compiler.ast.CastExpression;
 import org.eclipse.jdt.internal.compiler.ast.Expression;
 import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.FieldReference;
 import org.eclipse.jdt.internal.compiler.ast.LocalDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.MessageSend;
 import org.eclipse.jdt.internal.compiler.ast.MethodDeclaration;
-import org.eclipse.jdt.internal.compiler.ast.NullLiteral;
 import org.eclipse.jdt.internal.compiler.ast.QualifiedAllocationExpression;
 import org.eclipse.jdt.internal.compiler.ast.ReturnStatement;
 import org.eclipse.jdt.internal.compiler.ast.SingleNameReference;
@@ -129,7 +126,7 @@ public aspect CheckNPE {
 				flowInfo = t.arguments[i].analyseCode(currentScope, flowContext, flowInfo).unconditionalInits();
 				if (NullibilityAnnos.enableNullibility()) 			
 					if (NullibilityAnnos.getSolidityWithParent(t.binding,i)) {
-						checkEasyNPE(t.arguments[i], currentScope, flowContext, flowInfo); 
+						NullibilityAnnos.checkEasyNPE(t.arguments[i], currentScope, flowContext, flowInfo); 
 					}
 			}
 		}
@@ -171,7 +168,7 @@ public aspect CheckNPE {
 					flowInfo = t.arguments[i].analyseCode(currentScope, flowContext, flowInfo);
 					if (NullibilityAnnos.enableNullibility()) 			
 						if (NullibilityAnnos.getSolidityWithParent(t.binding,i)) {
-							checkEasyNPE(t.arguments[i], currentScope, flowContext, flowInfo); 
+							NullibilityAnnos.checkEasyNPE(t.arguments[i], currentScope, flowContext, flowInfo); 
 						}
 				}
 			}
@@ -212,7 +209,7 @@ public aspect CheckNPE {
 						.unconditionalInits();
 				if (NullibilityAnnos.enableNullibility()) 			
 					if (NullibilityAnnos.getSolidityWithParent(t.binding,i)) {
-						checkEasyNPE(t.arguments[i], currentScope, flowContext, flowInfo); 
+						NullibilityAnnos.checkEasyNPE(t.arguments[i], currentScope, flowContext, flowInfo); 
 					}
 			}
 		}
@@ -344,7 +341,7 @@ public aspect CheckNPE {
 			if (currentScope.referenceContext() instanceof MethodDeclaration) {
 				MethodDeclaration methodDeclaration = (MethodDeclaration)currentScope.referenceContext();
 				if (NullibilityAnnos.getSolidityWithParent(methodDeclaration.binding)) {
-					checkEasyNPE(t, currentScope, flowContext, result);
+					NullibilityAnnos.checkEasyNPE(t, currentScope, flowContext, result);
 				}
 			}
 	}
@@ -366,34 +363,4 @@ public aspect CheckNPE {
 		}
 	}
 	
-	private boolean callNeedValueStore(ReturnStatement rewrite) {
-		try {
-			Method method = ReturnStatement.class.getDeclaredMethod("needValueStore");
-			method.setAccessible(true);
-			return (Boolean) method.invoke(rewrite);
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-	}
-
-	public void checkEasyNPE(Expression t, BlockScope scope, FlowContext flowContext, FlowInfo flowInfo) {
-		if (NullibilityAnnos.enableNullibility()) 
-		if ((flowInfo.tagBits & FlowInfo.UNREACHABLE) == 0 && NullibilityAnnos.checkScope(scope) && t.nullStatus(flowInfo)!=FlowInfo.NON_NULL && !(t.resolvedType instanceof BaseTypeBinding && !"null".equals(new String(t.resolvedType.sourceName())))) 
-		{
-			if (isAlwaysNull(t)) {
-				NullibilityAnnos.invalidNullibility(scope.problemReporter(),t,null,0,"Easy Nullibility problem"); //$NON-NLS-1$
-			} else { 
-				NullibilityAnnos.invalidNullibility(scope.problemReporter(),t,null,0,"Nullibility problem"); //$NON-NLS-1$
-			}
-		} 
-	}  
-		
-	boolean isAlwaysNull(Expression t) {
-		if (t instanceof NullLiteral)
-			return true;
-		if (t instanceof CastExpression)
-			return isAlwaysNull(((CastExpression)t).expression);
-		return false;		
-	}
-
 }
