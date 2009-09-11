@@ -25,13 +25,13 @@ import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 import org.eclipse.jdt.core.dom.rewrite.ImportRewrite;
 import org.eclipse.jdt.internal.corext.fix.CompilationUnitRewriteOperationsFix;
 import org.eclipse.jdt.internal.corext.fix.LinkedProposalModel;
-import org.eclipse.jdt.internal.corext.fix.CompilationUnitRewriteOperationsFix.CompilationUnitRewriteOperation;
 import org.eclipse.jdt.internal.corext.refactoring.structure.CompilationUnitRewrite;
 import org.eclipse.jdt.internal.ui.text.correction.CorrectionMessages;
 import org.eclipse.jdt.ui.cleanup.ICleanUpFix;
 import org.eclipse.jdt.ui.text.java.IProblemLocation;
 import org.eclipse.text.edits.TextEditGroup;
 
+@SuppressWarnings("restriction")
 public class NullibilityCodeFix extends CompilationUnitRewriteOperationsFix {
 
 	public static final class MakeTypeAbstractOperation extends CompilationUnitRewriteOperation {
@@ -63,9 +63,9 @@ public class NullibilityCodeFix extends CompilationUnitRewriteOperationsFix {
 		}
 	}
 
-	public static NullibilityCodeFix createMakeTypeAbstractFix(CompilationUnit root, IProblemLocation problem, List proposals) {
+	public static NullibilityCodeFix createMakeTypeAbstractFix(CompilationUnit root, IProblemLocation problem, List<NullibilityProposalStructure> proposals) {
 
-		for (int i = 0; i < proposals.size(); i++) {
+		for (int i = 0; i < proposals.size();) {
 			NullibilityProposalStructure proposal = (NullibilityProposalStructure) proposals.get(i);
 
 			MakeTypeAbstractOperation operation = new MakeTypeAbstractOperation(proposal);
@@ -84,18 +84,16 @@ public class NullibilityCodeFix extends CompilationUnitRewriteOperationsFix {
 		if (problems.length == 0)
 			return null;
 
-		ArrayList operations = new ArrayList();
+		ArrayList<MakeTypeAbstractOperation> operations = new ArrayList<MakeTypeAbstractOperation>();
 
-		for (int i = 0; i < problems.length; i++) {
-			IProblemLocation problem = problems[i];
+		for (IProblemLocation problem : problems) {
 			NullibilityAnnosUI nullibilityAnnosUI = new NullibilityAnnosUI();
 			nullibilityAnnosUI.fetchProposalStructures((ICompilationUnit) root.getJavaElement(), root, problem);
 			if (!nullibilityAnnosUI.proposals.isEmpty()) {
 				NullibilityProposalStructure proposal = (NullibilityProposalStructure) nullibilityAnnosUI.proposals.iterator().next();
 				if (proposal.getRoot() != root)
 					continue;
-				for (int x = 0; x < operations.size(); x++) {
-					MakeTypeAbstractOperation operation = (MakeTypeAbstractOperation) operations.get(x);
+				for (MakeTypeAbstractOperation operation : operations) {
 					if (operation.proposal.decl == proposal.decl) {
 						if (operation.proposal.marker.equals(proposal.marker)) {
 							proposal = null;

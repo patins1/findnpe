@@ -15,6 +15,7 @@ import org.eclipse.jdt.internal.compiler.flow.UnconditionalFlowInfo;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 
+@SuppressWarnings("restriction")
 public aspect HandleIterations {
 	
 	/**

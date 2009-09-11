@@ -14,6 +14,7 @@ import jjkpp.jdt.ui.classes.NullibilityAnnosUI;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.ICompilationUnit;
 
+@SuppressWarnings("restriction")
 public aspect ExtendQuickFixProcessor {
 
 	boolean around(QuickFixProcessor t, ICompilationUnit cu, int problemId) : 

@@ -13,6 +13,7 @@ import org.eclipse.jdt.internal.compiler.ast.Expression;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.lookup.VariableBinding;
 
+@SuppressWarnings("restriction")
 public aspect HandleNullStatusMethod {
 
 	int around(ArrayAllocationExpression t,FlowInfo flowInfo) : 

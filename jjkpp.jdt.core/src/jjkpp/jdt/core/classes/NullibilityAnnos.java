@@ -1,7 +1,6 @@
 package jjkpp.jdt.core.classes;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Set;
 
@@ -46,6 +45,7 @@ import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
  * @author JoeKey
  * 
  */
+@SuppressWarnings("restriction")
 public class NullibilityAnnos {
 
 	static public int RequireCanBeNull = IProblem.MethodRelated + 148;
@@ -67,7 +67,7 @@ public class NullibilityAnnos {
 			highest = binding;
 		if (declaringClass != null && highest != null && highest.declaringClass != null) {
 
-			// Set itfs = new HashSet();
+			// Set<String> itfs = new HashSet<String>();
 			// itfs.add(getClassName(declaringClass));
 			// addSuperClasses(declaringClass, itfs);
 
@@ -259,6 +259,7 @@ public class NullibilityAnnos {
 		return FlowInfo.NON_NULL;
 	}
 
+	@SuppressWarnings("unused")
 	static private int getSolidity(AnnotationBinding[] annotations, Scope scope) {
 		int result = hasSolidAnnotation(annotations);
 		if (result != FlowInfo.UNKNOWN) {
@@ -297,6 +298,7 @@ public class NullibilityAnnos {
 		return FlowInfo.UNKNOWN;
 	}
 
+	@SuppressWarnings("unused")
 	private static int hasSolidAnnotation(Annotation[] annos) {
 		if (annos != null)
 			for (int i = 0; i < annos.length; i++) {
@@ -337,6 +339,7 @@ public class NullibilityAnnos {
 		return FlowInfo.UNKNOWN;
 	}
 
+	@SuppressWarnings("unused")
 	private boolean isSolidFinal(SimpleName simpleName) {
 		IBinding typeBinding = simpleName.resolveBinding();
 		if (typeBinding instanceof IVariableBinding) {
@@ -456,18 +459,7 @@ public class NullibilityAnnos {
 			Method method = ProblemReporter.class.getDeclaredMethod("nodeSourceStart", Binding.class, ASTNode.class);
 			method.setAccessible(true);
 			return (Integer) method.invoke(this1, local, location);
-		} catch (SecurityException e) {
-			e.printStackTrace();
-		} catch (NoSuchMethodException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IllegalArgumentException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IllegalAccessException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (InvocationTargetException e) {
+		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
@@ -479,18 +471,7 @@ public class NullibilityAnnos {
 			Method method = ProblemReporter.class.getDeclaredMethod("nodeSourceEnd", Binding.class, ASTNode.class);
 			method.setAccessible(true);
 			return (Integer) method.invoke(this1, local, location);
-		} catch (SecurityException e) {
-			e.printStackTrace();
-		} catch (NoSuchMethodException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IllegalArgumentException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IllegalAccessException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (InvocationTargetException e) {
+		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
@@ -506,7 +487,7 @@ public class NullibilityAnnos {
 		_this.referenceContext = null;
 	}
 
-	static private void addSuperInterface(ReferenceBinding decl, Set result) {
+	static private void addSuperInterface(ReferenceBinding decl, Set<String> result) {
 		ReferenceBinding[] superInterfaces = decl.superInterfaces();
 		for (int i = 0; i < superInterfaces.length; i++) {
 			if (result.add(getClassName(superInterfaces[i])))
@@ -514,7 +495,8 @@ public class NullibilityAnnos {
 		}
 	}
 
-	static private void addSuperClasses(ReferenceBinding decl, Set result) {
+	@SuppressWarnings("unused")
+	static private void addSuperClasses(ReferenceBinding decl, Set<String> result) {
 		addSuperInterface(decl, result);
 		while ((decl = decl.superclass()) != null) {
 			if (!result.add(getClassName(decl))) {

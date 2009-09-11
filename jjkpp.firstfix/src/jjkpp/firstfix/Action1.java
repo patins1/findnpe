@@ -40,6 +40,7 @@ import org.eclipse.ui.statushandlers.StatusAdapter;
 import org.eclipse.ui.statushandlers.StatusManager;
 import org.eclipse.ui.views.markers.WorkbenchMarkerResolution;
 
+@SuppressWarnings("restriction")
 public class Action1 implements IObjectActionDelegate {
 
 	private ISelection fSelection;
@@ -73,7 +74,7 @@ public class Action1 implements IObjectActionDelegate {
 		if (fSelection instanceof IStructuredSelection) {
 			IStructuredSelection ss = (IStructuredSelection) fSelection;
 			Object[] ssa = ss.toArray();
-			List ssl = new ArrayList();
+			List<Object> ssl = new ArrayList<Object>();
 			List<IMarkerResolution> ssres = new ArrayList<IMarkerResolution>();
 			for (Object o : ssa)
 				ssl.add(o);
@@ -253,18 +254,7 @@ public class Action1 implements IObjectActionDelegate {
 			Method method = ASTRewrite.class.getDeclaredMethod("getRewriteEventStore");
 			method.setAccessible(true);
 			return (RewriteEventStore) method.invoke(rRewrite);
-		} catch (SecurityException e) {
-			return null;
-		} catch (NoSuchMethodException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IllegalArgumentException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IllegalAccessException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (InvocationTargetException e) {
+		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
@@ -276,18 +266,7 @@ public class Action1 implements IObjectActionDelegate {
 			Method method = ASTRewrite.class.getDeclaredMethod("getRootNode");
 			method.setAccessible(true);
 			return (ASTNode) method.invoke(rewrite);
-		} catch (SecurityException e) {
-			return null;
-		} catch (NoSuchMethodException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IllegalArgumentException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IllegalAccessException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (InvocationTargetException e) {
+		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
@@ -344,7 +323,6 @@ public class Action1 implements IObjectActionDelegate {
 		// System.out.println(marker.getResource()+" line="+marker.getAttribute("lineNumber")+" count="+count+"/"+ssl.size()+" resolutions.length="+
 		// resolutions.length);
 		// } catch (CoreException e1) {
-		// // TODO Auto-generated catch block
 		// e1.printStackTrace();
 		// }
 		try {
@@ -363,7 +341,6 @@ public class Action1 implements IObjectActionDelegate {
 					// try {
 					// Thread.sleep(1000);
 					// } catch (InterruptedException e) {
-					// // TODO Auto-generated catch block
 					// e.printStackTrace();
 					// }
 				}

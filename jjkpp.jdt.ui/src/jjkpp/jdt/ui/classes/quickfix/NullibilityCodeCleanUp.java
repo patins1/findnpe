@@ -10,8 +10,6 @@
  *******************************************************************************/
 package jjkpp.jdt.ui.classes.quickfix;
 
-import java.util.Map;
-
 import jjkpp.jdt.core.classes.NullibilityAnnos;
 
 import org.eclipse.core.runtime.CoreException;
@@ -22,6 +20,7 @@ import org.eclipse.jdt.ui.cleanup.CleanUpRequirements;
 import org.eclipse.jdt.ui.cleanup.ICleanUpFix;
 import org.eclipse.jdt.ui.text.java.IProblemLocation;
 
+@SuppressWarnings("restriction")
 public class NullibilityCodeCleanUp extends AbstractMultiFix {
 
 	// TO ENABLE QUICKFIX, ADD FOLLOWING TO PLUGIN.XML of JDT.UI
@@ -38,10 +37,6 @@ public class NullibilityCodeCleanUp extends AbstractMultiFix {
 
 	public NullibilityCodeCleanUp() {
 		super();
-	}
-
-	public NullibilityCodeCleanUp(Map settings) {
-		super(settings);
 	}
 
 	/**

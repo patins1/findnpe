@@ -9,6 +9,7 @@ import org.eclipse.jdt.core.dom.ITypeBinding;
 
 public class ProposalCollector {
 
+	@SuppressWarnings("unused")
 	private boolean canFind = false;
 
 	// static public boolean

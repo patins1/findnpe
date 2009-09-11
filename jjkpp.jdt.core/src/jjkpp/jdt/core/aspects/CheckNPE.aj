@@ -39,6 +39,7 @@ import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
+@SuppressWarnings("restriction")
 public aspect CheckNPE {
  
 	before(Assignment t,BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) : 
