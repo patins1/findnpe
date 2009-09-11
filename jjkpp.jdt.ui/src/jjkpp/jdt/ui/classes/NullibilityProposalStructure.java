@@ -25,15 +25,15 @@ public class NullibilityProposalStructure {
 		this.marker = marker;
 		this.modifiers = modifiers;
 	}
-	
+
 	public String getImport() {
-		return "jjkpp.jdt.annotations." +marker;
+		return "jjkpp.jdt.annotations." + marker;
 	}
 
 	public AST getAst() {
 		return decl.getAST();
 	}
-	
+
 	public CompilationUnit getRoot() {
 		return (CompilationUnit) decl.getRoot();
 	}

@@ -24,7 +24,7 @@ public aspect HandleNullStatusMethod {
 				if (init.nullStatus(flowInfo)!=FlowInfo.NON_NULL) {
 					return FlowInfo.UNKNOWN;
 				}
-			}
+			} 
 			return FlowInfo.NON_NULL;		
 		}
 		return proceed(t,flowInfo);

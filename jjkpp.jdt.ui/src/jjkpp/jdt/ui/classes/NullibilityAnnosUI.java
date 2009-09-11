@@ -53,34 +53,30 @@ public class NullibilityAnnosUI extends ProposalCollector {
 
 	private static final boolean ENABLE_QUICKFIX = false;
 
-	public static void getNullibilityProposals(IInvocationContext context,
-			IProblemLocation problem, boolean isOnlyParameterMismatch,
-			Collection _proposals) throws CoreException {
-		
-		
+	public static void getNullibilityProposals(IInvocationContext context, IProblemLocation problem, boolean isOnlyParameterMismatch, Collection _proposals) throws CoreException {
+
 		NullibilityAnnosUI nullibilityAnnosUI = new NullibilityAnnosUI();
-		
-		nullibilityAnnosUI.fetchProposalStructures(context.getCompilationUnit(),context.getASTRoot(), problem);
-		List<NullibilityProposalStructure> proposals=nullibilityAnnosUI.proposals;
-		
+
+		nullibilityAnnosUI.fetchProposalStructures(context.getCompilationUnit(), context.getASTRoot(), problem);
+		List<NullibilityProposalStructure> proposals = nullibilityAnnosUI.proposals;
+
 		if (proposals.isEmpty())
 			return;
-		
+
 		if (ENABLE_QUICKFIX) {
-			IProposableFix addMethodFix= NullibilityCodeFix.createMakeTypeAbstractFix(context.getASTRoot(), problem,proposals);
+			IProposableFix addMethodFix = NullibilityCodeFix.createMakeTypeAbstractFix(context.getASTRoot(), problem, proposals);
 			if (addMethodFix != null) {
-				Image image= JavaPluginImages.get(JavaPluginImages.IMG_CORRECTION_CHANGE);
-	
-				Map settings= new Hashtable();
-				ICleanUp cleanUp= new NullibilityCodeCleanUp(settings);
-	
+				Image image = JavaPluginImages.get(JavaPluginImages.IMG_CORRECTION_CHANGE);
+
+				Map settings = new Hashtable();
+				ICleanUp cleanUp = new NullibilityCodeCleanUp(settings);
+
 				_proposals.add(new FixCorrectionProposal(addMethodFix, cleanUp, 10, image, context));
 				return;
 			}
 		}
-		
-		
-		for (NullibilityProposalStructure proposal:proposals) {			
+
+		for (NullibilityProposalStructure proposal : proposals) {
 
 			AST ast = proposal.getAst();
 			ASTRewrite rewrite = ASTRewrite.create(ast);
@@ -89,29 +85,21 @@ public class NullibilityAnnosUI extends ProposalCollector {
 			annot.setTypeName(ast.newName(proposal.marker)); //$NON-NLS-1$
 			rewrite.getListRewrite(proposal.decl, proposal.modifiers).insertFirst(annot, null);
 
+			Image image = JavaPluginImages.get(JavaPluginImages.IMG_CORRECTION_CHANGE);
+			ASTRewriteCorrectionProposal _proposal = new ASTRewriteCorrectionProposal(proposal.name, proposal.cu, rewrite, proposal.relevance, image);
+			_proposals.add(_proposal);
 
-			Image image = JavaPluginImages 
-					.get(JavaPluginImages.IMG_CORRECTION_CHANGE); 
-			ASTRewriteCorrectionProposal _proposal = new ASTRewriteCorrectionProposal(
-					proposal.name, proposal.cu, rewrite, proposal.relevance, image);
-			_proposals.add(_proposal); 
-
-			ImportRewrite imports = _proposal
-					.createImportRewrite(proposal.getRoot());
+			ImportRewrite imports = _proposal.createImportRewrite(proposal.getRoot());
 			imports.addImport(proposal.getImport());
 		}
-		
 
 	}
-	
-	public List<NullibilityProposalStructure> proposals=new ArrayList<NullibilityProposalStructure>();
 
+	public List<NullibilityProposalStructure> proposals = new ArrayList<NullibilityProposalStructure>();
 
-	public void fetchProposalStructures(ICompilationUnit cu,CompilationUnit astRoot,
-			ASTNode selectedNode) throws CoreException {
+	public void fetchProposalStructures(ICompilationUnit cu, CompilationUnit astRoot, ASTNode selectedNode) throws CoreException {
 
 		annotate(cu, astRoot, selectedNode, "NonNull");
-
 
 		List arguments;
 		IMethodBinding binding;
@@ -119,13 +107,10 @@ public class NullibilityAnnosUI extends ProposalCollector {
 		ASTNode invocationNode = selectedNode.getParent();
 		if (invocationNode instanceof VariableDeclarationFragment) {
 			VariableDeclarationFragment variableDeclarationFragment = (VariableDeclarationFragment) invocationNode;
-			annotate(cu, astRoot, variableDeclarationFragment, 
-					"CanBeNull");
-		} else 
-		if (invocationNode instanceof Assignment) {
+			annotate(cu, astRoot, variableDeclarationFragment, "CanBeNull");
+		} else if (invocationNode instanceof Assignment) {
 			Assignment assignment = (Assignment) invocationNode;
-			annotate(cu, astRoot, assignment.getLeftHandSide(), 
-					"CanBeNull");
+			annotate(cu, astRoot, assignment.getLeftHandSide(), "CanBeNull");
 		} else if (invocationNode instanceof MethodInvocation) {
 			SimpleName nameNode;
 			Expression sender;
@@ -138,12 +123,9 @@ public class NullibilityAnnosUI extends ProposalCollector {
 			nameNode = methodImpl.getName();
 			binding = methodImpl.resolveMethodBinding();
 
-
 			int param = arguments.indexOf(selectedNode);
 			if (param >= 0)
-				addNullibilityProposals(cu, astRoot, binding, binding
-						.getDeclaringClass().getTypeDeclaration(), param,
-						invocationNode,  "CanBeNull");
+				addNullibilityProposals(cu, astRoot, binding, binding.getDeclaringClass().getTypeDeclaration(), param, invocationNode, "CanBeNull");
 		} else if (invocationNode instanceof SuperMethodInvocation) {
 			SimpleName nameNode;
 			Expression sender;
@@ -158,57 +140,43 @@ public class NullibilityAnnosUI extends ProposalCollector {
 
 			int param = arguments.indexOf(selectedNode);
 			if (param >= 0)
-				addNullibilityProposals(cu, astRoot, binding, binding
-						.getDeclaringClass().getTypeDeclaration(), param,
-						invocationNode,  "CanBeNull");
+				addNullibilityProposals(cu, astRoot, binding, binding.getDeclaringClass().getTypeDeclaration(), param, invocationNode, "CanBeNull");
 		} else if (invocationNode instanceof ReturnStatement) {
 			ReturnStatement returnStatement = (ReturnStatement) invocationNode;
 			MethodDeclaration methodDeclaration = getMethodDeclaration(returnStatement);
-			addMarker2(cu, methodDeclaration,  "CanBeNull");
+			addMarker2(cu, methodDeclaration, "CanBeNull");
 		}
 	}
 
-	protected void annotate(ICompilationUnit cu, CompilationUnit astRoot,
-			ASTNode selectedNode, String marker)
-			throws CoreException {
+	protected void annotate(ICompilationUnit cu, CompilationUnit astRoot, ASTNode selectedNode, String marker) throws CoreException {
 		if (selectedNode instanceof SimpleName) {
 			SimpleName name = (SimpleName) selectedNode;
 			IBinding nameBinding = name.resolveBinding();
-			addNullibilityProposals2(cu, astRoot, nameBinding, 
-					marker);
+			addNullibilityProposals2(cu, astRoot, nameBinding, marker);
 		}
 		if (selectedNode instanceof MethodInvocation) {
 			MethodInvocation methodInvocation = (MethodInvocation) selectedNode;
-			IMethodBinding methodBinding = methodInvocation
-					.resolveMethodBinding();
+			IMethodBinding methodBinding = methodInvocation.resolveMethodBinding();
 
-			addNullibilityProposals(cu, astRoot, methodBinding, methodBinding
-					.getDeclaringClass().getTypeDeclaration(), -1,
-					selectedNode,  marker);
+			addNullibilityProposals(cu, astRoot, methodBinding, methodBinding.getDeclaringClass().getTypeDeclaration(), -1, selectedNode, marker);
 
 		}
 		if (selectedNode instanceof FieldAccess) {
 			FieldAccess name = (FieldAccess) selectedNode;
 			IVariableBinding nameBinding = name.resolveFieldBinding();
-			addNullibilityProposals(cu, astRoot, nameBinding, nameBinding
-					.getDeclaringClass().getTypeDeclaration(), -1,
-					selectedNode,  marker);
+			addNullibilityProposals(cu, astRoot, nameBinding, nameBinding.getDeclaringClass().getTypeDeclaration(), -1, selectedNode, marker);
 		}
 		if (selectedNode instanceof VariableDeclarationFragment) {
 			VariableDeclarationFragment name = (VariableDeclarationFragment) selectedNode;
 			IVariableBinding nameBinding = name.resolveBinding();
-			addNullibilityProposals(cu, astRoot, nameBinding, nameBinding
-					.getDeclaringClass().getTypeDeclaration(), -1,
-					selectedNode,  marker);
+			addNullibilityProposals(cu, astRoot, nameBinding, nameBinding.getDeclaringClass().getTypeDeclaration(), -1, selectedNode, marker);
 		}
 		if (selectedNode instanceof QualifiedName) {
 			QualifiedName name = (QualifiedName) selectedNode;
 			IBinding nameBinding = name.resolveBinding();
 			if (nameBinding instanceof IVariableBinding) {
 				IVariableBinding varBinding = (IVariableBinding) nameBinding;
-				addNullibilityProposals(cu, astRoot, varBinding, varBinding
-						.getDeclaringClass().getTypeDeclaration(), -1,
-						selectedNode,  marker);
+				addNullibilityProposals(cu, astRoot, varBinding, varBinding.getDeclaringClass().getTypeDeclaration(), -1, selectedNode, marker);
 			}
 		}
 	}
@@ -224,29 +192,21 @@ public class NullibilityAnnosUI extends ProposalCollector {
 		return null;
 	}
 
-	protected void addNullibilityProposals2(ICompilationUnit cu,
-			CompilationUnit astRoot, IBinding binding, 
-			String marker) throws CoreException {
+	protected void addNullibilityProposals2(ICompilationUnit cu, CompilationUnit astRoot, IBinding binding, String marker) throws CoreException {
 		ASTNode node = astRoot.findDeclaringNode(binding);
 		if (node != null)
-			addMarker2(cu, node,  marker);
+			addMarker2(cu, node, marker);
 
 	}
 
-	public void fetchProposalStructures(ICompilationUnit cu,CompilationUnit astRoot,
-			IProblemLocation problem) throws CoreException {
-		fetchProposalStructures(cu,astRoot,problem.getCoveringNode(astRoot));
+	public void fetchProposalStructures(ICompilationUnit cu, CompilationUnit astRoot, IProblemLocation problem) throws CoreException {
+		fetchProposalStructures(cu, astRoot, problem.getCoveringNode(astRoot));
 	}
 
-	protected void addNullibilityProposals(ICompilationUnit cu,
-			CompilationUnit astRoot, IBinding binding,
-			ITypeBinding declaringTypeDecl, int param, ASTNode invocationNode,
-			 String marker) throws CoreException {
+	protected void addNullibilityProposals(ICompilationUnit cu, CompilationUnit astRoot, IBinding binding, ITypeBinding declaringTypeDecl, int param, ASTNode invocationNode, String marker) throws CoreException {
 
 		if (declaringTypeDecl.isFromSource()) {
-			ICompilationUnit targetCU = ASTResolving
-					.findCompilationUnitForBinding(cu, astRoot,
-							declaringTypeDecl);
+			ICompilationUnit targetCU = ASTResolving.findCompilationUnitForBinding(cu, astRoot, declaringTypeDecl);
 			if (targetCU != null) {
 
 				ASTNode newDecl = astRoot.findDeclaringNode(binding);
@@ -259,64 +219,55 @@ public class NullibilityAnnosUI extends ProposalCollector {
 					if (param >= 0) {
 						MethodDeclaration mdecl = (MethodDeclaration) newDecl;
 						List parameters = mdecl.parameters();
-						addMarker2(targetCU, (VariableDeclaration) parameters
-								.get(param),  marker);
+						addMarker2(targetCU, (VariableDeclaration) parameters.get(param), marker);
 
 					} else {
-						addMarker2(targetCU, newDecl,  marker);
+						addMarker2(targetCU, newDecl, marker);
 					}
 			}
 		}
 
 	}
 
-	protected void addMarker2(ICompilationUnit cu,
-			ASTNode variableDeclaration, String marker) {
+	protected void addMarker2(ICompilationUnit cu, ASTNode variableDeclaration, String marker) {
 		if (variableDeclaration == null)
 			return;
 
-		String oppositeMarker=marker.equals("NonNull")?"CanBeNull":"NonNull";
+		String oppositeMarker = marker.equals("NonNull") ? "CanBeNull" : "NonNull";
 		String varType = "variable";
 		ChildListPropertyDescriptor modifiers;
 		ASTNode decl;
-		IAnnotationBinding[] existingAnnots=null;
-		if (variableDeclaration.getParent() instanceof VariableDeclarationStatement
-				&& variableDeclaration instanceof VariableDeclaration) {
+		IAnnotationBinding[] existingAnnots = null;
+		if (variableDeclaration.getParent() instanceof VariableDeclarationStatement && variableDeclaration instanceof VariableDeclaration) {
 			VariableDeclaration varDecl = (VariableDeclaration) variableDeclaration;
 			decl = variableDeclaration.getParent();
 			modifiers = VariableDeclarationStatement.MODIFIERS2_PROPERTY;
 			varType = "variable " + varDecl.getName().getIdentifier();
 			existingAnnots = varDecl.resolveBinding().getAnnotations();
-		} else if (variableDeclaration.getParent() instanceof SingleVariableDeclaration
-				&& variableDeclaration instanceof VariableDeclaration) {
+		} else if (variableDeclaration.getParent() instanceof SingleVariableDeclaration && variableDeclaration instanceof VariableDeclaration) {
 			VariableDeclaration varDecl = (VariableDeclaration) variableDeclaration;
 			decl = (SingleVariableDeclaration) variableDeclaration.getParent();
 			modifiers = VariableDeclarationStatement.MODIFIERS2_PROPERTY;
 			varType = "variable " + varDecl.getName().getIdentifier();
 			existingAnnots = varDecl.resolveBinding().getAnnotations();
-		} else if (variableDeclaration.getParent() instanceof FieldDeclaration
-				&& variableDeclaration instanceof VariableDeclaration) {
+		} else if (variableDeclaration.getParent() instanceof FieldDeclaration && variableDeclaration instanceof VariableDeclaration) {
 			VariableDeclaration varDecl = (VariableDeclaration) variableDeclaration;
-			FieldDeclaration fieldDecl = (FieldDeclaration) variableDeclaration
-					.getParent();
+			FieldDeclaration fieldDecl = (FieldDeclaration) variableDeclaration.getParent();
 			decl = (FieldDeclaration) variableDeclaration.getParent();
 			modifiers = FieldDeclaration.MODIFIERS2_PROPERTY;
 			varType = "field " + varDecl.getName().getIdentifier();
 			existingAnnots = varDecl.resolveBinding().getAnnotations();
-		} else if (variableDeclaration.getParent() instanceof MethodDeclaration
-				&& variableDeclaration instanceof SingleVariableDeclaration) {
+		} else if (variableDeclaration.getParent() instanceof MethodDeclaration && variableDeclaration instanceof SingleVariableDeclaration) {
 			SingleVariableDeclaration varDecl = (SingleVariableDeclaration) variableDeclaration;
 			decl = (MethodDeclaration) variableDeclaration.getParent();
-			MethodDeclaration mdecl = (MethodDeclaration) variableDeclaration
-					.getParent();
+			MethodDeclaration mdecl = (MethodDeclaration) variableDeclaration.getParent();
 			modifiers = mdecl.getModifiersProperty();
 			int param = mdecl.parameters().indexOf(varDecl);
 			String suffix = "Param" + (param + 1);
 			existingAnnots = mdecl.resolveBinding().getAnnotations();
 			marker = marker + suffix;
-			oppositeMarker=oppositeMarker+suffix;
-			varType = "parameter " + mdecl.getName().getIdentifier() + "("
-					+ varDecl.getName().getIdentifier() + ")";
+			oppositeMarker = oppositeMarker + suffix;
+			varType = "parameter " + mdecl.getName().getIdentifier() + "(" + varDecl.getName().getIdentifier() + ")";
 		} else if (variableDeclaration instanceof MethodDeclaration) {
 			MethodDeclaration mdecl = (MethodDeclaration) variableDeclaration;
 			decl = mdecl;
@@ -327,33 +278,34 @@ public class NullibilityAnnosUI extends ProposalCollector {
 			return;
 		}
 
-		if (existingAnnots!=null) {
-			if (NullibilityAnnos.hasSolidAnnotation(existingAnnots,oppositeMarker)) {
+		if (existingAnnots != null) {
+			if (NullibilityAnnos.hasSolidAnnotation(existingAnnots, oppositeMarker)) {
 				return;
 			}
-			if (NullibilityAnnos.hasSolidAnnotation(existingAnnots,marker)) {
+			if (NullibilityAnnos.hasSolidAnnotation(existingAnnots, marker)) {
 				return;
 			}
 		}
 
-//		AST ast = decl.getAST();
-//		ASTRewrite rewrite = ASTRewrite.create(ast);
-//
-//		Annotation annot = ast.newMarkerAnnotation();
-//		annot.setTypeName(ast.newName(marker)); //$NON-NLS-1$
-//		rewrite.getListRewrite(decl, modifiers).insertFirst(annot, null);
+		// AST ast = decl.getAST();
+		// ASTRewrite rewrite = ASTRewrite.create(ast);
+		//
+		// Annotation annot = ast.newMarkerAnnotation();
+		//		annot.setTypeName(ast.newName(marker)); //$NON-NLS-1$
+		// rewrite.getListRewrite(decl, modifiers).insertFirst(annot, null);
 
 		String label = "Mark " + varType + " " + " as " + marker;
-//		Image image = JavaPluginImages 
-//				.get(JavaPluginImages.IMG_CORRECTION_CHANGE); 
-		NullibilityProposalStructure proposal = new NullibilityProposalStructure(label, cu, decl, 15, marker,modifiers);		
-//		ASTRewriteCorrectionProposal proposal = new ASTRewriteCorrectionProposal(  
-//				label, cu, rewrite, 15, image);
+		// Image image = JavaPluginImages
+		// .get(JavaPluginImages.IMG_CORRECTION_CHANGE);
+		NullibilityProposalStructure proposal = new NullibilityProposalStructure(label, cu, decl, 15, marker, modifiers);
+		// ASTRewriteCorrectionProposal proposal = new
+		// ASTRewriteCorrectionProposal(
+		// label, cu, rewrite, 15, image);
 		proposals.add(proposal);
 
-//		ImportRewrite imports = proposal
-//				.createImportRewrite((CompilationUnit) decl.getRoot());
-//		imports.addImport("jjkpp.jdt.annotations." + marker);
+		// ImportRewrite imports = proposal
+		// .createImportRewrite((CompilationUnit) decl.getRoot());
+		// imports.addImport("jjkpp.jdt.annotations." + marker);
 	}
 
 }

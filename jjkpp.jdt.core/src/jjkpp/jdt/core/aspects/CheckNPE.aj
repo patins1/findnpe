@@ -57,7 +57,7 @@ public aspect CheckNPE {
 					VariableBinding variableBinding=(VariableBinding) singleNameReference.binding;
 					if (NullibilityAnnos.getSolidityWithParent(variableBinding)) {
 						t.expression.checkNPE(currentScope, flowContext, flowInfo);
-					}
+					} 
 				}
 			} else
 			if (t.lhs instanceof FieldReference) {

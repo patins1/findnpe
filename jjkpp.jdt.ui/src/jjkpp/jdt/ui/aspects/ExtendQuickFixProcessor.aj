@@ -34,3 +34,4 @@ public aspect ExtendQuickFixProcessor {
 		proceed(t,context,problem,proposals);
 	}
 }
+  

@@ -40,7 +40,7 @@ public aspect HandleIterations {
 				flowInfo = action.analyseCode(currentScope, flowContext, flowInfo);
 				return flowInfo;
 			}
-		}
+		} 
 
 		return action.analyseCode(currentScope,flowContext,flowInfo);
 	}	

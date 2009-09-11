@@ -54,22 +54,16 @@ public class Action1 implements IObjectActionDelegate {
 
 	}
 
-	public void getWizardRun(boolean fork, boolean cancelable,
-			IRunnableWithProgress runnable) throws InvocationTargetException,
-			InterruptedException {
-		ModalContext.run(runnable, false, new NullProgressMonitor(), Workbench
-				.getInstance().getDisplay());
+	public void getWizardRun(boolean fork, boolean cancelable, IRunnableWithProgress runnable) throws InvocationTargetException, InterruptedException {
+		ModalContext.run(runnable, false, new NullProgressMonitor(), Workbench.getInstance().getDisplay());
 
 	}
 
-	static final StatusAdapter MarkerSupportInternalUtilitiesErrorFor(
-			Throwable exception) {
-		IStatus status = new Status(IStatus.ERROR,
-				IDEWorkbenchPlugin.IDE_WORKBENCH, IStatus.ERROR, exception
-						.getLocalizedMessage(), exception);
+	static final StatusAdapter MarkerSupportInternalUtilitiesErrorFor(Throwable exception) {
+		IStatus status = new Status(IStatus.ERROR, IDEWorkbenchPlugin.IDE_WORKBENCH, IStatus.ERROR, exception.getLocalizedMessage(), exception);
 		return new StatusAdapter(status);
 	}
-	
+
 	int index = 0;
 	private int count;
 
@@ -88,94 +82,80 @@ public class Action1 implements IObjectActionDelegate {
 			for (Object o : ssl) {
 				if (o instanceof IAdaptable) {
 					IAdaptable adaptable = (IAdaptable) o;
-					Object markeradaptable = adaptable
-							.getAdapter(IMarker.class);
+					Object markeradaptable = adaptable.getAdapter(IMarker.class);
 					if (markeradaptable instanceof IMarker) {
 						final IMarker marker = (IMarker) markeradaptable;
-						startANew:
-						if (marker != null) {														
-							IMarkerResolution[] resolutions = IDE
-									.getMarkerHelpRegistry().getResolutions(
-											marker);
-							
+						startANew: if (marker != null) {
+							IMarkerResolution[] resolutions = IDE.getMarkerHelpRegistry().getResolutions(marker);
+
 							// to clear ast for following markers
 							callActiveJavaEditorChanged(ASTProvider.getASTProvider());
-							
+
 							if (resolutions.length == 0) {
-								System.out.println("invalid:length=0 lineNumer="+marker.getAttribute("lineNumber", -1));
+								System.out.println("invalid:length=0 lineNumer=" + marker.getAttribute("lineNumber", -1));
 								continue;
 							}
 							IMarkerResolution resolution = resolutions[0];
 							ASTRewriteCorrectionProposal proposal = getProposal(resolution);
-							if (proposal == null){
-								System.out.println("invalid:proposal=null lineNumer="+marker.getAttribute("lineNumber", -1));
+							if (proposal == null) {
+								System.out.println("invalid:proposal=null lineNumer=" + marker.getAttribute("lineNumber", -1));
 								continue;
 							}
-							ASTRewrite rewrite=getRewrite(proposal);
-							ASTNode rootNode= getRootNode(rewrite);
-							/*TextEdit edit;
-							try {
-								if (proposal.getChange() instanceof CompilationUnitChange) {
-									CompilationUnitChange compilationUnitChange = (CompilationUnitChange) proposal
-											.getChange();
-									edit = compilationUnitChange.getEdit();
-									if (edit == null)
-										continue;
-									edit = compilationUnitChange.getEdit();
-								} else {
-									continue;
-								}
-							} catch (CoreException e) {
-								continue;
-							}*/
+							ASTRewrite rewrite = getRewrite(proposal);
+							ASTNode rootNode = getRootNode(rewrite);
+							/*
+							 * TextEdit edit; try { if (proposal.getChange()
+							 * instanceof CompilationUnitChange) {
+							 * CompilationUnitChange compilationUnitChange =
+							 * (CompilationUnitChange) proposal .getChange();
+							 * edit = compilationUnitChange.getEdit(); if (edit
+							 * == null) continue; edit =
+							 * compilationUnitChange.getEdit(); } else {
+							 * continue; } } catch (CoreException e) { continue;
+							 * }
+							 */
 							int ind = 0;
 							if (!ssres.isEmpty()) {
-								ASTRewriteCorrectionProposal todoProposal = getProposal(ssres
-										.get(0));
-								if (!todoProposal.getCompilationUnit().equals(
-										proposal.getCompilationUnit())) {
+								ASTRewriteCorrectionProposal todoProposal = getProposal(ssres.get(0));
+								if (!todoProposal.getCompilationUnit().equals(proposal.getCompilationUnit())) {
 									doWork(ssres);
 									break startANew;
 								}
 								for (final IMarkerResolution r : ssres) {
 									ASTRewriteCorrectionProposal rProposal = getProposal(r);
 
-									ASTRewrite rRewrite=getRewrite(rProposal);
-									ASTNode rRootNode= getRootNode(rRewrite);
-									if (rRootNode.getStartPosition()==rootNode.getStartPosition()) {
+									ASTRewrite rRewrite = getRewrite(rProposal);
+									ASTNode rRootNode = getRootNode(rRewrite);
+									if (rRootNode.getStartPosition() == rootNode.getStartPosition()) {
 										if (changesAreEqual(rewrite, rRewrite)) {
-											ind=-1;
-											break;
-										}
-									}
-									if (rRootNode.getStartPosition()>rootNode.getStartPosition()) {
-										break;
-									}
-									
-									/*CompilationUnitChange rChange;
-									try {
-										rChange = (CompilationUnitChange) proposal
-												.getChange();
-										TextEdit rEdit = rChange.getEdit();
-										if (rEdit.covers(edit)) {
 											ind = -1;
 											break;
 										}
-										if (rEdit.getOffset() > edit
-												.getOffset())
-											break;
-									} catch (CoreException e) {
-										e.printStackTrace();
-									}*/
+									}
+									if (rRootNode.getStartPosition() > rootNode.getStartPosition()) {
+										break;
+									}
+
+									/*
+									 * CompilationUnitChange rChange; try {
+									 * rChange = (CompilationUnitChange)
+									 * proposal .getChange(); TextEdit rEdit =
+									 * rChange.getEdit(); if
+									 * (rEdit.covers(edit)) { ind = -1; break; }
+									 * if (rEdit.getOffset() > edit
+									 * .getOffset()) break; } catch
+									 * (CoreException e) { e.printStackTrace();
+									 * }
+									 */
 									ind++;
 								}
 							}
 							if (ind != -1) {
-//								changesAreEqual(rewrite, rewrite);
+								// changesAreEqual(rewrite, rewrite);
 								ssres.add(ind, resolution);
 								index++;
 							}
-							System.out.println("ind="+ind+" lineNumer="+marker.getAttribute("lineNumber", -1));
+							System.out.println("ind=" + ind + " lineNumer=" + marker.getAttribute("lineNumber", -1));
 							doWork(ssres);
 						}
 					}
@@ -185,82 +165,83 @@ public class Action1 implements IObjectActionDelegate {
 		}
 
 		long millis2 = System.currentTimeMillis();
-		System.out.println("millis="+(millis2-millis));
+		System.out.println("millis=" + (millis2 - millis));
 	}
 
 	private void callActiveJavaEditorChanged(ASTProvider astProvider) {
 		try {
-			Method method = ASTProvider.class.getDeclaredMethod("activeJavaEditorChanged",IWorkbenchPart.class);
+			Method method = ASTProvider.class.getDeclaredMethod("activeJavaEditorChanged", IWorkbenchPart.class);
 			method.setAccessible(true);
-			method.invoke(astProvider,new Object[]{null});
+			method.invoke(astProvider, new Object[] { null });
 		} catch (SecurityException e) {
 			e.printStackTrace();
 		} catch (NoSuchMethodException e) {
-			e.printStackTrace(); 
+			e.printStackTrace();
 		} catch (IllegalArgumentException e) {
 			e.printStackTrace();
 		} catch (IllegalAccessException e) {
 			e.printStackTrace();
 		} catch (InvocationTargetException e) {
 			e.printStackTrace();
-		}		
+		}
 	}
 
 	private void doWork(List<IMarkerResolution> ssres) {
 		for (final IMarkerResolution r : ssres) {
-		 try {
-			 IMarker marker = getMarker(r);
-			 System.out.println(marker.getResource()+" line="+marker.getAttribute("lineNumber")+" count="+ssres.size()+ " total="+index+"/"+count);
-		 } catch (CoreException e1) {		 
-			 e1.printStackTrace();
-		 }
-		 break;
+			try {
+				IMarker marker = getMarker(r);
+				System.out.println(marker.getResource() + " line=" + marker.getAttribute("lineNumber") + " count=" + ssres.size() + " total=" + index + "/" + count);
+			} catch (CoreException e1) {
+				e1.printStackTrace();
+			}
+			break;
 		}
 		for (final IMarkerResolution r : revert(ssres)) {
 			System.out.println("doWork");
 			doWork(null, r);
-//			try {
-//				Thread.sleep(10000);
-//			} catch (InterruptedException e) {
-//				e.printStackTrace();
-//			}
+			// try {
+			// Thread.sleep(10000);
+			// } catch (InterruptedException e) {
+			// e.printStackTrace();
+			// }
 		}
 		ssres.clear();
 	}
 
 	private boolean changesAreEqual(ASTRewrite rewrite1, ASTRewrite rewrite2) {
-		RewriteEventStore rewriteEventStore1=getRewriteEventStore(rewrite1);
-		RewriteEventStore rewriteEventStore2=getRewriteEventStore(rewrite2);
+		RewriteEventStore rewriteEventStore1 = getRewriteEventStore(rewrite1);
+		RewriteEventStore rewriteEventStore2 = getRewriteEventStore(rewrite2);
 
-		Iterator iter1= rewriteEventStore1.getChangeRootIterator();
-		Iterator iter2= rewriteEventStore2.getChangeRootIterator();
+		Iterator iter1 = rewriteEventStore1.getChangeRootIterator();
+		Iterator iter2 = rewriteEventStore2.getChangeRootIterator();
 		while (iter1.hasNext()) {
 			if (!iter2.hasNext())
 				return false;
-			ASTNode curr1= (ASTNode) iter1.next();
-			ASTNode curr2= (ASTNode) iter2.next();
-			if (curr1!=curr2)
+			ASTNode curr1 = (ASTNode) iter1.next();
+			ASTNode curr2 = (ASTNode) iter2.next();
+			if (curr1 != curr2)
 				return false;
 			List<RewriteEvent> events1 = rewriteEventStore1.getChangedPropertieEvents(curr1);
 			List<RewriteEvent> events2 = rewriteEventStore2.getChangedPropertieEvents(curr2);
-			if (events1.size()!=events2.size())
+			if (events1.size() != events2.size())
 				return false;
-			for (int eventIndex=0; eventIndex<events1.size(); eventIndex++) {
+			for (int eventIndex = 0; eventIndex < events1.size(); eventIndex++) {
 				RewriteEvent event1 = events1.get(eventIndex);
 				RewriteEvent event2 = events2.get(eventIndex);
 				if (!event1.toString().equals(event2.toString()))
 					return false;
 			}
-			
-//			getChangedPropertieEvents
-//			if (!RewriteEventStore.isNewNode(curr1) || !RewriteEventStore.isNewNode(curr1))
-//				return false;
-//			if (curr1.getStartPosition()!=curr2.getStartPosition()) 
-//				return false;
-//			if (curr1.getLength()!=curr2.getLength()) 
-//				return false;				
-//			if (!curr1.toString().equals(curr2.toString()))
-//				return false;			
+
+			// getChangedPropertieEvents
+			// if (!RewriteEventStore.isNewNode(curr1) ||
+			// !RewriteEventStore.isNewNode(curr1))
+			// return false;
+			// if (curr1.getStartPosition()!=curr2.getStartPosition())
+			// return false;
+			// if (curr1.getLength()!=curr2.getLength())
+			// return false;
+			// if (!curr1.toString().equals(curr2.toString()))
+			// return false;
 		}
 		if (iter2.hasNext())
 			return false;
@@ -271,12 +252,12 @@ public class Action1 implements IObjectActionDelegate {
 		try {
 			Method method = ASTRewrite.class.getDeclaredMethod("getRewriteEventStore");
 			method.setAccessible(true);
-			return  (RewriteEventStore) method.invoke(rRewrite);
+			return (RewriteEventStore) method.invoke(rRewrite);
 		} catch (SecurityException e) {
 			return null;
 		} catch (NoSuchMethodException e) {
-			// TODO Auto-generated catch block 
-			e.printStackTrace(); 
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		} catch (IllegalArgumentException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -298,8 +279,8 @@ public class Action1 implements IObjectActionDelegate {
 		} catch (SecurityException e) {
 			return null;
 		} catch (NoSuchMethodException e) {
-			// TODO Auto-generated catch block 
-			e.printStackTrace(); 
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		} catch (IllegalArgumentException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -339,8 +320,7 @@ public class Action1 implements IObjectActionDelegate {
 		return result;
 	}
 
-	private ASTRewriteCorrectionProposal getProposal(
-			IMarkerResolution todoResolution) {
+	private ASTRewriteCorrectionProposal getProposal(IMarkerResolution todoResolution) {
 		Field field;
 		try {
 			field = todoResolution.getClass().getDeclaredField("fProposal");
@@ -379,8 +359,7 @@ public class Action1 implements IObjectActionDelegate {
 				public void run(IProgressMonitor monitor) {
 					IMarker[] markers = new IMarker[1];
 					markers[0] = getMarker(resolution);
-					((WorkbenchMarkerResolution) resolution).run(markers,
-							monitor);
+					((WorkbenchMarkerResolution) resolution).run(markers, monitor);
 					// try {
 					// Thread.sleep(1000);
 					// } catch (InterruptedException e) {
@@ -391,11 +370,9 @@ public class Action1 implements IObjectActionDelegate {
 
 			});
 		} catch (InvocationTargetException e) {
-			StatusManager.getManager().handle(
-					MarkerSupportInternalUtilitiesErrorFor(e));
+			StatusManager.getManager().handle(MarkerSupportInternalUtilitiesErrorFor(e));
 		} catch (InterruptedException e) {
-			StatusManager.getManager().handle(
-					MarkerSupportInternalUtilitiesErrorFor(e));
+			StatusManager.getManager().handle(MarkerSupportInternalUtilitiesErrorFor(e));
 		}
 	}
 

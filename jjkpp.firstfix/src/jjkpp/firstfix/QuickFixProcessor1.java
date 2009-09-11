@@ -14,53 +14,53 @@ import org.eclipse.swt.graphics.Point;
 public class QuickFixProcessor1 implements IQuickFixProcessor {
 
 	@Override
-	public IJavaCompletionProposal[] getCorrections(IInvocationContext context,
-			IProblemLocation[] locations) throws CoreException {
+	public IJavaCompletionProposal[] getCorrections(IInvocationContext context, IProblemLocation[] locations) throws CoreException {
 		// TODO Auto-generated method stub
-		return new IJavaCompletionProposal[]{
-				
-				new IJavaCompletionProposal() {
+		return new IJavaCompletionProposal[] {
 
-					@Override
-					public int getRelevance() {
-						// TODO Auto-generated method stub
-						return 0;
-					}
+		new IJavaCompletionProposal() {
 
-					@Override
-					public void apply(IDocument document) {
-						// TODO Auto-generated method stub
-						
-					}
+			@Override
+			public int getRelevance() {
+				// TODO Auto-generated method stub
+				return 0;
+			}
 
-					@Override
-					public String getAdditionalProposalInfo() {
-						return "getAdditionalProposalInfo";
-					}
+			@Override
+			public void apply(IDocument document) {
+				// TODO Auto-generated method stub
 
-					@Override
-					public IContextInformation getContextInformation() {
-						return null;
-					}
+			}
 
-					@Override
-					public String getDisplayString() {
-						// TODO Auto-generated method stub
-						return "getDisplayString";
-					}
+			@Override
+			public String getAdditionalProposalInfo() {
+				return "getAdditionalProposalInfo";
+			}
 
-					@Override
-					public Image getImage() {
-						// TODO Auto-generated method stub
-						return null;
-					}
+			@Override
+			public IContextInformation getContextInformation() {
+				return null;
+			}
 
-					@Override
-					public Point getSelection(IDocument document) {
-						// TODO Auto-generated method stub
-						return null;
-					}}
-				
+			@Override
+			public String getDisplayString() {
+				// TODO Auto-generated method stub
+				return "getDisplayString";
+			}
+
+			@Override
+			public Image getImage() {
+				// TODO Auto-generated method stub
+				return null;
+			}
+
+			@Override
+			public Point getSelection(IDocument document) {
+				// TODO Auto-generated method stub
+				return null;
+			}
+		}
+
 		};
 	}
 

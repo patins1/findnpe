@@ -7,7 +7,7 @@ import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 
 @SuppressWarnings("restriction")
 public class FakeFlowInfo extends FlowInfo {
-	
+
 	private final FlowInfo exitBranch;
 	private final FlowInfo actionInfo_unconditionalInits;
 
@@ -18,11 +18,9 @@ public class FakeFlowInfo extends FlowInfo {
 
 	@Override
 	public FlowInfo addInitializationsFrom(FlowInfo condInfo_initsWhenFalse) {
-		// reverse calling order of addInitializationsFrom() and addPotentialInitializationsFrom()
-		return exitBranch.
-		addInitializationsFrom(condInfo_initsWhenFalse).
-		addPotentialInitializationsFrom(
-			actionInfo_unconditionalInits);
+		// reverse calling order of addInitializationsFrom() and
+		// addPotentialInitializationsFrom()
+		return exitBranch.addInitializationsFrom(condInfo_initsWhenFalse).addPotentialInitializationsFrom(actionInfo_unconditionalInits);
 	}
 
 	@Override

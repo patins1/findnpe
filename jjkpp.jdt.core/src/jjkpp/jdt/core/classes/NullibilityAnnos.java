@@ -11,7 +11,6 @@ import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IVariableBinding;
 import org.eclipse.jdt.core.dom.SimpleName;
-import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 import org.eclipse.jdt.core.util.IModifierConstants;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
@@ -40,35 +39,33 @@ import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 
 /**
- * TODO: QualifiedNameReference.otherBindings intermediate auf nullibility prüfen
- * SWT.error als alwaysThrow markieren
+ * TODO: QualifiedNameReference.otherBindings intermediate auf nullibility
+ * prüfen SWT.error als alwaysThrow markieren
  * 
- *  
+ * 
  * @author JoeKey
- *
+ * 
  */
 public class NullibilityAnnos {
 
 	static public int RequireCanBeNull = IProblem.MethodRelated + 148;
 
-	public static int DECIDING_ANNO_INDEX=0;
-	
+	public static int DECIDING_ANNO_INDEX = 0;
+
 	private static final boolean CHECK_ASSIGN_NULL_TO_FIELD = false;
 
 	public static boolean getSolidityWithParent(MethodBinding binding) {
 		ReferenceBinding declaringClass = binding.declaringClass;
-		int result = NullibilityAnnos.getSolidityWithParent(binding
-				.getAnnotations(), declaringClass);
+		int result = NullibilityAnnos.getSolidityWithParent(binding.getAnnotations(), declaringClass);
 		if (result != FlowInfo.UNKNOWN) {
-			return result==FlowInfo.NON_NULL;
+			return result == FlowInfo.NON_NULL;
 		}
 
 		String methodName = new String(binding.selector);
 		MethodBinding highest = findSuperMethod(binding);
 		if (highest == null)
 			highest = binding;
-		if (declaringClass != null && highest != null
-				&& highest.declaringClass != null) {
+		if (declaringClass != null && highest != null && highest.declaringClass != null) {
 
 			// Set itfs = new HashSet();
 			// itfs.add(getClassName(declaringClass));
@@ -79,9 +76,7 @@ public class NullibilityAnnos {
 				return true;
 			if (className.equals("java.util.List"))
 				return true;
-			if (className.equals("java.util.Map") && !"put".equals(methodName)
-					&& !"remove".equals(methodName)
-					&& !"get".equals(methodName))
+			if (className.equals("java.util.Map") && !"put".equals(methodName) && !"remove".equals(methodName) && !"get".equals(methodName))
 				return true;
 			if (className.equals("java.util.Entry"))
 				return true;
@@ -95,27 +90,17 @@ public class NullibilityAnnos {
 				return true;
 			if (className.equals("org.eclipse.swt.graphics.GC"))
 				return true;
-			if (className.equals("java.util.Set")
-					&& "iterator".equals(methodName))
+			if (className.equals("java.util.Set") && "iterator".equals(methodName))
 				return true;
-			if ((className.equals("java.util.HashMap") || className
-					.equals("java.util.Map"))
-					&& !"get".equals(methodName)
-					&& !"put".equals(methodName)
-					&& !"remove".equals(methodName))
+			if ((className.equals("java.util.HashMap") || className.equals("java.util.Map")) && !"get".equals(methodName) && !"put".equals(methodName) && !"remove".equals(methodName))
 				return true;
 			if (className.equals("java.util.Iterator"))
 				return true;
-			if (className.equals("java.text.DateFormat")
-					&& !"parseObject".equals(methodName))
+			if (className.equals("java.text.DateFormat") && !"parseObject".equals(methodName))
 				return true;
-			if (className.equals("java.sql.Connection")
-					&& "".equals(methodName) && !"".equals(methodName)
-					&& !"".equals(methodName))
+			if (className.equals("java.sql.Connection") && "".equals(methodName) && !"".equals(methodName) && !"".equals(methodName))
 				return true;
-			if (className.equals("java.sql.Statement")
-					&& !"".equals(methodName) && !"".equals(methodName)
-					&& !"".equals(methodName))
+			if (className.equals("java.sql.Statement") && !"".equals(methodName) && !"".equals(methodName) && !"".equals(methodName))
 				return true;
 		}
 		return false;
@@ -126,13 +111,13 @@ public class NullibilityAnnos {
 		do {
 			int result = hasSolidAnnotation(_binding, param);
 			if (result != FlowInfo.UNKNOWN)
-				return result==FlowInfo.NON_NULL;
+				return result == FlowInfo.NON_NULL;
 			MethodBinding superMethod = findSuperMethod(_binding);
-			if (superMethod==_binding)
+			if (superMethod == _binding)
 				break;
-			_binding=superMethod;
-		} while (_binding!=null);
-		return NullibilityAnnos.hasSolidAnnotation(binding.declaringClass)==FlowInfo.NON_NULL;
+			_binding = superMethod;
+		} while (_binding != null);
+		return NullibilityAnnos.hasSolidAnnotation(binding.declaringClass) == FlowInfo.NON_NULL;
 	}
 
 	public static boolean getSolidityWithParent(VariableBinding var) {
@@ -146,12 +131,9 @@ public class NullibilityAnnos {
 	}
 
 	public static boolean getSolidityWithParent(LocalVariableBinding local) {
-		if (local.declaration instanceof Argument
-				&& local.declaringScope != null
-				&& local.declaringScope.referenceContext() instanceof AbstractMethodDeclaration) {
+		if (local.declaration instanceof Argument && local.declaringScope != null && local.declaringScope.referenceContext() instanceof AbstractMethodDeclaration) {
 			Argument argument = (Argument) local.declaration;
-			AbstractMethodDeclaration decl = (AbstractMethodDeclaration) local.declaringScope
-					.referenceContext();
+			AbstractMethodDeclaration decl = (AbstractMethodDeclaration) local.declaringScope.referenceContext();
 			for (int param = 0; param < decl.arguments.length; param++)
 				if (decl.arguments[param] == argument) {
 					return getSolidityWithParent(decl.binding, param);
@@ -163,20 +145,18 @@ public class NullibilityAnnos {
 	}
 
 	public static boolean getSolidityWithParent(FieldBinding binding) {
-		int result = getSolidityWithParent(binding.getAnnotations(),
-				binding.declaringClass);
+		int result = getSolidityWithParent(binding.getAnnotations(), binding.declaringClass);
 		if (result != FlowInfo.UNKNOWN) {
-			return result==FlowInfo.NON_NULL;
+			return result == FlowInfo.NON_NULL;
 		}
 		String className = getClassName(binding.declaringClass);
 		if ("".equals(className))
 			return true;
 		return false;
 	}
-	
-	 public static FieldBinding getLastFieldBinding(QualifiedNameReference qualifiedNameReference) {
-		if (qualifiedNameReference.otherBindings != null
-				&& qualifiedNameReference.otherBindings.length > 0) { 
+
+	public static FieldBinding getLastFieldBinding(QualifiedNameReference qualifiedNameReference) {
+		if (qualifiedNameReference.otherBindings != null && qualifiedNameReference.otherBindings.length > 0) {
 			return qualifiedNameReference.otherBindings[qualifiedNameReference.otherBindings.length - 1];
 		}
 		if (qualifiedNameReference.binding instanceof FieldBinding) {
@@ -185,10 +165,9 @@ public class NullibilityAnnos {
 		return null;
 	}
 
-
 	public static boolean nullStatus(QualifiedNameReference qualifiedNameReference) {
 		FieldBinding lastFieldBinding = getLastFieldBinding(qualifiedNameReference);
-		if (lastFieldBinding!=null) {
+		if (lastFieldBinding != null) {
 			return nullStatus(lastFieldBinding);
 		}
 		return false;
@@ -210,23 +189,23 @@ public class NullibilityAnnos {
 	 * 
 	 * @param binding
 	 * @param param
-	 * @return {@link FlowInfo#NON_NULL}, {@link FlowInfo#NULL} or {@link FlowInfo#UNKNOWN}
+	 * @return {@link FlowInfo#NON_NULL}, {@link FlowInfo#NULL} or
+	 *         {@link FlowInfo#UNKNOWN}
 	 */
 	private static int hasSolidAnnotation(MethodBinding binding, int param) {
 		AnnotationBinding[] annos = binding.getAnnotations();
 		if (annos != null)
 			for (int i = 0; i < annos.length; i++) {
 				AnnotationBinding annotation = annos[i];
-				ReferenceBinding annotationType = annotation
-						.getAnnotationType();
+				ReferenceBinding annotationType = annotation.getAnnotationType();
 				if (annotationType != null) {
 					String annoName = new String(annotationType.sourceName);
 					if (getParamIndex(annoName, "NonNullParam") == param) {
-						DECIDING_ANNO_INDEX=i;
+						DECIDING_ANNO_INDEX = i;
 						return FlowInfo.NON_NULL;
 					}
 					if (getParamIndex(annoName, "CanBeNullParam") == param) {
-						DECIDING_ANNO_INDEX=i;
+						DECIDING_ANNO_INDEX = i;
 						return FlowInfo.NULL;
 					}
 				}
@@ -241,7 +220,6 @@ public class NullibilityAnnos {
 		// return hasSolidAnnotation(anno);
 	}
 
-
 	private static boolean nullStatus(FieldBinding fieldBinding) {
 		boolean result = getSolidityWithParent(fieldBinding);
 		if (result) {
@@ -252,6 +230,7 @@ public class NullibilityAnnos {
 		}
 		return false;
 	}
+
 	private static int getSolidityWithParent(AnnotationBinding[] annotations) {
 		if (hasSolidAnnotation(annotations) == FlowInfo.NON_NULL)
 			return FlowInfo.NON_NULL;
@@ -268,9 +247,7 @@ public class NullibilityAnnos {
 		return -1;
 	}
 
-	private static int getSolidityWithParent(
-			AnnotationBinding[] annotationBindings,
-			ReferenceBinding declaringClass) {
+	private static int getSolidityWithParent(AnnotationBinding[] annotationBindings, ReferenceBinding declaringClass) {
 		int result = hasSolidAnnotation(annotationBindings);
 		if (result == FlowInfo.UNKNOWN && declaringClass != null)
 			result = hasSolidAnnotation(declaringClass);
@@ -313,7 +290,7 @@ public class NullibilityAnnos {
 				AnnotationBinding annotation = annos[i];
 				int result = getSolidAnnotation(annotation.getAnnotationType());
 				if (result != FlowInfo.UNKNOWN) {
-					DECIDING_ANNO_INDEX=i;
+					DECIDING_ANNO_INDEX = i;
 					return result;
 				}
 			}
@@ -325,8 +302,7 @@ public class NullibilityAnnos {
 			for (int i = 0; i < annos.length; i++) {
 				Annotation annotation = annos[i];
 				if (annotation.getCompilerAnnotation() != null) {
-					int result = getSolidAnnotation(annotation
-							.getCompilerAnnotation().getAnnotationType());
+					int result = getSolidAnnotation(annotation.getCompilerAnnotation().getAnnotationType());
 					if (result != FlowInfo.UNKNOWN)
 						return result;
 				}
@@ -365,8 +341,7 @@ public class NullibilityAnnos {
 		IBinding typeBinding = simpleName.resolveBinding();
 		if (typeBinding instanceof IVariableBinding) {
 			IVariableBinding var = (IVariableBinding) typeBinding;
-			if (var.isField()
-					&& (var.getModifiers() & IModifierConstants.ACC_FINAL) != 0) {
+			if (var.isField() && (var.getModifiers() & IModifierConstants.ACC_FINAL) != 0) {
 				return true; // assume that a solid field is assigned
 			}
 		} else if (typeBinding instanceof ITypeBinding) {
@@ -378,15 +353,15 @@ public class NullibilityAnnos {
 	private static String getClassName(ReferenceBinding declaringClass) {
 		if (declaringClass == null)
 			return null;
-		return new String(declaringClass.fPackage.readableName()) + "."
-				+ new String(declaringClass.sourceName);
+		return new String(declaringClass.fPackage.readableName()) + "." + new String(declaringClass.sourceName);
 	}
 
 	/**
 	 * Finds the highest super method
 	 * 
 	 * @param methodBinding
-	 * @return the highest super method, which may by the passed method itself, or <code>null</code> if search failed
+	 * @return the highest super method, which may by the passed method itself,
+	 *         or <code>null</code> if search failed
 	 */
 	static public MethodBinding findSuperMethod(MethodBinding methodBinding) {
 		ReferenceBinding decl = methodBinding.declaringClass;
@@ -395,28 +370,23 @@ public class NullibilityAnnos {
 			SourceTypeBinding sourceTypeBinding = (SourceTypeBinding) decl;
 			if (sourceTypeBinding.scope != null) {
 				environment = sourceTypeBinding.scope.environment();
-				if (environment==null)
+				if (environment == null)
 					return null;
-			}
-			else
-			if (sourceTypeBinding.fPackage != null) {
+			} else if (sourceTypeBinding.fPackage != null) {
 				environment = sourceTypeBinding.fPackage.environment;
-				if (environment==null)
+				if (environment == null)
 					return null;
-			}
-			else	
+			} else
 				return null;
-		} else
-		if (decl instanceof BinaryTypeBinding) {
+		} else if (decl instanceof BinaryTypeBinding) {
 			BinaryTypeBinding binaryTypeBinding = (BinaryTypeBinding) decl;
 			environment = getEnvironment(binaryTypeBinding);
-			if (environment==null)
+			if (environment == null)
 				return null;
-		} else
-		if (decl instanceof ParameterizedTypeBinding) {
+		} else if (decl instanceof ParameterizedTypeBinding) {
 			ParameterizedTypeBinding parameterizedTypeBinding = (ParameterizedTypeBinding) decl;
 			environment = parameterizedTypeBinding.environment;
-			if (environment==null)
+			if (environment == null)
 				return null;
 		}
 		if (environment != null) {
@@ -439,22 +409,22 @@ public class NullibilityAnnos {
 	}
 
 	private static LookupEnvironment getEnvironment(BinaryTypeBinding binaryTypeBinding) {
-			Field field;
-			try {
-				field = binaryTypeBinding.getClass().getDeclaredField("environment");
-			} catch (SecurityException e) {
-				return null;
-			} catch (NoSuchFieldException e) {
-				return null;
-			}
-			try {
-				field.setAccessible(true);
-				return (LookupEnvironment) field.get(binaryTypeBinding);
-			} catch (IllegalArgumentException e) {
-				return null;
-			} catch (IllegalAccessException e) {
-				return null;
-			}
+		Field field;
+		try {
+			field = binaryTypeBinding.getClass().getDeclaredField("environment");
+		} catch (SecurityException e) {
+			return null;
+		} catch (NoSuchFieldException e) {
+			return null;
+		}
+		try {
+			field.setAccessible(true);
+			return (LookupEnvironment) field.get(binaryTypeBinding);
+		} catch (IllegalArgumentException e) {
+			return null;
+		} catch (IllegalAccessException e) {
+			return null;
+		}
 	}
 
 	/*
@@ -465,69 +435,32 @@ public class NullibilityAnnos {
 	 * null; }
 	 */
 
-	static public void invalidNullibility(ProblemReporter _this,
-			ASTNode causingExpr, Binding method, int param, String caption) {
+	static public void invalidNullibility(ProblemReporter _this, ASTNode causingExpr, Binding method, int param, String caption) {
 		// DefaultProblemFactory..messageTemplates; new DefaultProblemFactory()
 		if (_this.problemFactory instanceof DefaultProblemFactory)
-			((DefaultProblemFactory) _this.problemFactory).messageTemplates
-					.put(
-							(RequireCanBeNull & IProblem.IgnoreCategoriesMask) + 1,
-							caption);
-		handle(_this, RequireCanBeNull, ProblemHandler.NoArgument,
-				ProblemHandler.NoArgument, causingExpr.sourceStart,
-				causingExpr.sourceEnd);
-
-	}
-	
-	static public void invalidNullibility(ProblemReporter _this,
-			Binding local, ASTNode location, Binding method, int param, String caption) {
-		// DefaultProblemFactory..messageTemplates; new DefaultProblemFactory()
-		if (_this.problemFactory instanceof DefaultProblemFactory)
-			((DefaultProblemFactory) _this.problemFactory).messageTemplates
-					.put(
-							(RequireCanBeNull & IProblem.IgnoreCategoriesMask) + 1,
-							caption);
-		handle(_this, RequireCanBeNull, ProblemHandler.NoArgument,
-				ProblemHandler.NoArgument, callNodeSourceStart(_this,local, location),
-				callNodeSourceEnd(_this,local, location));
+			((DefaultProblemFactory) _this.problemFactory).messageTemplates.put((RequireCanBeNull & IProblem.IgnoreCategoriesMask) + 1, caption);
+		handle(_this, RequireCanBeNull, ProblemHandler.NoArgument, ProblemHandler.NoArgument, causingExpr.sourceStart, causingExpr.sourceEnd);
 
 	}
 
-	private static int callNodeSourceStart(ProblemReporter this1,
-			Binding local, ASTNode location) {
+	static public void invalidNullibility(ProblemReporter _this, Binding local, ASTNode location, Binding method, int param, String caption) {
+		// DefaultProblemFactory..messageTemplates; new DefaultProblemFactory()
+		if (_this.problemFactory instanceof DefaultProblemFactory)
+			((DefaultProblemFactory) _this.problemFactory).messageTemplates.put((RequireCanBeNull & IProblem.IgnoreCategoriesMask) + 1, caption);
+		handle(_this, RequireCanBeNull, ProblemHandler.NoArgument, ProblemHandler.NoArgument, callNodeSourceStart(_this, local, location), callNodeSourceEnd(_this, local, location));
+
+	}
+
+	private static int callNodeSourceStart(ProblemReporter this1, Binding local, ASTNode location) {
 		try {
-			Method method = ProblemReporter.class.getDeclaredMethod("nodeSourceStart",Binding.class,ASTNode.class);
+			Method method = ProblemReporter.class.getDeclaredMethod("nodeSourceStart", Binding.class, ASTNode.class);
 			method.setAccessible(true);
 			return (Integer) method.invoke(this1, local, location);
 		} catch (SecurityException e) {
-			e.printStackTrace(); 
+			e.printStackTrace();
 		} catch (NoSuchMethodException e) {
-			// TODO Auto-generated catch block 
-			e.printStackTrace(); 
-		} catch (IllegalArgumentException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		} catch (IllegalAccessException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (InvocationTargetException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return 0;
-	}
-	
-	private static int callNodeSourceEnd(ProblemReporter this1,
-			Binding local, ASTNode location) {
-		try {
-			Method method = ProblemReporter.class.getDeclaredMethod("nodeSourceEnd",Binding.class,ASTNode.class);
-			method.setAccessible(true);
-			return (Integer) method.invoke(this1, local, location);
-		} catch (SecurityException e) {
-			e.printStackTrace(); 
-		} catch (NoSuchMethodException e) {
-			// TODO Auto-generated catch block 
-			e.printStackTrace(); 
 		} catch (IllegalArgumentException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -541,19 +474,35 @@ public class NullibilityAnnos {
 		return 0;
 	}
 
-	static private void handle(ProblemReporter _this, int problemId,
-			String[] problemArguments, String[] messageArguments,
-			int problemStartPosition, int problemEndPosition) {
+	private static int callNodeSourceEnd(ProblemReporter this1, Binding local, ASTNode location) {
+		try {
+			Method method = ProblemReporter.class.getDeclaredMethod("nodeSourceEnd", Binding.class, ASTNode.class);
+			method.setAccessible(true);
+			return (Integer) method.invoke(this1, local, location);
+		} catch (SecurityException e) {
+			e.printStackTrace();
+		} catch (NoSuchMethodException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IllegalArgumentException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InvocationTargetException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return 0;
+	}
+
+	static private void handle(ProblemReporter _this, int problemId, String[] problemArguments, String[] messageArguments, int problemStartPosition, int problemEndPosition) {
 		if (_this.referenceContext == null)
 			return;
 
-		_this.handle(problemId,
-				problemArguments,
-				0, // no message elaboration
-				messageArguments, ProblemSeverities.Error,
-				problemStartPosition, problemEndPosition,
-				_this.referenceContext, _this.referenceContext == null ? null
-						: _this.referenceContext.compilationResult());
+		_this.handle(problemId, problemArguments, 0, // no message elaboration
+				messageArguments, ProblemSeverities.Error, problemStartPosition, problemEndPosition, _this.referenceContext, _this.referenceContext == null ? null : _this.referenceContext.compilationResult());
 		_this.referenceContext = null;
 	}
 
