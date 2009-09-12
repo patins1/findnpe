@@ -125,8 +125,8 @@ public aspect CheckNPE {
 			for (int i = 0; i < length; i++) {
 				flowInfo = t.arguments[i].analyseCode(currentScope, flowContext, flowInfo).unconditionalInits();
 				if (NullibilityAnnos.enableNullibility()) 			
-					if (NullibilityAnnos.getSolidityWithParent(t.binding,i)) {
-						NullibilityAnnos.checkEasyNPE(t.arguments[i], currentScope, flowContext, flowInfo); 
+					if (NullibilityAnnos.getSolidityWithParent(t.binding,i)) { 
+						NullibilityAnnos.checkEasyNPE(t.arguments[i], currentScope, flowContext, flowInfo, t.binding.declaringClass); 
 					}
 			}
 		}
@@ -164,11 +164,17 @@ public aspect CheckNPE {
 
 			// process arguments
 			if (t.arguments != null) {
+				MethodBinding binding=t.binding;
+				if (binding.declaringClass.isAnonymousType()) {
+					MethodBinding superBinding=NullibilityAnnos.findSuperMethod(binding);
+					if (superBinding!=null)
+						binding=superBinding;
+				}
 				for (int i = 0, count = t.arguments.length; i < count; i++) {
 					flowInfo = t.arguments[i].analyseCode(currentScope, flowContext, flowInfo);
 					if (NullibilityAnnos.enableNullibility()) 			
-						if (NullibilityAnnos.getSolidityWithParent(t.binding,i)) {
-							NullibilityAnnos.checkEasyNPE(t.arguments[i], currentScope, flowContext, flowInfo); 
+						if (NullibilityAnnos.getSolidityWithParent(binding,i)) {
+							NullibilityAnnos.checkEasyNPE(t.arguments[i], currentScope, flowContext, flowInfo, binding.declaringClass); 
 						}
 				}
 			}
@@ -202,14 +208,20 @@ public aspect CheckNPE {
 
 		// process arguments
 		if (t.arguments != null) {
+			MethodBinding binding=t.binding;
+			if (binding.declaringClass.isAnonymousType()) {
+				MethodBinding superBinding=NullibilityAnnos.findSuperMethod(binding);
+				if (superBinding!=null)
+					binding=superBinding;
+			}
 			for (int i = 0, count = t.arguments.length; i < count; i++) {
 				flowInfo =
 					t.arguments[i]
 						.analyseCode(currentScope, flowContext, flowInfo)
 						.unconditionalInits();
 				if (NullibilityAnnos.enableNullibility()) 			
-					if (NullibilityAnnos.getSolidityWithParent(t.binding,i)) {
-						NullibilityAnnos.checkEasyNPE(t.arguments[i], currentScope, flowContext, flowInfo); 
+					if (NullibilityAnnos.getSolidityWithParent(binding,i)) {
+						NullibilityAnnos.checkEasyNPE(t.arguments[i], currentScope, flowContext, flowInfo, binding.declaringClass); 
 					}
 			}
 		}
@@ -269,7 +281,7 @@ public aspect CheckNPE {
 								NullibilityAnnos.invalidNullibility(classScope.problemReporter(),t.annotations[i],null,0,"Nullibility problem: Defined already as CanBeNull"); //$NON-NLS-1$
 							} else
 							if ((higher!=null || (higher=NullibilityAnnos.findSuperMethod(methodBinding))!=null) && higher!=methodBinding && !NullibilityAnnos.getSolidityWithParent(higher,param)) {
-								NullibilityAnnos.invalidNullibility(classScope.problemReporter(),t.annotations[i],null,0,"Nullibility problem: Defined already as CanBeNull in super method"); //$NON-NLS-1$
+								NullibilityAnnos.invalidNullibility(classScope.problemReporter(),t.annotations[i],higher.declaringClass,0,"Nullibility problem: Defined already as CanBeNull in super method"); //$NON-NLS-1$
 							}
 						} else {
 							param=NullibilityAnnos.getParamIndex(annoName, "CanBeNullParam");
@@ -289,7 +301,7 @@ public aspect CheckNPE {
 										NullibilityAnnos.invalidNullibility(classScope.problemReporter(),t.annotations[i],null,0,"Nullibility problem: Defined already as NonNull"); //$NON-NLS-1$
 									} else
 									if ((higher!=null || (higher=NullibilityAnnos.findSuperMethod(methodBinding))!=null) && higher!=methodBinding && NullibilityAnnos.getSolidityWithParent(higher)) {
-										NullibilityAnnos.invalidNullibility(classScope.problemReporter(),t.annotations[i],null,0,"Nullibility problem: Defined already as NonNull in super method"); //$NON-NLS-1$
+										NullibilityAnnos.invalidNullibility(classScope.problemReporter(),t.annotations[i],higher.declaringClass,0,"Nullibility problem: Defined already as NonNull in super method"); //$NON-NLS-1$
 									}
 								} else
 								if (annoName.equals("NonNull")) {
@@ -341,7 +353,7 @@ public aspect CheckNPE {
 			if (currentScope.referenceContext() instanceof MethodDeclaration) {
 				MethodDeclaration methodDeclaration = (MethodDeclaration)currentScope.referenceContext();
 				if (NullibilityAnnos.getSolidityWithParent(methodDeclaration.binding)) {
-					NullibilityAnnos.checkEasyNPE(t, currentScope, flowContext, result);
+					NullibilityAnnos.checkEasyNPE(t, currentScope, flowContext, result, null);
 				}
 			}
 	}

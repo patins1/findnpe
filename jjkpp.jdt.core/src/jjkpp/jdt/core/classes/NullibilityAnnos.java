@@ -377,13 +377,13 @@ public class NullibilityAnnos {
 		return false;
 	}
 
-	static public void checkEasyNPE(Expression t, BlockScope scope, FlowContext flowContext, FlowInfo flowInfo) {
+	static public void checkEasyNPE(Expression t, BlockScope scope, FlowContext flowContext, FlowInfo flowInfo, ReferenceBinding declaringClass) {
 		if (enableNullibility())
 			if ((flowInfo.tagBits & FlowInfo.UNREACHABLE) == 0 && checkScope(scope) && t.nullStatus(flowInfo) != FlowInfo.NON_NULL && !(t.resolvedType instanceof BaseTypeBinding && !"null".equals(new String(t.resolvedType.sourceName())))) {
 				if (NullibilityAnnos.isAlwaysNull(t)) {
-					invalidNullibility(scope.problemReporter(), t, null, 0, "Easy Nullibility problem"); //$NON-NLS-1$
+					invalidNullibility(scope.problemReporter(), t, declaringClass, 0, "Easy Nullibility problem"); //$NON-NLS-1$
 				} else {
-					invalidNullibility(scope.problemReporter(), t, null, 0, "Nullibility problem"); //$NON-NLS-1$
+					invalidNullibility(scope.problemReporter(), t, declaringClass, 0, "Nullibility problem"); //$NON-NLS-1$
 				}
 			}
 	}
@@ -473,19 +473,19 @@ public class NullibilityAnnos {
 	 * null; }
 	 */
 
-	static public void invalidNullibility(ProblemReporter _this, ASTNode causingExpr, Binding method, int param, String caption) {
+	static public void invalidNullibility(ProblemReporter _this, ASTNode causingExpr, ReferenceBinding declaringClass, int param, String caption) {
 		// DefaultProblemFactory..messageTemplates; new DefaultProblemFactory()
 		if (_this.problemFactory instanceof DefaultProblemFactory)
 			((DefaultProblemFactory) _this.problemFactory).messageTemplates.put((RequireCanBeNull & IProblem.IgnoreCategoriesMask) + 1, caption);
-		handle(_this, RequireCanBeNull, ProblemHandler.NoArgument, ProblemHandler.NoArgument, causingExpr.sourceStart, causingExpr.sourceEnd);
+		handle(_this, RequireCanBeNull, ProblemHandler.NoArgument, ProblemHandler.NoArgument, causingExpr.sourceStart, causingExpr.sourceEnd, declaringClass);
 
 	}
 
-	static public void invalidNullibility(ProblemReporter _this, Binding local, ASTNode location, Binding method, int param, String caption) {
+	static public void invalidNullibility(ProblemReporter _this, Binding local, ASTNode location, ReferenceBinding declaringClass, int param, String caption) {
 		// DefaultProblemFactory..messageTemplates; new DefaultProblemFactory()
 		if (_this.problemFactory instanceof DefaultProblemFactory)
 			((DefaultProblemFactory) _this.problemFactory).messageTemplates.put((RequireCanBeNull & IProblem.IgnoreCategoriesMask) + 1, caption);
-		handle(_this, RequireCanBeNull, ProblemHandler.NoArgument, ProblemHandler.NoArgument, callNodeSourceStart(_this, local, location), callNodeSourceEnd(_this, local, location));
+		handle(_this, RequireCanBeNull, ProblemHandler.NoArgument, ProblemHandler.NoArgument, callNodeSourceStart(_this, local, location), callNodeSourceEnd(_this, local, location), declaringClass);
 
 	}
 
@@ -513,12 +513,16 @@ public class NullibilityAnnos {
 		return 0;
 	}
 
-	static private void handle(ProblemReporter _this, int problemId, String[] problemArguments, String[] messageArguments, int problemStartPosition, int problemEndPosition) {
+	static private void handle(ProblemReporter _this, int problemId, String[] problemArguments, String[] messageArguments, int problemStartPosition, int problemEndPosition, ReferenceBinding declaringClass) {
 		if (_this.referenceContext == null)
 			return;
-
+		int severity = ProblemSeverities.Error;
+		if (declaringClass != null && declaringClass.isBinaryBinding()) {
+			System.out.println("Found binary binding in " + declaringClass.sourceName);
+			severity = ProblemSeverities.Warning;
+		}
 		_this.handle(problemId, problemArguments, 0, // no message elaboration
-				messageArguments, ProblemSeverities.Error, problemStartPosition, problemEndPosition, _this.referenceContext, _this.referenceContext == null ? null : _this.referenceContext.compilationResult());
+				messageArguments, severity, problemStartPosition, problemEndPosition, _this.referenceContext, _this.referenceContext == null ? null : _this.referenceContext.compilationResult());
 		_this.referenceContext = null;
 	}
 
