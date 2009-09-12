@@ -17,6 +17,10 @@ public class MessageSendTest {
 		new MessageSendTest((String[])null/*OK*/);
 	}
 	
+	public MessageSendTest(Boolean param1) {		
+		new MessageSendTest((Boolean)null/*error1 easy*/);
+	}
+	
 	@NonNullParam1
 	private void testUnknownValueToNonNullParameter(String param1) {
 		String s="";
