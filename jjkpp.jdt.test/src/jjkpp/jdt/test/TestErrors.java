@@ -14,10 +14,12 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceVisitor;
+import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.ui.IEditorDescriptor;
@@ -36,7 +38,7 @@ public class TestErrors extends TestCase {
 
 	int totalChecks = 0;
 
-	public void testErrors() throws CoreException {
+	public void testErrors() throws CoreException, InterruptedException {
 		final IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
 
 		IProjectDescription description = ResourcesPlugin.getWorkspace().loadProjectDescription(new Path("C:/dev/jjkpp/jjkpp.javaproject.test/.project"));
@@ -44,6 +46,8 @@ public class TestErrors extends TestCase {
 		project.create(description, new NullProgressMonitor());
 		this.project.open(new NullProgressMonitor());
 		this.project.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
+		project.build(IncrementalProjectBuilder.FULL_BUILD, new NullProgressMonitor());
+		waitForBuild();
 		IFolder src = project.getFolder("src");
 		src.accept(new IResourceVisitor() {
 
@@ -64,10 +68,14 @@ public class TestErrors extends TestCase {
 					IDocument doc = ed.getDocumentProvider().getDocument(ed.getEditorInput());
 					String content = doc.get();
 					Set<IMarker> markers = findMarkers(file.findMarkers("org.eclipse.jdt.core.problem", true, IResource.DEPTH_ZERO));
-					int lineNumber = 1;
+					int commentLineNumber = 1;
 					for (String line : content.split("\n")) {
-						int errorIndex = line.indexOf("/*error");
+						int errorIndex = line.indexOf("/* error");
 						if (errorIndex != -1) {
+							int lineNumber = commentLineNumber;
+							if (line.substring(0, errorIndex).trim().equals("")) {
+								lineNumber--;
+							}
 							totalChecks++;
 							int errorIndexTo = line.indexOf("*/", errorIndex) + 2;
 							String errorContent = line.substring(errorIndex, errorIndexTo);
@@ -104,7 +112,7 @@ public class TestErrors extends TestCase {
 							}
 							markers.remove(marker);
 						}
-						lineNumber++;
+						commentLineNumber++;
 					}
 					for (IMarker marker : markers) {
 						Assert.fail("Too many errors: resource=" + resource.getProjectRelativePath() + " message=" + marker.getAttribute("message") + " line=" + marker.getAttribute("lineNumber", -1));
@@ -125,7 +133,8 @@ public class TestErrors extends TestCase {
 			private Set<IMarker> findMarkers(IMarker[] markers) throws CoreException {
 				Set<IMarker> result = new HashSet<IMarker>();
 				for (IMarker marker : markers) {
-					if (((String) marker.getAttribute("message")).contains("Nullibility"))
+					String message = (String) marker.getAttribute("message");
+					if (message != null && message.contains("Nullibility"))
 						result.add(marker);
 				}
 				return result;
@@ -134,7 +143,8 @@ public class TestErrors extends TestCase {
 			private IMarker findMarker(Set<IMarker> markers, int lineNumber) throws CoreException {
 				for (IMarker marker : markers) {
 					if (lineNumber == marker.getAttribute("lineNumber", -1)) {
-						if (((String) marker.getAttribute("message")).contains("Nullibility"))
+						String message = (String) marker.getAttribute("message");
+						if (message != null && message.contains("Nullibility"))
 							return marker;
 					}
 				}
@@ -142,6 +152,20 @@ public class TestErrors extends TestCase {
 			}
 		});
 		System.out.println("TOTAL CHECKS = " + totalChecks);
+	}
+
+	private void waitForBuild() throws InterruptedException {
+		Job[] build;
+		build = Job.getJobManager().find(ResourcesPlugin.FAMILY_AUTO_BUILD);
+		if (build.length == 1) {
+			build[0].join();
+			waitForBuild();
+		}
+		build = Job.getJobManager().find(ResourcesPlugin.FAMILY_MANUAL_BUILD);
+		if (build.length == 1) {
+			build[0].join();
+			waitForBuild();
+		}
 	}
 
 }
