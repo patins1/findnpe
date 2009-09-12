@@ -7,18 +7,42 @@ public class MessageSendTest {
 
 	@NonNullParam1
 	public MessageSendTest(String param1) {
-		new MessageSendTest((String) null/* error0 easy */);
-		new MessageSendTest((String) null/* error0 easy */) {
-		};
 	}
 
 	@CanBeNullParam1
 	public MessageSendTest(String[] param1) {
-		new MessageSendTest((String[]) null/* OK */);
+	}
+
+	@NonNullParam1
+	public MessageSendTest(Object param1) {
+	}
+
+	public MessageSendTest(Number param1) {
 	}
 
 	public MessageSendTest(Boolean param1) {
+	}
+
+	private void testConstructor() {
+		new MessageSendTest((String) null/* error0 easy */);
+		new MessageSendTest((String) null/* error0 easy */) {
+		};
+
+		new MessageSendTest((String[]) null/* OK */);
+		new MessageSendTest((String[]) null/* OK */) {
+		};
+
 		new MessageSendTest((Boolean) null/* error1 easy */);
+		new MessageSendTest((Boolean) null/* error1 easy */) {
+		};
+
+		new MessageSendTest((Object) null/* error0 easy */);
+		new MessageSendTest((Object) null/* error0 easy */) {
+		};
+
+		new MessageSendTest((Integer) null/* error1 easy */);
+		new MessageSendTest((Integer) null/* error1 easy */) {
+		};
 	}
 
 	@NonNullParam1

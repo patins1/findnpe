@@ -114,6 +114,19 @@ public class NullibilityAnnosUI extends ProposalCollector {
 		} else if (invocationNode instanceof ClassInstanceCreation) {
 			ClassInstanceCreation methodImpl = (ClassInstanceCreation) invocationNode;
 			IMethodBinding binding = methodImpl.resolveConstructorBinding();
+			if (binding.getDeclaringClass().isAnonymous()) {
+				ITypeBinding superclass = binding.getDeclaringClass().getSuperclass();
+				if (superclass != null) {
+					for (IMethodBinding method : superclass.getDeclaredMethods()) {
+						if (method.isConstructor()) {
+							if (method.isSubsignature(binding)) {
+								binding = method;
+								break;
+							}
+						}
+					}
+				}
+			}
 			int param = methodImpl.arguments().indexOf(selectedNode);
 			if (param >= 0)
 				addNullibilityProposals(cu, astRoot, binding, binding.getDeclaringClass().getTypeDeclaration(), param, invocationNode, "CanBeNull");
@@ -200,7 +213,16 @@ public class NullibilityAnnosUI extends ProposalCollector {
 				if (newDecl != null)
 					if (param >= 0) {
 						MethodDeclaration mdecl = (MethodDeclaration) newDecl;
-						addMarker2(targetCU, (VariableDeclaration) mdecl.parameters().get(param), marker);
+						List params = mdecl.parameters();
+						if (params != null) {
+							if (param < params.size()) {
+								addMarker2(targetCU, (VariableDeclaration) params.get(param), marker);
+							} else {
+								System.out.println("has oob parameters! " + param + ">=" + params.size() + " name=" + mdecl.getName() + ";;;;;/n" + mdecl);
+							}
+						} else {
+							System.out.println("has no parameters! " + mdecl.getName() + "; " + mdecl.getParent());
+						}
 					} else {
 						addMarker2(targetCU, newDecl, marker);
 					}
