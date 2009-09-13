@@ -38,7 +38,10 @@ public aspect HandleIterations {
 		if (NullibilityAnnos.doubleCheck()) {
 			if (t instanceof WhileStatement && ((WhileStatement)t).action==action || t instanceof DoStatement && ((DoStatement)t).action==action || t instanceof ForeachStatement && ((ForeachStatement)t).action==action || t instanceof ForStatement && ((ForStatement)t).action==action) {
 				flowInfo = action.analyseCode(currentScope, flowContext, flowInfo);
-				flowInfo = action.analyseCode(currentScope, flowContext, flowInfo);
+				if ((flowInfo.tagBits &	FlowInfo.UNREACHABLE) == 0) {
+					flowInfo=flowInfo.unconditionalCopy().discardInitializationInfo(); // to set FirstAssignmentToLocal again
+					flowInfo=action.analyseCode(currentScope, flowContext, flowInfo);
+				} 
 				return flowInfo;
 			}
 		} 
