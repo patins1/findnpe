@@ -26,18 +26,23 @@ import org.eclipse.jdt.internal.core.dom.rewrite.RewriteEventStore;
 import org.eclipse.jdt.internal.ui.javaeditor.ASTProvider;
 import org.eclipse.jdt.internal.ui.text.correction.proposals.ASTRewriteCorrectionProposal;
 import org.eclipse.jface.action.IAction;
+import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.operation.ModalContext;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IMarkerResolution;
 import org.eclipse.ui.IObjectActionDelegate;
+import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPart;
+import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.internal.Workbench;
 import org.eclipse.ui.internal.ide.IDEWorkbenchPlugin;
 import org.eclipse.ui.statushandlers.StatusAdapter;
-import org.eclipse.ui.statushandlers.StatusManager;
 import org.eclipse.ui.views.markers.WorkbenchMarkerResolution;
 
 @SuppressWarnings("restriction")
@@ -46,13 +51,12 @@ public class Action1 implements IObjectActionDelegate {
 	private ISelection fSelection;
 
 	public Action1() {
-		// TODO Auto-generated constructor stub
+		// nothing to do
 	}
 
 	@Override
 	public void setActivePart(IAction action, IWorkbenchPart targetPart) {
-		// TODO Auto-generated method stub
-
+		// nothing to do
 	}
 
 	public void getWizardRun(boolean fork, boolean cancelable, IRunnableWithProgress runnable) throws InvocationTargetException, InterruptedException {
@@ -67,106 +71,214 @@ public class Action1 implements IObjectActionDelegate {
 
 	int index = 0;
 	private int count;
+	private ProgressMonitorDialog progressMonitorDialog;
 
 	@Override
 	public void run(IAction action) {
+		try {
+
+			// doWork(new NullProgressMonitor());
+
+			// class DecathlonJob extends Job {
+			// public DecathlonJob() {
+			// super("Athens decathlon 2004");
+			// }
+			//
+			// public IStatus run(IProgressMonitor monitor) {
+			// doWork(monitor);
+			// return Status.OK_STATUS;
+			// }
+			// }
+			// ;
+			// new DecathlonJob().schedule();
+
+			IRunnableWithProgress op = new IRunnableWithProgress() {
+				public void run(IProgressMonitor monitor) {
+					doWork(monitor);
+				}
+			};
+			IWorkbench wb = PlatformUI.getWorkbench();
+			IWorkbenchWindow win = wb.getActiveWorkbenchWindow();
+			Shell shell = win != null ? win.getShell() : null;
+			progressMonitorDialog = new ProgressMonitorDialog(shell);
+			progressMonitorDialog.run(false, true, op);
+
+			// ResourcesPlugin.getWorkspace().run(new IWorkspaceRunnable() {
+			// @Override
+			// public void run(IProgressMonitor monitor) throws CoreException {
+			// doWork(monitor);
+			// }
+			// }, new NullProgressMonitor());
+
+			// WorkspaceJob cleanJob = new WorkspaceJob("First Fix Job") {
+			//
+			// public IStatus runInWorkspace(IProgressMonitor monitor) throws
+			// CoreException {
+			// doWork(monitor);
+			// return Status.OK_STATUS;
+			// }
+			// };
+			// //
+			// cleanJob.setRule(ResourcesPlugin.getWorkspace().getRuleFactory().buildRule());
+			// cleanJob.setUser(true);
+			// cleanJob.schedule();
+
+			// new UIJob("First Fix") {
+			//
+			// @Override
+			// public IStatus runInUIThread(IProgressMonitor monitor) {
+			// doWork(monitor);
+			// // try {
+			// // ResourcesPlugin.getWorkspace().run(new
+			// // IWorkspaceRunnable() {
+			// // @Override
+			// // public void run(IProgressMonitor monitor) throws
+			// // CoreException {
+			// // doWork(monitor);
+			// // }
+			// // }, new NullProgressMonitor());
+			// // } catch (CoreException e) {
+			// // e.printStackTrace();
+			// // }
+			// return Status.OK_STATUS;
+			// }
+			//
+			// }.schedule();
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	private void doWork(IProgressMonitor monitor) {
+
+		// try {
+		// Thread.sleep(2000);
+		// } catch (InterruptedException e) {
+		// e.printStackTrace();
+		// }
 		long millis = System.currentTimeMillis();
 		if (fSelection instanceof IStructuredSelection) {
 			IStructuredSelection ss = (IStructuredSelection) fSelection;
 			Object[] ssa = ss.toArray();
-			List<Object> ssl = new ArrayList<Object>();
+			List<IMarker> ssl = new ArrayList<IMarker>();
 			List<IMarkerResolution> ssres = new ArrayList<IMarkerResolution>();
-			for (Object o : ssa)
-				ssl.add(o);
-			count = ssl.size();
-			index = 0;
-			for (Object o : ssl) {
+			for (Object o : ssa) {
 				if (o instanceof IAdaptable) {
 					IAdaptable adaptable = (IAdaptable) o;
 					Object markeradaptable = adaptable.getAdapter(IMarker.class);
 					if (markeradaptable instanceof IMarker) {
-						final IMarker marker = (IMarker) markeradaptable;
-						startANew: if (marker != null) {
-							IMarkerResolution[] resolutions = IDE.getMarkerHelpRegistry().getResolutions(marker);
-
-							// to clear ast for following markers
-							callActiveJavaEditorChanged(ASTProvider.getASTProvider());
-
-							if (resolutions.length == 0) {
-								System.out.println("invalid:length=0 lineNumer=" + marker.getAttribute("lineNumber", -1));
-								continue;
-							}
-							IMarkerResolution resolution = resolutions[0];
-							ASTRewriteCorrectionProposal proposal = getProposal(resolution);
-							if (proposal == null) {
-								System.out.println("invalid:proposal=null lineNumer=" + marker.getAttribute("lineNumber", -1));
-								continue;
-							}
-							ASTRewrite rewrite = getRewrite(proposal);
-							ASTNode rootNode = getRootNode(rewrite);
-							/*
-							 * TextEdit edit; try { if (proposal.getChange()
-							 * instanceof CompilationUnitChange) {
-							 * CompilationUnitChange compilationUnitChange =
-							 * (CompilationUnitChange) proposal .getChange();
-							 * edit = compilationUnitChange.getEdit(); if (edit
-							 * == null) continue; edit =
-							 * compilationUnitChange.getEdit(); } else {
-							 * continue; } } catch (CoreException e) { continue;
-							 * }
-							 */
-							int ind = 0;
-							if (!ssres.isEmpty()) {
-								ASTRewriteCorrectionProposal todoProposal = getProposal(ssres.get(0));
-								if (!todoProposal.getCompilationUnit().equals(proposal.getCompilationUnit())) {
-									doWork(ssres);
-									break startANew;
-								}
-								for (final IMarkerResolution r : ssres) {
-									ASTRewriteCorrectionProposal rProposal = getProposal(r);
-
-									ASTRewrite rRewrite = getRewrite(rProposal);
-									ASTNode rRootNode = getRootNode(rRewrite);
-									if (rRootNode.getStartPosition() == rootNode.getStartPosition()) {
-										if (changesAreEqual(rewrite, rRewrite)) {
-											ind = -1;
-											break;
-										}
-									}
-									if (rRootNode.getStartPosition() > rootNode.getStartPosition()) {
-										break;
-									}
-
-									/*
-									 * CompilationUnitChange rChange; try {
-									 * rChange = (CompilationUnitChange)
-									 * proposal .getChange(); TextEdit rEdit =
-									 * rChange.getEdit(); if
-									 * (rEdit.covers(edit)) { ind = -1; break; }
-									 * if (rEdit.getOffset() > edit
-									 * .getOffset()) break; } catch
-									 * (CoreException e) { e.printStackTrace();
-									 * }
-									 */
-									ind++;
-								}
-							}
-							if (ind != -1) {
-								// changesAreEqual(rewrite, rewrite);
-								ssres.add(ind, resolution);
-								index++;
-							}
-							System.out.println("ind=" + ind + " lineNumer=" + marker.getAttribute("lineNumber", -1));
-							doWork(ssres);
-						}
+						ssl.add((IMarker) markeradaptable);
 					}
 				}
 			}
-			doWork(ssres);
+			count = ssl.size();
+			index = 0;
+			monitor.beginTask("First Fix", count);
+			for (IMarker marker : ssl) {
+				handleMarker(marker, monitor, ssres);
+				monitor.worked(1);
+				if (monitor.isCanceled())
+					return;
+			}
+			doWork(ssres, monitor);
 		}
 
 		long millis2 = System.currentTimeMillis();
 		System.out.println("millis=" + (millis2 - millis));
+	}
+
+	private void handleMarker(IMarker marker, IProgressMonitor monitor, List<IMarkerResolution> ssres) {
+		if (!subTaskForMarker(marker, "Fetch proposal", monitor))
+			return;
+		IMarkerResolution[] resolutions = IDE.getMarkerHelpRegistry().getResolutions(marker);
+
+		// to clear ast for following markers
+		callActiveJavaEditorChanged(ASTProvider.getASTProvider());
+
+		if (resolutions.length == 0) {
+			// System.out.println("invalid:length=0 lineNumer=" +
+			// marker.getAttribute("lineNumber", -1));
+			return;
+		}
+		IMarkerResolution resolution = resolutions[0];
+		ASTRewriteCorrectionProposal proposal = getProposal(resolution);
+		if (proposal == null) {
+			// System.out.println("invalid:proposal=null lineNumer=" +
+			// marker.getAttribute("lineNumber", -1));
+			return;
+		}
+		ASTRewrite rewrite = getRewrite(proposal);
+		ASTNode rootNode = getRootNode(rewrite);
+		/*
+		 * TextEdit edit; try { if (proposal.getChange() instanceof
+		 * CompilationUnitChange) { CompilationUnitChange compilationUnitChange
+		 * = (CompilationUnitChange) proposal .getChange(); edit =
+		 * compilationUnitChange.getEdit(); if (edit == null) continue; edit =
+		 * compilationUnitChange.getEdit(); } else { continue; } } catch
+		 * (CoreException e) { continue; }
+		 */
+		int ind = 0;
+		if (!ssres.isEmpty()) {
+			ASTRewriteCorrectionProposal todoProposal = getProposal(ssres.get(0));
+			if (!todoProposal.getCompilationUnit().equals(proposal.getCompilationUnit())) {
+				doWork(ssres, monitor);
+				handleMarker(marker, monitor, ssres);
+				return;
+			}
+			for (final IMarkerResolution r : ssres) {
+				ASTRewriteCorrectionProposal rProposal = getProposal(r);
+
+				ASTRewrite rRewrite = getRewrite(rProposal);
+				ASTNode rRootNode = getRootNode(rRewrite);
+				if (rRootNode.getStartPosition() == rootNode.getStartPosition()) {
+					if (changesAreEqual(rewrite, rRewrite)) {
+						ind = -1;
+						break;
+					}
+				}
+				if (rRootNode.getStartPosition() > rootNode.getStartPosition()) {
+					break;
+				}
+
+				/*
+				 * CompilationUnitChange rChange; try { rChange =
+				 * (CompilationUnitChange) proposal .getChange(); TextEdit rEdit
+				 * = rChange.getEdit(); if (rEdit.covers(edit)) { ind = -1;
+				 * break; } if (rEdit.getOffset() > edit .getOffset()) break; }
+				 * catch (CoreException e) { e.printStackTrace(); }
+				 */
+				ind++;
+			}
+		}
+		if (ind != -1) {
+			// changesAreEqual(rewrite, rewrite);
+			ssres.add(ind, resolution);
+			index++;
+		}
+		// System.out.println("ind=" + ind + " lineNumer=" +
+		// marker.getAttribute("lineNumber", -1));
+		doWork(ssres, monitor);
+	}
+
+	private boolean subTaskForMarker(IMarker marker, String name, IProgressMonitor monitor) {
+		while (Display.getCurrent().readAndDispatch())
+			;
+		if (progressMonitorDialog != null && progressMonitorDialog.getShell() != null)
+			while (progressMonitorDialog.getShell().getDisplay().readAndDispatch())
+				;
+		if (monitor.isCanceled())
+			return false;
+		String lineInfo = "";
+		try {
+			Object att = marker.getAttribute("lineNumber");
+			if (att instanceof Integer)
+				lineInfo = " (line " + att + ")";
+		} catch (CoreException e) {
+			// don't print line info
+		}
+		monitor.subTask(name + " for marker " + marker.getResource().getName() + lineInfo);
+		return true;
 	}
 
 	private void callActiveJavaEditorChanged(ASTProvider astProvider) {
@@ -174,32 +286,26 @@ public class Action1 implements IObjectActionDelegate {
 			Method method = ASTProvider.class.getDeclaredMethod("activeJavaEditorChanged", IWorkbenchPart.class);
 			method.setAccessible(true);
 			method.invoke(astProvider, new Object[] { null });
-		} catch (SecurityException e) {
-			e.printStackTrace();
-		} catch (NoSuchMethodException e) {
-			e.printStackTrace();
-		} catch (IllegalArgumentException e) {
-			e.printStackTrace();
-		} catch (IllegalAccessException e) {
-			e.printStackTrace();
-		} catch (InvocationTargetException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
 
-	private void doWork(List<IMarkerResolution> ssres) {
-		for (final IMarkerResolution r : ssres) {
-			try {
-				IMarker marker = getMarker(r);
-				System.out.println(marker.getResource() + " line=" + marker.getAttribute("lineNumber") + " count=" + ssres.size() + " total=" + index + "/" + count);
-			} catch (CoreException e1) {
-				e1.printStackTrace();
-			}
-			break;
-		}
+	private void doWork(List<IMarkerResolution> ssres, IProgressMonitor monitor) {
+		// for (final IMarkerResolution r : ssres) {
+		// try {
+		// IMarker marker = getMarker(r);
+		// System.out.println(marker.getResource() + " line=" +
+		// marker.getAttribute("lineNumber") + " count=" + ssres.size() +
+		// " total=" + index + "/" + count);
+		// } catch (CoreException e1) {
+		// e1.printStackTrace();
+		// }
+		// break;
+		// }
 		for (final IMarkerResolution r : revert(ssres)) {
-			System.out.println("doWork");
-			doWork(null, r);
+			// System.out.println("doWork");
+			doWork(r, monitor);
 			// try {
 			// Thread.sleep(10000);
 			// } catch (InterruptedException e) {
@@ -267,7 +373,6 @@ public class Action1 implements IObjectActionDelegate {
 			method.setAccessible(true);
 			return (ASTNode) method.invoke(rewrite);
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return null;
@@ -277,19 +382,12 @@ public class Action1 implements IObjectActionDelegate {
 		Field field;
 		try {
 			field = proposal.getClass().getDeclaredField("fRewrite");
-		} catch (SecurityException e) {
-			return null;
-		} catch (NoSuchFieldException e) {
-			return null;
-		}
-		try {
 			field.setAccessible(true);
 			return (ASTRewrite) field.get(proposal);
-		} catch (IllegalArgumentException e) {
-			return null;
-		} catch (IllegalAccessException e) {
-			return null;
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
+		return null;
 	}
 
 	private List<IMarkerResolution> revert(List<IMarkerResolution> ssres) {
@@ -303,73 +401,53 @@ public class Action1 implements IObjectActionDelegate {
 		Field field;
 		try {
 			field = todoResolution.getClass().getDeclaredField("fProposal");
-		} catch (SecurityException e) {
-			return null;
-		} catch (NoSuchFieldException e) {
-			return null;
-		}
-		try {
 			field.setAccessible(true);
 			return (ASTRewriteCorrectionProposal) field.get(todoResolution);
-		} catch (IllegalArgumentException e) {
-			return null;
-		} catch (IllegalAccessException e) {
-			return null;
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
+		return null;
 	}
 
-	private void doWork(final IMarker marker, final IMarkerResolution resolution) {
+	private void doWork(final IMarkerResolution resolution, IProgressMonitor monitor) {
 		// try {
 		// System.out.println(marker.getResource()+" line="+marker.getAttribute("lineNumber")+" count="+count+"/"+ssl.size()+" resolutions.length="+
 		// resolutions.length);
 		// } catch (CoreException e1) {
 		// e1.printStackTrace();
 		// }
-		try {
-			getWizardRun(false, true, new IRunnableWithProgress() {
-				/*
-				 * (non-Javadoc)
-				 * 
-				 * @see
-				 * org.eclipse.jface.operation.IRunnableWithProgress#run(org
-				 * .eclipse.core.runtime.IProgressMonitor)
-				 */
-				public void run(IProgressMonitor monitor) {
-					IMarker[] markers = new IMarker[1];
-					markers[0] = getMarker(resolution);
-					((WorkbenchMarkerResolution) resolution).run(markers, monitor);
-					// try {
-					// Thread.sleep(1000);
-					// } catch (InterruptedException e) {
-					// e.printStackTrace();
-					// }
-				}
 
-			});
-		} catch (InvocationTargetException e) {
-			StatusManager.getManager().handle(MarkerSupportInternalUtilitiesErrorFor(e));
-		} catch (InterruptedException e) {
-			StatusManager.getManager().handle(MarkerSupportInternalUtilitiesErrorFor(e));
-		}
+		IMarker marker = getMarker(resolution);
+		if (!subTaskForMarker(marker, "Apply proposal", monitor))
+			return;
+		final IMarker[] markers = new IMarker[] { marker };
+		((WorkbenchMarkerResolution) resolution).run(markers, monitor);
+
+		// try {
+		// getWizardRun(false, true, new IRunnableWithProgress() {
+		//
+		// public void run(IProgressMonitor monitor) {
+		// ((WorkbenchMarkerResolution) resolution).run(markers, monitor);
+		// }
+		//
+		// });
+		// } catch (InvocationTargetException e) {
+		// StatusManager.getManager().handle(MarkerSupportInternalUtilitiesErrorFor(e));
+		// } catch (InterruptedException e) {
+		// StatusManager.getManager().handle(MarkerSupportInternalUtilitiesErrorFor(e));
+		// }
 	}
 
 	protected IMarker getMarker(IMarkerResolution resolution) {
 		Field field;
 		try {
 			field = resolution.getClass().getDeclaredField("fMarker");
-		} catch (SecurityException e) {
-			return null;
-		} catch (NoSuchFieldException e) {
-			return null;
-		}
-		try {
 			field.setAccessible(true);
 			return (IMarker) field.get(resolution);
-		} catch (IllegalArgumentException e) {
-			return null;
-		} catch (IllegalAccessException e) {
-			return null;
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
+		return null;
 	}
 
 	@Override
