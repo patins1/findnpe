@@ -29,7 +29,7 @@ public aspect HandleIterations {
 	}	
 
 	/**
-	 * testDoubleCheck()
+	 * testDoubleCheck(), WhileFixedBugsTest
 	 */
 	FlowInfo around(Statement action, BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo, Statement t) : 
 		withincode(FlowInfo analyseCode(BlockScope, FlowContext, FlowInfo)) && (this(WhileStatement) || this(DoStatement) || this(ForeachStatement) || this(ForStatement)) && this(t) && 
@@ -37,12 +37,15 @@ public aspect HandleIterations {
 		
 		if (NullibilityAnnos.doubleCheck()) {
 			if (t instanceof WhileStatement && ((WhileStatement)t).action==action || t instanceof DoStatement && ((DoStatement)t).action==action || t instanceof ForeachStatement && ((ForeachStatement)t).action==action || t instanceof ForStatement && ((ForStatement)t).action==action) {
-				flowInfo = action.analyseCode(currentScope, flowContext, flowInfo);
-				if ((flowInfo.tagBits &	FlowInfo.UNREACHABLE) == 0) {
-					flowInfo=flowInfo.unconditionalCopy().discardInitializationInfo(); // to set FirstAssignmentToLocal again
-					flowInfo=action.analyseCode(currentScope, flowContext, flowInfo);
-				} 
-				return flowInfo;
+				FlowInfo firstPassFlowInfo = action.analyseCode(currentScope, flowContext, flowInfo.copy());
+				if ((firstPassFlowInfo.tagBits & FlowInfo.UNREACHABLE) == 0) {
+					flowInfo=flowInfo.mergedWith(firstPassFlowInfo.unconditionalInits());
+					// merging is especially necessary because FirstAssignmentToLocal flag would be cleared at second pass
+					FlowInfo secondPassFlowInfo=action.analyseCode(currentScope, flowContext, flowInfo);
+					return secondPassFlowInfo;
+				}  else {
+					return firstPassFlowInfo;
+				}
 			}
 		} 
 
