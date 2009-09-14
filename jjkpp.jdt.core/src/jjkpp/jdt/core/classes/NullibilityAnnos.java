@@ -58,7 +58,9 @@ public class NullibilityAnnos {
 
 	public static int DECIDING_ANNO_INDEX = 0;
 
-	private static final boolean CHECK_ASSIGN_NULL_TO_FIELD = false;
+	private static final boolean ALLOW_ASSIGN_NULL_TO_FIELD = true;
+
+	private static final boolean ALLOW_ASSIGN_CANBENULL_TO_FIELD = ALLOW_ASSIGN_NULL_TO_FIELD && false;
 
 	public static boolean getSolidityWithParent(MethodBinding binding) {
 		ReferenceBinding declaringClass = binding.declaringClass;
@@ -184,7 +186,7 @@ public class NullibilityAnnos {
 	}
 
 	public static boolean doubleCheck() {
-		return enableNullibility() && !false;
+		return enableNullibility() && true;
 	}
 
 	public static boolean enableNullibility() {
@@ -546,12 +548,14 @@ public class NullibilityAnnos {
 	}
 
 	public static boolean checkFieldAssignment(Assignment assignment) {
-		if (CHECK_ASSIGN_NULL_TO_FIELD)
-			return true;
-		if (assignment.expression instanceof NullLiteral)
+		if (ALLOW_ASSIGN_CANBENULL_TO_FIELD)
 			return false;
-		if (assignment.expression instanceof Assignment)
-			return checkFieldAssignment((Assignment) assignment.expression);
+		if (ALLOW_ASSIGN_NULL_TO_FIELD) {
+			if (assignment.expression instanceof NullLiteral)
+				return false;
+			if (assignment.expression instanceof Assignment)
+				return checkFieldAssignment((Assignment) assignment.expression);
+		}
 		return true;
 	}
 

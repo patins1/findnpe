@@ -4,7 +4,7 @@ import java.nio.charset.CoderResult;
 
 public class WhileFixedBugsTest {
 
-	public static void testNotUnreachableCodeAfterSecondAnalysis() {
+	public void testNotUnreachableCodeAfterSecondAnalysis() {
 		String s = "";
 		while (true) {
 			s = "1";
@@ -12,8 +12,7 @@ public class WhileFixedBugsTest {
 		}
 	}
 
-	public static void testNoCompileError() {
-
+	public void testNoCompileError() {
 		CoderResult result = null;
 		while (true) {
 			if ("".equals("")) {
