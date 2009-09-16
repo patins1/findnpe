@@ -361,6 +361,10 @@ public class NullibilityAnnos {
 		return false;
 	}
 
+	static public Long getProblemKey(int problemStartPosition, int problemId) {
+		return (((long) problemStartPosition) << 32) | problemId;
+	}
+
 	public static boolean callNeedValueStore(ReturnStatement rewrite) {
 		try {
 			Method method = ReturnStatement.class.getDeclaredMethod("needValueStore");

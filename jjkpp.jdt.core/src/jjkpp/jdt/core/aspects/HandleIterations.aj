@@ -54,7 +54,11 @@ public aspect HandleIterations {
 				CompilationResult unitResult;
 				if ((referenceContext=currentScope.problemReporter().referenceContext)!=null && (unitResult=referenceContext.compilationResult())!=null) {
 					int problemCount = unitResult.problemCount;
+					
+					// first pass
 					FlowInfo firstPassFlowInfo = action.analyseCode(currentScope, flowContext, flowInfo.copy());
+										
+					// if the iteration occurs at most once, second pass is useless
 					if ((firstPassFlowInfo.tagBits & FlowInfo.UNREACHABLE) != 0) {
 						return firstPassFlowInfo;
 					}
@@ -62,47 +66,40 @@ public aspect HandleIterations {
 					// remember recorded problems during first pass
 					for (int i=problemCount; i<unitResult.problemCount; i++) {
 						CategorizedProblem problem = unitResult.problems[i];
-						if (problem instanceof DefaultProblem) {
-							DefaultProblem defaultProblem=(DefaultProblem) problem;
-							List key = Arrays.asList(defaultProblem.getSourceStart(),defaultProblem.getID());
-							alreadyReported.add(key);
-						}							
+						Object key = NullibilityAnnos.getProblemKey(problem.getSourceStart(),problem.getID());
+						alreadyReported.add(key);
+					}					
+					try {						
+						// merging is especially necessary because FirstAssignmentToLocal flag would be cleared at second pass
+						flowInfo=firstPassFlowInfo.mergedWith(flowInfo.unconditionalInits());
+						
+						// testDoubleCheckWithCondition()
+						if (t instanceof WhileStatement) {
+							flowInfo = ((WhileStatement)t).condition.analyseCode(currentScope, flowContext, flowInfo);
+							flowInfo = flowInfo.initsWhenTrue().copy();
+						} else
+						if (t instanceof DoStatement) {
+							flowInfo = ((DoStatement)t).condition.analyseCode(currentScope, flowContext, flowInfo);
+							flowInfo = flowInfo.initsWhenTrue().copy();
+						} else
+						if (t instanceof ForStatement) {
+							flowInfo = ((ForStatement)t).condition.analyseCode(currentScope, flowContext, flowInfo);
+							flowInfo = flowInfo.initsWhenTrue().copy();
+							//TODO analyze the "increments" expressions twice
+						}
+						
+						// second pass
+						return action.analyseCode(currentScope, flowContext, flowInfo);
 					}
-					
-					// merging is especially necessary because FirstAssignmentToLocal flag would be cleared at second pass
-					flowInfo=flowInfo.mergedWith(firstPassFlowInfo.unconditionalInits());
-					
-					// testDoubleCheckWithCondition()
-					if (t instanceof WhileStatement) {
-						flowInfo = ((WhileStatement)t).condition.analyseCode(currentScope, flowContext, flowInfo);
-						flowInfo = flowInfo.initsWhenTrue().copy();
-					}
-					if (t instanceof DoStatement) {
-						flowInfo = ((DoStatement)t).condition.analyseCode(currentScope, flowContext, flowInfo);
-						flowInfo = flowInfo.initsWhenTrue().copy();
-					}
-					if (t instanceof ForStatement) {
-						flowInfo = ((ForStatement)t).condition.analyseCode(currentScope, flowContext, flowInfo);
-						flowInfo = flowInfo.initsWhenTrue().copy();
-						//TODO analyze the "increments" expressions twice
-					}
-					
-					// second pass
-					FlowInfo secondPassFlowInfo=action.analyseCode(currentScope, flowContext, flowInfo);
-
-					// forget recorded problems during first pass						
-					for (int i=problemCount; i<unitResult.problemCount; i++) {
-						CategorizedProblem problem = unitResult.problems[i];
-						if (problem instanceof DefaultProblem) {
-							DefaultProblem defaultProblem=(DefaultProblem) problem;
-							List key = Arrays.asList(defaultProblem.getSourceStart(),defaultProblem.getID());
-							alreadyReported.remove(key);
-						}							
-					}
-					
-					return secondPassFlowInfo;					
-				}
-				return action.analyseCode(currentScope, flowContext, flowInfo);				
+					finally {						
+						// forget recorded problems during first pass						
+						for (int i=problemCount; i<unitResult.problemCount; i++) {
+							CategorizedProblem problem = unitResult.problems[i];
+							Object key = NullibilityAnnos.getProblemKey(problem.getSourceStart(),problem.getID());
+							alreadyReported.remove(key);					
+						}						
+					}				
+				}		
 			}
 		} 
 
@@ -116,11 +113,12 @@ public aspect HandleIterations {
 		call(void handle(int, String[], int, String[], int, int, int, ReferenceContext, CompilationResult )) && 
 		args(problemId,	problemArguments, elaborationId, messageArguments, severity, problemStartPosition, problemEndPosition, referenceContext, unitResult) && target(problemHandler) {
 
-		List key = Arrays.asList(problemStartPosition,problemId);
-		if (alreadyReported.contains(key)) return;
+		if (!alreadyReported.isEmpty()) {
+			Object key = NullibilityAnnos.getProblemKey(problemStartPosition,problemId);
+			if (alreadyReported.contains(key)) return;
+		}
 		proceed(problemHandler,problemId,problemArguments,elaborationId,messageArguments,severity,problemStartPosition,problemEndPosition,referenceContext,unitResult);
 	}	
-
 
 	/**
 	 * testEnduringNullInfoChange()
