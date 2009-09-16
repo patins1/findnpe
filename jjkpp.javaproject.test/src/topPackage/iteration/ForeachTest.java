@@ -18,6 +18,16 @@ public class ForeachTest {
 		}
 	}
 
+	private void testNoDoubledProblems() {
+		String x = null;
+		for (String i : new String[] { "" }) {
+			for (String j : new String[] { "" }) {
+				x.toString();/* error1 */
+			}
+			x.toString();/* error1 */
+		}
+	}
+
 	private void testEnduringNullInfoChange() {
 		String x = "";
 		for (String s : new String[] { "" }) {

@@ -18,6 +18,30 @@ public class DoWhileTest {
 		} while ("".contains(""));
 	}
 
+	private void testDoubleCheckWithCondition() {
+		String x = "";
+		do {
+			x.toString();/* OK */
+			x = null;
+		} while (x != null);
+	}
+
+	private void testNoDoubledProblems() {
+		String x = null;
+		String y = null;
+		{
+			{
+				x.toString();/* error1 */
+			}
+			while ("".contains(""))
+				;
+			x.toString();/* OK */// TODO
+			y.toString();/* error1 */
+		}
+		while ("".contains(""))
+			;
+	}
+
 	private void testEnduringNullInfoChange() {
 		String x = "";
 		do {
