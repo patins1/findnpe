@@ -361,6 +361,20 @@ public class NullibilityAnnos {
 		return false;
 	}
 
+	public static boolean retainCannotBeNull(FlowInfo flowInfo, FlowInfo currentFlow, BlockScope currentScope) {
+		for (LocalVariableBinding local: currentScope.locals) {
+			if (local==null)
+				break;
+			if (flowInfo.cannotBeNull(local) && !currentFlow.cannotBeNull(local)) {
+				return false;
+			}
+		}
+		if (currentScope.parent instanceof BlockScope) {
+			return retainCannotBeNull(flowInfo, currentFlow, (BlockScope) currentScope.parent);
+		}
+		return true;
+	}
+
 	static public Long getProblemKey(int problemStartPosition, int problemId) {
 		return (((long) problemStartPosition) << 32) | problemId;
 	}

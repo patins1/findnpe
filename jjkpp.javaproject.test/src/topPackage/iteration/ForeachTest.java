@@ -20,11 +20,13 @@ public class ForeachTest {
 
 	private void testNoDoubledProblems() {
 		String x = null;
+		String y = "";
 		for (String i : new String[] { "" }) {
 			for (String j : new String[] { "" }) {
 				x.toString();/* error1 */
 			}
 			x.toString();/* error1 */
+			y = null; // forces a second pass
 		}
 	}
 

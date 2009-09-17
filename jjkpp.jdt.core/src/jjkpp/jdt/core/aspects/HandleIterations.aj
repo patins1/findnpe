@@ -62,6 +62,10 @@ public aspect HandleIterations {
 					if ((firstPassFlowInfo.tagBits & FlowInfo.UNREACHABLE) != 0) {
 						return firstPassFlowInfo;
 					}
+					
+					if (NullibilityAnnos.retainCannotBeNull(flowInfo,firstPassFlowInfo,currentScope)) {
+						return firstPassFlowInfo;
+					}
 						
 					// remember recorded problems during first pass
 					for (int i=problemCount; i<unitResult.problemCount; i++) {

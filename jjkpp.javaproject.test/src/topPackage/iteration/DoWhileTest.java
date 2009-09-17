@@ -28,18 +28,15 @@ public class DoWhileTest {
 
 	private void testNoDoubledProblems() {
 		String x = null;
-		String y = null;
-		{
-			{
+		String y = "";
+		do {
+			do {
 				x.toString();/* error1 */
-			}
-			while ("".contains(""))
-				;
+			} while ("".contains(""));
 			x.toString();/* OK */// TODO
 			y.toString();/* error1 */
-		}
-		while ("".contains(""))
-			;
+			y = null; // forces a second pass
+		} while ("".contains(""));
 	}
 
 	private void testEnduringNullInfoChange() {

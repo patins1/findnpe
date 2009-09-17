@@ -28,11 +28,14 @@ public class WhileTest {
 
 	private void testNoDoubledProblems() {
 		String x = null;
+		String y = "";
 		while ("".contains("")) {
 			while ("".contains("")) {
 				x.toString();/* error1 */
+				y = null;
 			}
 			x.toString();/* error1 */
+			y = null; // forces a second pass
 		}
 	}
 

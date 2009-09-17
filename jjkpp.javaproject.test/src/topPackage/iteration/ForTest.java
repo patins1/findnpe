@@ -28,11 +28,13 @@ public class ForTest {
 
 	private void testNoDoubledProblems() {
 		String x = null;
+		String y = "";
 		for (int i = 0; i < 10; i++) {
 			for (int j = 0; j < 10; j++) {
 				x.toString();/* error1 */
 			}
 			x.toString();/* error1 */
+			y = null; // forces a second pass
 		}
 	}
 
