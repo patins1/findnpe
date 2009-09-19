@@ -2,6 +2,7 @@
 <aspectj>
     <aspects>
         <aspect name="jjkpp.jdt.core.aspects.CheckNPE" />
+        <aspect name="jjkpp.jdt.core.aspects.HandleFields" />
         <aspect name="jjkpp.jdt.core.aspects.HandleIterations" />
         <aspect name="jjkpp.jdt.core.aspects.HandleNullStatusMethod" />
     </aspects>
