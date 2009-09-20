@@ -38,7 +38,12 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 @SuppressWarnings("restriction")
 public aspect CheckNPE {
- 
+
+	// in the following precedence list, each aspect has a replace-advice 
+	// which would hide an advice of any aspect to its left, so the precedence is required; 
+	// replace-advices for analyseCode() have comments with "custom code" text in their body
+	declare precedence : HandleIterations, CheckNPE, HandleNullStatusMethod;
+
 	before(Assignment t,BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) : 
 		call(FlowInfo analyseCode(BlockScope, FlowContext, FlowInfo)) && args(currentScope,flowContext,flowInfo) && target(t) {
 		
@@ -124,6 +129,7 @@ public aspect CheckNPE {
 			int length = t.arguments.length;
 			for (int i = 0; i < length; i++) {
 				flowInfo = t.arguments[i].analyseCode(currentScope, flowContext, flowInfo).unconditionalInits();
+				// custom code: check parameters
 				if (NullibilityAnnos.enableNullibility()) 			
 					if (NullibilityAnnos.getSolidityWithParent(t.binding,i)) { 
 						NullibilityAnnos.checkEasyNPE(t.arguments[i], currentScope, flowContext, flowInfo, t.binding.declaringClass); 
@@ -166,12 +172,14 @@ public aspect CheckNPE {
 			if (t.arguments != null) {
 				MethodBinding binding=t.binding;
 				if (binding.declaringClass.isAnonymousType()) {
+					// custom code: TODO description
 					MethodBinding superBinding=NullibilityAnnos.findSuperMethod(binding);
 					if (superBinding!=null)
 						binding=superBinding;
 				}
 				for (int i = 0, count = t.arguments.length; i < count; i++) {
 					flowInfo = t.arguments[i].analyseCode(currentScope, flowContext, flowInfo);
+					// custom code: check parameters
 					if (NullibilityAnnos.enableNullibility()) 			
 						if (NullibilityAnnos.getSolidityWithParent(binding,i)) {
 							NullibilityAnnos.checkEasyNPE(t.arguments[i], currentScope, flowContext, flowInfo, binding.declaringClass); 
@@ -210,6 +218,7 @@ public aspect CheckNPE {
 		if (t.arguments != null) {
 			MethodBinding binding=t.binding;
 			if (binding.declaringClass.isAnonymousType()) {
+				// custom code: TODO description
 				MethodBinding superBinding=NullibilityAnnos.findSuperMethod(binding);
 				if (superBinding!=null)
 					binding=superBinding;
@@ -219,6 +228,7 @@ public aspect CheckNPE {
 					t.arguments[i]
 						.analyseCode(currentScope, flowContext, flowInfo)
 						.unconditionalInits();
+				// custom code: check parameters
 				if (NullibilityAnnos.enableNullibility()) 			
 					if (NullibilityAnnos.getSolidityWithParent(binding,i)) {
 						NullibilityAnnos.checkEasyNPE(t.arguments[i], currentScope, flowContext, flowInfo, binding.declaringClass); 
@@ -369,7 +379,7 @@ public aspect CheckNPE {
 		call(void checkNPE(BlockScope, FlowContext, FlowInfo)) && target(t) && args(scope,flowContext,flowInfo) {
 		
 		if (NullibilityAnnos.enableNullibility()) 
-		if ((flowInfo.tagBits & FlowInfo.UNREACHABLE) == 0 && NullibilityAnnos.checkScope(scope) && t.nullStatus(flowInfo)!=FlowInfo.NON_NULL && !(t.resolvedType instanceof BaseTypeBinding && !"null".equals(new String(t.resolvedType.sourceName())))) 
+		if (NullibilityAnnos.isNotNonNull(t, scope, flowInfo)) 
 		{
 			NullibilityAnnos.invalidNullibility(scope.problemReporter(),t,null,0,"Nullibility problem"); //$NON-NLS-1$
 		}

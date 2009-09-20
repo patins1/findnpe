@@ -62,6 +62,13 @@ public class NullibilityAnnos {
 
 	private static final boolean ALLOW_ASSIGN_CANBENULL_TO_FIELD = ALLOW_ASSIGN_NULL_TO_FIELD && false;
 
+	/**
+	 * Flag indicating the the null-status-method shall use only information
+	 * from the flow info, but not from the ASTNode itself; see FlowInfo for
+	 * free flags, tested by testDoubleCheckUsingOnlyOneExpressionAsBodyI
+	 */
+	public static final int FlowInfo_OnlyUseFlowInfo = 4;
+
 	public static boolean getSolidityWithParent(MethodBinding binding) {
 		ReferenceBinding declaringClass = binding.declaringClass;
 		int result = NullibilityAnnos.getSolidityWithParent(binding.getAnnotations(), declaringClass);
@@ -362,8 +369,8 @@ public class NullibilityAnnos {
 	}
 
 	public static boolean retainCannotBeNull(FlowInfo flowInfo, FlowInfo currentFlow, BlockScope currentScope) {
-		for (LocalVariableBinding local: currentScope.locals) {
-			if (local==null)
+		for (LocalVariableBinding local : currentScope.locals) {
+			if (local == null)
 				break;
 			if (flowInfo.cannotBeNull(local) && !currentFlow.cannotBeNull(local)) {
 				return false;
@@ -399,13 +406,23 @@ public class NullibilityAnnos {
 
 	static public void checkEasyNPE(Expression t, BlockScope scope, FlowContext flowContext, FlowInfo flowInfo, ReferenceBinding declaringClass) {
 		if (enableNullibility())
-			if ((flowInfo.tagBits & FlowInfo.UNREACHABLE) == 0 && checkScope(scope) && t.nullStatus(flowInfo) != FlowInfo.NON_NULL && !(t.resolvedType instanceof BaseTypeBinding && !"null".equals(new String(t.resolvedType.sourceName())))) {
+			if (isNotNonNull(t, scope, flowInfo)) {
 				if (NullibilityAnnos.isAlwaysNull(t)) {
 					invalidNullibility(scope.problemReporter(), t, declaringClass, 0, "Easy Nullibility problem"); //$NON-NLS-1$
 				} else {
 					invalidNullibility(scope.problemReporter(), t, declaringClass, 0, "Nullibility problem"); //$NON-NLS-1$
 				}
 			}
+	}
+
+	public static boolean isNotNonNull(Expression t, BlockScope scope, FlowInfo flowInfo) {
+		if ((flowInfo.tagBits & FlowInfo.UNREACHABLE) == 0 && checkScope(scope)) {
+			flowInfo.tagBits |= FlowInfo_OnlyUseFlowInfo;
+			int status = t.nullStatus(flowInfo);
+			flowInfo.tagBits &= ~FlowInfo_OnlyUseFlowInfo;
+			return status != FlowInfo.NON_NULL && !(t.resolvedType instanceof BaseTypeBinding && !"null".equals(new String(t.resolvedType.sourceName())));
+		}
+		return false;
 	}
 
 	private static String getClassName(ReferenceBinding declaringClass) {

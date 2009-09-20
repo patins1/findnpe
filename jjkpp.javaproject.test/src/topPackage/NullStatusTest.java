@@ -49,36 +49,14 @@ public class NullStatusTest {
 		y[0].toString(); /* error1 */
 	}
 
-	void testArrayAllocationExpressionSophisticated1() {
-		String s = null;
-		String ss = "";
-		String[] x = new String[] { s = ss, s };
-		x[10].toString(); /* error1 */// TODO should be ok
-	}
-
-	void testArrayAllocationExpressionSophisticated2() {
-		String s = null;
-		String ss = "";
-		String[] x = new String[] { s, s = ss };
-		x[10].toString(); /* error1 */
-	}
-
-	void testConditionalExpression1() {
-		String s = new Random().nextBoolean() ? "" : null;
-		String ss = (s != null) ? s : "";
-		ss.toCharArray(); /* error1 */// TODO should be ok
-	}
-
 	void testConditionalExpression2() {
 		String s = new Random().nextBoolean() ? "" : null;
-		String ss = s;
-		ss.toCharArray(); /* error1 */
+		s.toCharArray(); /* error1 */
 	}
 
 	void testConditionalExpression3() {
-		String s = new Random().nextBoolean() ? "" : null;
-		String ss = (s != null) ? "" : "";
-		ss.toCharArray(); /* ok */
+		String s = new Random().nextBoolean() ? "" : "";
+		s.toCharArray(); /* ok */
 	}
 
 	void testAssignmentExpression() {

@@ -53,4 +53,10 @@ public class WhileTest {
 			x = "".contains("") ? x.toString() : null;/* error1 */
 	}
 
+	private void testDoubleCheckUsingOnlyOneExpressionAsBodyI() {
+		Integer i = 1;
+		while ("".contains(""))
+			i = "".contains("") ? (i + 1) : null;/* error1 */
+	}
+
 }

@@ -87,4 +87,14 @@ public class CheckNPETest {
 		t3.toString();/* error1 */
 	}
 
+	void testCompoundStatement() {
+		Integer i = null;
+		i++; /* error1 */
+	}
+
+	void testBinaryExpression() {
+		Integer i = null;
+		Integer j = i + 8; /* error1 */
+	}
+
 }
