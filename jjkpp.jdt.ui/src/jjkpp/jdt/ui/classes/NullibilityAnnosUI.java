@@ -214,14 +214,8 @@ public class NullibilityAnnosUI extends ProposalCollector {
 					if (param >= 0) {
 						MethodDeclaration mdecl = (MethodDeclaration) newDecl;
 						List params = mdecl.parameters();
-						if (params != null) {
-							if (param < params.size()) {
-								addMarker2(targetCU, (VariableDeclaration) params.get(param), marker);
-							} else {
-								System.out.println("has oob parameters! " + param + ">=" + params.size() + " name=" + mdecl.getName() + ";;;;;/n" + mdecl);
-							}
-						} else {
-							System.out.println("has no parameters! " + mdecl.getName() + "; " + mdecl.getParent());
+						if (params != null && param < params.size()) {
+							addMarker2(targetCU, (VariableDeclaration) params.get(param), marker);
 						}
 					} else {
 						addMarker2(targetCU, newDecl, marker);

@@ -56,8 +56,6 @@ public class NullibilityAnnos {
 
 	static public int RequireCanBeNull = IProblem.MethodRelated + 148;
 
-	public static int DECIDING_ANNO_INDEX = 0;
-
 	private static final boolean ALLOW_ASSIGN_NULL_TO_FIELD = true;
 
 	private static final boolean ALLOW_ASSIGN_CANBENULL_TO_FIELD = ALLOW_ASSIGN_NULL_TO_FIELD && false;
@@ -180,10 +178,10 @@ public class NullibilityAnnos {
 		return null;
 	}
 
-	public static boolean nullStatus(QualifiedNameReference qualifiedNameReference) {
+	public static boolean calcNullStatus(QualifiedNameReference qualifiedNameReference) {
 		FieldBinding lastFieldBinding = getLastFieldBinding(qualifiedNameReference);
 		if (lastFieldBinding != null) {
-			return nullStatus(lastFieldBinding);
+			return calcNullStatus(lastFieldBinding);
 		}
 		return false;
 	}
@@ -216,11 +214,9 @@ public class NullibilityAnnos {
 				if (annotationType != null) {
 					String annoName = new String(annotationType.sourceName);
 					if (getParamIndex(annoName, "NonNullParam") == param) {
-						DECIDING_ANNO_INDEX = i;
 						return FlowInfo.NON_NULL;
 					}
 					if (getParamIndex(annoName, "CanBeNullParam") == param) {
-						DECIDING_ANNO_INDEX = i;
 						return FlowInfo.NULL;
 					}
 				}
@@ -235,7 +231,7 @@ public class NullibilityAnnos {
 		// return hasSolidAnnotation(anno);
 	}
 
-	private static boolean nullStatus(FieldBinding fieldBinding) {
+	private static boolean calcNullStatus(FieldBinding fieldBinding) {
 		boolean result = getSolidityWithParent(fieldBinding);
 		if (result) {
 			return result;
@@ -306,7 +302,6 @@ public class NullibilityAnnos {
 				AnnotationBinding annotation = annos[i];
 				int result = getSolidAnnotation(annotation.getAnnotationType());
 				if (result != FlowInfo.UNKNOWN) {
-					DECIDING_ANNO_INDEX = i;
 					return result;
 				}
 			}
@@ -555,7 +550,6 @@ public class NullibilityAnnos {
 			return;
 		int severity = ProblemSeverities.Error;
 		if (declaringClass != null && declaringClass.isBinaryBinding()) {
-			System.out.println("Found binary binding in " + declaringClass.sourceName);
 			severity = ProblemSeverities.Warning;
 		}
 		_this.handle(problemId, problemArguments, 0, // no message elaboration

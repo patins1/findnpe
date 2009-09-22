@@ -265,7 +265,7 @@ public aspect CheckNPE {
 		}
 	}
 
-	after(MethodDeclaration t, ClassScope classScope, InitializationFlowContext initializationContext, FlowInfo info): 
+	after(MethodDeclaration t, ClassScope classScope, InitializationFlowContext initializationContext, FlowInfo info) returning: 
 		call(void analyseCode(ClassScope, InitializationFlowContext, FlowInfo)) && target(t) && args(classScope,initializationContext,info) {
 				
 		if (NullibilityAnnos.enableNullibility()) 	
@@ -326,21 +326,6 @@ public aspect CheckNPE {
 						}
 					}
 				}
-				
-//				if (NullibilityAnnos.getSolidityWithParent(higher) && !NullibilityAnnos.getSolidityWithParent(methodBinding)) {
-//					if (t.annotations.length>NullibilityAnnos.DECIDING_ANNO_INDEX) 
-//						NullibilityAnnos.invalidNullibility(classScope.problemReporter(),t.annotations[NullibilityAnnos.DECIDING_ANNO_INDEX],null,0,"Easy Nullibility problem"); //$NON-NLS-1$
-//				}
-//				if (t.arguments != null) {
-//					for (int i = 0, count = t.arguments.length; i < count; i++) {
-////						LocalVariableBinding arg=t.arguments[i].binding;
-//						if (!NullibilityAnnos.getSolidityWithParent(higher,i) && NullibilityAnnos.getSolidityWithParent(methodBinding,i)) 
-//							if (t.annotations.length>NullibilityAnnos.DECIDING_ANNO_INDEX) 						
-//								NullibilityAnnos.invalidNullibility(classScope.problemReporter(),t.annotations[NullibilityAnnos.DECIDING_ANNO_INDEX],null,0,"Easy Nullibility problem"); //$NON-NLS-1$
-//					}
-//				}
-				
-				
 			}
 		}
 	}		

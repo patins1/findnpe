@@ -74,7 +74,7 @@ public aspect HandleNullStatusMethod {
 		call(int nullStatus(FlowInfo)) && args(flowInfo) && target(t) {
 		
 		if (NullibilityAnnos.enableNullibility()) 
-			return NullibilityAnnos.nullStatus(t)?FlowInfo.NON_NULL:FlowInfo.UNKNOWN;
+			return NullibilityAnnos.calcNullStatus(t)?FlowInfo.NON_NULL:FlowInfo.UNKNOWN;
 		return proceed(t,flowInfo);
 	}
 
