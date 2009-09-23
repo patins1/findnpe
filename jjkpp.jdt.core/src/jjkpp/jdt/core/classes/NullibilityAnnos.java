@@ -23,6 +23,7 @@ import org.eclipse.jdt.internal.compiler.ast.QualifiedNameReference;
 import org.eclipse.jdt.internal.compiler.ast.ReturnStatement;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
+import org.eclipse.jdt.internal.compiler.flow.UnconditionalFlowInfo;
 import org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding;
 import org.eclipse.jdt.internal.compiler.lookup.BaseTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.BinaryTypeBinding;
@@ -364,17 +365,28 @@ public class NullibilityAnnos {
 	}
 
 	public static boolean retainCannotBeNull(FlowInfo flowInfo, FlowInfo currentFlow, BlockScope currentScope) {
-		for (LocalVariableBinding local : currentScope.locals) {
-			if (local == null)
+		UnconditionalFlowInfo unconditionalFlowInfo = flowInfo.unconditionalInits();
+		UnconditionalFlowInfo unconditionalCurrentFlow = currentFlow.unconditionalInits();
+		if ((getCannotBeNull(unconditionalFlowInfo) & ~getCannotBeNull(unconditionalCurrentFlow)) != 0) {
+			// testDoubleCheckWithField*()
+			return false;
+		}
+		for (int i = currentScope.localIndex - 1; i >= 0; i--) {
+			LocalVariableBinding local = currentScope.locals[i];
+			int position = local.id + unconditionalFlowInfo.maxFieldCount;
+			if (position < UnconditionalFlowInfo.BitCacheSize)
 				break;
-			if (flowInfo.cannotBeNull(local) && !currentFlow.cannotBeNull(local)) {
+			if (unconditionalFlowInfo.cannotBeNull(local) && !unconditionalCurrentFlow.cannotBeNull(local))
 				return false;
-			}
 		}
 		if (currentScope.parent instanceof BlockScope) {
-			return retainCannotBeNull(flowInfo, currentFlow, (BlockScope) currentScope.parent);
+			return retainCannotBeNull(unconditionalFlowInfo, unconditionalCurrentFlow, (BlockScope) currentScope.parent);
 		}
 		return true;
+	}
+
+	private static long getCannotBeNull(UnconditionalFlowInfo flowInfo) {
+		return flowInfo.nullBit1 & flowInfo.nullBit3 & (~flowInfo.nullBit2 | flowInfo.nullBit4);
 	}
 
 	static public Long getProblemKey(int problemStartPosition, int problemId) {

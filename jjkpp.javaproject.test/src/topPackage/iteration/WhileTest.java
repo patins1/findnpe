@@ -1,6 +1,11 @@
 package topPackage.iteration;
 
+import jjkpp.jdt.annotations.CanBeNull;
+
 public class WhileTest {
+
+	@CanBeNull
+	private String fx;
 
 	private void testUseNullInfo() {
 		String x = "";
@@ -15,6 +20,15 @@ public class WhileTest {
 		while ("".contains("")) {
 			x.toString();/* error1 */
 			x = null;
+		}
+	}
+
+	private void testDoubleCheckWithField() {
+		fx = "";
+		fx.toString();/* OK */
+		while ("".contains("")) {
+			fx.toString();/* error0 */  
+			fx = null;
 		}
 	}
 

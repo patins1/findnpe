@@ -173,4 +173,22 @@ public class CheckFieldLimitTest {
 		s65.toString(); /* error0 */
 	}
 
+	private void testDoubleCheckWithFieldS63() {
+		s63 = "";
+		s63.toString();/* OK */
+		while ("".contains("")) {
+			s63.toString();/* error0 */
+			s63 = null;
+		}
+	}
+
+	private void testDoubleCheckWithFieldS64() {
+		s64 = "";
+		s64.toString();/* error0 */
+		while ("".contains("")) {
+			s64.toString();/* error0 */
+			s64 = null;
+		}
+	}
+
 }
