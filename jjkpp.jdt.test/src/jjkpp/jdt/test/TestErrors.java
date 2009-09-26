@@ -120,6 +120,12 @@ public class TestErrors extends TestCase {
 							commentLineNumber++;
 						}
 						for (IMarker marker : markers) {
+							int lineNumber = marker.getAttribute("lineNumber", -1);
+							try {
+								reveal(ed, doc, lineNumber, 0, doc.getLineLength(lineNumber - 1) - 1);
+							} catch (BadLocationException e) {
+								e.printStackTrace();
+							}
 							Assert.fail("Too many errors: resource=" + resource.getProjectRelativePath() + " message=" + marker.getAttribute("message") + " line=" + marker.getAttribute("lineNumber", -1));
 						}
 					}

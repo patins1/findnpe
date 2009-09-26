@@ -27,7 +27,7 @@ public class WhileTest {
 		fx = "";
 		fx.toString();/* OK */
 		while ("".contains("")) {
-			fx.toString();/* error0 */  
+			fx.toString();/* error0 */
 			fx = null;
 		}
 	}
