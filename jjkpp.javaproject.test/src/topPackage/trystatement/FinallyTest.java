@@ -69,11 +69,16 @@ public class FinallyTest {
 		try {
 			s = null;
 		} finally {
-			s.toString(); /*
-						 * TODO should be error, due to try block and finally
-						 * block are analyzed independent from each other, but
-						 * our hack uses the null info before try block
-						 */
+			s.toString(); /* error1 */
+		}
+	}
+
+	private void testNoDoubledProblems() {
+		String s = null;
+		try {
+			"".equals("");
+		} finally {
+			s.toString(); /* error1 */
 		}
 	}
 

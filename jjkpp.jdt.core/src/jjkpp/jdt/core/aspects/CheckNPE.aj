@@ -18,9 +18,15 @@ import org.eclipse.jdt.internal.compiler.ast.QualifiedAllocationExpression;
 import org.eclipse.jdt.internal.compiler.ast.ReturnStatement;
 import org.eclipse.jdt.internal.compiler.ast.SingleNameReference;
 import org.eclipse.jdt.internal.compiler.ast.QualifiedNameReference;
+import org.eclipse.jdt.internal.compiler.ast.TryStatement;
+import org.eclipse.jdt.internal.compiler.flow.ExceptionHandlingFlowContext;
+import org.eclipse.jdt.internal.compiler.flow.FinallyFlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.flow.InitializationFlowContext;
+import org.eclipse.jdt.internal.compiler.flow.InsideSubRoutineFlowContext;
+import org.eclipse.jdt.internal.compiler.flow.NullInfoRegistry;
+import org.eclipse.jdt.internal.compiler.flow.UnconditionalFlowInfo;
 import org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding;
 import org.eclipse.jdt.internal.compiler.lookup.BaseTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
@@ -37,7 +43,7 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 @SuppressWarnings("restriction")
-public aspect CheckNPE {
+privileged public aspect CheckNPE {
 
 	// in the following precedence list, each aspect has a replace-advice 
 	// which would hide an advice of any aspect to its left, so the precedence is required; 
@@ -253,6 +259,269 @@ public aspect CheckNPE {
 
 		return flowInfo;
 	}
+	
+	FlowInfo around(TryStatement t, BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) : 
+		call(FlowInfo analyseCode(BlockScope, FlowContext, FlowInfo)) && target(t) && args(currentScope,flowContext,flowInfo) {
+		/*ikv custom code: exchange nullInfoLessUnconditionalCopy by unconditionalCopy, since our advice for this not advices this method */
+		
+
+		// Consider the try block and catch block so as to compute the intersection of initializations and
+		// the minimum exit relative depth amongst all of them. Then consider the subroutine, and append its
+		// initialization to the try/catch ones, if the subroutine completes normally. If the subroutine does not
+		// complete, then only keep t result for the rest of the analysis
+
+		// process the finally block (subroutine) - create a context for the subroutine
+
+		t.preTryInitStateIndex =
+			currentScope.methodScope().recordInitializationStates(flowInfo);
+
+		if (t.anyExceptionVariable != null) {
+			t.anyExceptionVariable.useFlag = LocalVariableBinding.USED;
+		}
+		if (t.returnAddressVariable != null) { // TODO (philippe) if subroutine is escaping, unused
+			t.returnAddressVariable.useFlag = LocalVariableBinding.USED;
+		}
+		if (t.subRoutineStartLabel == null) {
+			// no finally block -- t is a simplified copy of the else part
+			// process the try block in a context handling the local exceptions.
+			ExceptionHandlingFlowContext handlingContext =
+				new ExceptionHandlingFlowContext(
+					flowContext,
+					t,
+					t.caughtExceptionTypes,
+					null,
+					t.scope,
+					flowInfo.unconditionalInits());
+			handlingContext.initsOnFinally =
+				new NullInfoRegistry(flowInfo.unconditionalInits());
+			// only try blocks initialize that member - may consider creating a
+			// separate class if needed
+
+			FlowInfo tryInfo;
+			if (t.tryBlock.isEmptyBlock()) {
+				tryInfo = flowInfo;
+			} else {
+				tryInfo = t.tryBlock.analyseCode(currentScope, handlingContext, flowInfo.copy());
+				if ((tryInfo.tagBits & FlowInfo.UNREACHABLE) != 0)
+					t.bits |= ASTNode.IsTryBlockExiting;
+			}
+
+			// check unreachable catch blocks
+			handlingContext.complainIfUnusedExceptionHandlers(t.scope, t);
+
+			// process the catch blocks - computing the minimal exit depth amongst try/catch
+			if (t.catchArguments != null) {
+				int catchCount;
+				t.catchExits = new boolean[catchCount = t.catchBlocks.length];
+				t.catchExitInitStateIndexes = new int[catchCount];
+				for (int i = 0; i < catchCount; i++) {
+					// keep track of the inits that could potentially have led to t exception handler (for final assignments diagnosis)
+					FlowInfo catchInfo;
+					if (t.caughtExceptionTypes[i].isUncheckedException(true)) {
+						catchInfo =
+							handlingContext.initsOnFinally.mitigateNullInfoOf(
+								flowInfo.unconditionalCopy().
+									addPotentialInitializationsFrom(
+										handlingContext.initsOnException(
+											t.caughtExceptionTypes[i])).
+									addPotentialInitializationsFrom(tryInfo).
+									addPotentialInitializationsFrom(
+										handlingContext.initsOnReturn));
+					} else {
+						catchInfo =
+							flowInfo.unconditionalCopy().
+								addPotentialInitializationsFrom(
+									handlingContext.initsOnException(
+										t.caughtExceptionTypes[i]))
+								.addPotentialInitializationsFrom(
+									tryInfo.unconditionalCopy())
+									// remove null info to protect point of
+									// exception null info
+								.addPotentialInitializationsFrom(
+									handlingContext.initsOnReturn.
+									unconditionalCopy());
+					}
+
+					// catch var is always set
+					LocalVariableBinding catchArg = t.catchArguments[i].binding;
+					catchInfo.markAsDefinitelyAssigned(catchArg);
+					catchInfo.markAsDefinitelyNonNull(catchArg);
+					/*
+					"If we are about to consider an unchecked exception handler, potential inits may have occured inside
+					the try block that need to be detected , e.g.
+					try { x = 1; throwSomething();} catch(Exception e){ x = 2} "
+					"(uncheckedExceptionTypes notNil and: [uncheckedExceptionTypes at: index])
+					ifTrue: [catchInits addPotentialInitializationsFrom: tryInits]."
+					*/
+					if (t.tryBlock.statements == null) {
+						catchInfo.setReachMode(FlowInfo.UNREACHABLE);
+					}
+					catchInfo =
+						t.catchBlocks[i].analyseCode(
+							currentScope,
+							flowContext,
+							catchInfo);
+					t.catchExitInitStateIndexes[i] = currentScope.methodScope().recordInitializationStates(catchInfo);
+					t.catchExits[i] =
+						(catchInfo.tagBits & FlowInfo.UNREACHABLE) != 0;
+					tryInfo = tryInfo.mergedWith(catchInfo.unconditionalInits());
+				}
+			}
+			t.mergedInitStateIndex =
+				currentScope.methodScope().recordInitializationStates(tryInfo);
+
+			// chain up null info registry
+			if (flowContext.initsOnFinally != null) {
+				flowContext.initsOnFinally.add(handlingContext.initsOnFinally);
+			}
+
+			return tryInfo;
+		} else {
+			InsideSubRoutineFlowContext insideSubContext;
+			FinallyFlowContext finallyContext;
+			UnconditionalFlowInfo subInfo;
+			// analyse finally block first
+			insideSubContext = new InsideSubRoutineFlowContext(flowContext, t);
+
+			subInfo =
+				t.finallyBlock
+					.analyseCode(
+						currentScope,
+						finallyContext = new FinallyFlowContext(flowContext, t.finallyBlock),
+						flowInfo.unconditionalCopy())
+					.unconditionalInits();
+			if (subInfo == FlowInfo.DEAD_END) {
+				t.bits |= ASTNode.IsSubRoutineEscaping;
+				t.scope.problemReporter().finallyMustCompleteNormally(t.finallyBlock);
+			}
+			t.subRoutineInits = subInfo;
+			// process the try block in a context handling the local exceptions.
+			ExceptionHandlingFlowContext handlingContext =
+				new ExceptionHandlingFlowContext(
+					insideSubContext,
+					t,
+					t.caughtExceptionTypes,
+					null,
+					t.scope,
+					flowInfo.unconditionalInits());
+			handlingContext.initsOnFinally =
+				new NullInfoRegistry(flowInfo.unconditionalInits());
+			// only try blocks initialize that member - may consider creating a
+			// separate class if needed
+
+			FlowInfo tryInfo;
+			if (t.tryBlock.isEmptyBlock()) {
+				tryInfo = flowInfo;
+			} else {
+				tryInfo = t.tryBlock.analyseCode(currentScope, handlingContext, flowInfo.copy());
+				if ((tryInfo.tagBits & FlowInfo.UNREACHABLE) != 0)
+					t.bits |= ASTNode.IsTryBlockExiting;
+			}
+
+			// check unreachable catch blocks
+			handlingContext.complainIfUnusedExceptionHandlers(t.scope, t);
+
+			// process the catch blocks - computing the minimal exit depth amongst try/catch
+			if (t.catchArguments != null) {
+				int catchCount;
+				t.catchExits = new boolean[catchCount = t.catchBlocks.length];
+				t.catchExitInitStateIndexes = new int[catchCount];
+				for (int i = 0; i < catchCount; i++) {
+					// keep track of the inits that could potentially have led to t exception handler (for final assignments diagnosis)
+					FlowInfo catchInfo;
+					if (t.caughtExceptionTypes[i].isUncheckedException(true)) {
+						catchInfo =
+							handlingContext.initsOnFinally.mitigateNullInfoOf(
+								flowInfo.unconditionalCopy().
+									addPotentialInitializationsFrom(
+										handlingContext.initsOnException(
+											t.caughtExceptionTypes[i])).
+									addPotentialInitializationsFrom(tryInfo).
+									addPotentialInitializationsFrom(
+										handlingContext.initsOnReturn));
+					}else {
+						catchInfo =
+							flowInfo.unconditionalCopy()
+								.addPotentialInitializationsFrom(
+									handlingContext.initsOnException(
+										t.caughtExceptionTypes[i]))
+										.addPotentialInitializationsFrom(
+									tryInfo.unconditionalCopy())
+									// remove null info to protect point of
+									// exception null info
+								.addPotentialInitializationsFrom(
+										handlingContext.initsOnReturn.
+										unconditionalCopy());
+					}
+
+					// catch var is always set
+					LocalVariableBinding catchArg = t.catchArguments[i].binding;
+					catchInfo.markAsDefinitelyAssigned(catchArg);
+					catchInfo.markAsDefinitelyNonNull(catchArg);
+					/*
+					"If we are about to consider an unchecked exception handler, potential inits may have occured inside
+					the try block that need to be detected , e.g.
+					try { x = 1; throwSomething();} catch(Exception e){ x = 2} "
+					"(uncheckedExceptionTypes notNil and: [uncheckedExceptionTypes at: index])
+					ifTrue: [catchInits addPotentialInitializationsFrom: tryInits]."
+					*/
+					if (t.tryBlock.statements == null) {
+						catchInfo.setReachMode(FlowInfo.UNREACHABLE);
+					}
+					catchInfo =
+						t.catchBlocks[i].analyseCode(
+							currentScope,
+							insideSubContext,
+							catchInfo);
+					t.catchExitInitStateIndexes[i] = currentScope.methodScope().recordInitializationStates(catchInfo);
+					t.catchExits[i] =
+						(catchInfo.tagBits & FlowInfo.UNREACHABLE) != 0;
+					tryInfo = tryInfo.mergedWith(catchInfo.unconditionalInits());
+				}
+			}
+			// we also need to check potential multiple assignments of final variables inside the finally block
+			// need to include potential inits from returns inside the try/catch parts - 1GK2AOF
+			finallyContext.complainOnDeferredChecks(
+				handlingContext.initsOnFinally.mitigateNullInfoOf(
+					(tryInfo.tagBits & FlowInfo.UNREACHABLE) == 0 ?
+						flowInfo.unconditionalCopy().
+						addPotentialInitializationsFrom(tryInfo).
+							// lighten the influence of the try block, which may have
+							// exited at any point
+						addPotentialInitializationsFrom(insideSubContext.initsOnReturn) :
+						insideSubContext.initsOnReturn),
+				currentScope);
+
+			// chain up null info registry
+			if (flowContext.initsOnFinally != null) {
+				flowContext.initsOnFinally.add(handlingContext.initsOnFinally);
+			}
+
+			t.naturalExitMergeInitStateIndex =
+				currentScope.methodScope().recordInitializationStates(tryInfo);
+			
+			/*custom code: second pass if required*/			
+			if (!NullibilityAnnos.retainCannotBeNull(flowInfo,tryInfo,currentScope)) {
+				t.finallyBlock
+					.analyseCode(
+						currentScope,
+						finallyContext = new FinallyFlowContext(flowContext, t.finallyBlock),
+						tryInfo.unconditionalCopy())
+					.unconditionalInits();
+			}			
+			
+			if (subInfo == FlowInfo.DEAD_END) {
+				t.mergedInitStateIndex =
+					currentScope.methodScope().recordInitializationStates(subInfo);
+				return subInfo;
+			} else {
+				FlowInfo mergedInfo = tryInfo.addInitializationsFrom(subInfo);
+				t.mergedInitStateIndex =
+					currentScope.methodScope().recordInitializationStates(mergedInfo);
+				return mergedInfo;
+			}
+		}
+	}	
 	
 	after(FieldDeclaration t, MethodScope initializationScope, FlowContext flowContext, FlowInfo flowInfo) 
 		returning(FlowInfo result) : 
