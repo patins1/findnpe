@@ -29,7 +29,7 @@ import org.eclipse.jdt.internal.compiler.problem.ProblemHandler;
 @SuppressWarnings("restriction")
 public aspect HandleIterations {
 	
-	private Set alreadyReported=new HashSet();
+	private Set CompilationResult.alreadyReported=new HashSet();
 	
 	/**
 	 * testUseNullInfo()
@@ -67,13 +67,6 @@ public aspect HandleIterations {
 						return firstPassFlowInfo;
 					}
 						
-					// remember recorded problems during first pass
-					for (int i=problemCount; i<unitResult.problemCount; i++) {
-						CategorizedProblem problem = unitResult.problems[i];
-						Object key = NullibilityAnnos.getProblemKey(problem.getSourceStart(),problem.getID());
-						alreadyReported.add(key);
-					}					
-					try {						
 						// merging is especially necessary because FirstAssignmentToLocal flag would be cleared at second pass
 						flowInfo=firstPassFlowInfo.mergedWith(flowInfo.unconditionalInits());
 						
@@ -94,15 +87,6 @@ public aspect HandleIterations {
 						
 						// second pass
 						return action.analyseCode(currentScope, flowContext, flowInfo);
-					}
-					finally {						
-						// forget recorded problems during first pass						
-						for (int i=problemCount; i<unitResult.problemCount; i++) {
-							CategorizedProblem problem = unitResult.problems[i];
-							Object key = NullibilityAnnos.getProblemKey(problem.getSourceStart(),problem.getID());
-							alreadyReported.remove(key);					
-						}						
-					}				
 				}		
 			}
 		} 
@@ -117,10 +101,8 @@ public aspect HandleIterations {
 		call(void handle(int, String[], int, String[], int, int, int, ReferenceContext, CompilationResult )) && 
 		args(problemId,	problemArguments, elaborationId, messageArguments, severity, problemStartPosition, problemEndPosition, referenceContext, unitResult) && target(problemHandler) {
 
-		if (!alreadyReported.isEmpty()) {
 			Object key = NullibilityAnnos.getProblemKey(problemStartPosition,problemId);
-			if (alreadyReported.contains(key)) return;
-		}
+			if (!unitResult.alreadyReported.add(key)) return;
 		proceed(problemHandler,problemId,problemArguments,elaborationId,messageArguments,severity,problemStartPosition,problemEndPosition,referenceContext,unitResult);
 	}	
 
