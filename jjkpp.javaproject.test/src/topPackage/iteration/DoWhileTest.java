@@ -33,7 +33,7 @@ public class DoWhileTest {
 			do {
 				x.toString();/* error1 */
 			} while ("".contains(""));
-			x.toString();/* OK */// TODO
+			x.toString();/* OK */
 			y.toString();/* error1 */
 			y = null; // forces a second pass
 		} while ("".contains(""));
