@@ -87,7 +87,7 @@ public class TestErrors extends TestCase {
 								boolean easyError = errorContent.contains("easy");
 								IMarker marker = findMarker(markers, lineNumber);
 								if (marker == null || easyError != marker.getAttribute("message", "").contains("Easy")) {
-									reveal(ed, doc, lineNumber, errorIndex, errorIndexTo);
+									reveal(ed, doc, commentLineNumber, errorIndex, errorIndexTo);
 									for (IMarker marker2 : markers) {
 										System.out.println("Marker " + marker2.getAttribute("message") + " line=" + marker2.getAttribute("lineNumber", -1));
 									}
@@ -107,7 +107,7 @@ public class TestErrors extends TestCase {
 									proposalCount = 2;
 								IMarkerResolution[] resolutions = IDE.getMarkerHelpRegistry().getResolutions(marker);
 								if (proposalCount != resolutions.length) {
-									reveal(ed, doc, lineNumber, errorIndex, errorIndexTo);
+									reveal(ed, doc, commentLineNumber, errorIndex, errorIndexTo);
 									try {
 										Assert.assertEquals("Proposal count problem: resource=" + resource.getProjectRelativePath() + " lineNumber=" + lineNumber, proposalCount, resolutions.length);
 									} catch (AssertionFailedError e) {

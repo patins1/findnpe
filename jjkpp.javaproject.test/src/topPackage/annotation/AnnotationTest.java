@@ -29,7 +29,7 @@ public class AnnotationTest {
 	}
 
 	@NonNull
-	/* error0 *//* TODO allow or not? */
+	/* OK */
 	private void testReturnAnnotationOnVoid(String s1) {
 	}
 

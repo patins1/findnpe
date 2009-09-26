@@ -304,9 +304,6 @@ public aspect CheckNPE {
 								}
 							} else {
 								if (annoName.equals("CanBeNull")) {
-									if (methodBinding.returnType == TypeBinding.VOID) {
-										NullibilityAnnos.invalidNullibility(classScope.problemReporter(),t.annotations[i],null,0,"Nullibility problem: Method has no return value"); //$NON-NLS-1$
-									} else
 									if (NullibilityAnnos.getSolidityWithParent(methodBinding)) {
 										NullibilityAnnos.invalidNullibility(classScope.problemReporter(),t.annotations[i],null,0,"Nullibility problem: Defined already as NonNull"); //$NON-NLS-1$
 									} else
@@ -315,9 +312,6 @@ public aspect CheckNPE {
 									}
 								} else
 								if (annoName.equals("NonNull")) {
-									if (methodBinding.returnType == TypeBinding.VOID) {
-										NullibilityAnnos.invalidNullibility(classScope.problemReporter(),t.annotations[i],null,0,"Nullibility problem: Method has no return value"); //$NON-NLS-1$
-									} else
 									if (!NullibilityAnnos.getSolidityWithParent(methodBinding)) {
 										NullibilityAnnos.invalidNullibility(classScope.problemReporter(),t.annotations[i],null,0,"Nullibility problem: Defined already as CanBeNull"); //$NON-NLS-1$
 									}
