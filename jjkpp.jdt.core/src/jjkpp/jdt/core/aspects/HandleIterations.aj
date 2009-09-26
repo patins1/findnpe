@@ -67,26 +67,26 @@ public aspect HandleIterations {
 						return firstPassFlowInfo;
 					}
 						
-						// merging is especially necessary because FirstAssignmentToLocal flag would be cleared at second pass
-						flowInfo=firstPassFlowInfo.mergedWith(flowInfo.unconditionalInits());
-						
-						// testDoubleCheckWithCondition()
-						if (t instanceof WhileStatement) {
-							flowInfo = ((WhileStatement)t).condition.analyseCode(currentScope, flowContext, flowInfo);
-							flowInfo = flowInfo.initsWhenTrue().copy();
-						} else
-						if (t instanceof DoStatement) {
-							flowInfo = ((DoStatement)t).condition.analyseCode(currentScope, flowContext, flowInfo);
-							flowInfo = flowInfo.initsWhenTrue().copy();
-						} else
-						if (t instanceof ForStatement) {
-							flowInfo = ((ForStatement)t).condition.analyseCode(currentScope, flowContext, flowInfo);
-							flowInfo = flowInfo.initsWhenTrue().copy();
-							//TODO analyze the "increments" expressions twice
-						}
-						
-						// second pass
-						return action.analyseCode(currentScope, flowContext, flowInfo);
+					// merging is especially necessary because FirstAssignmentToLocal flag would be cleared at second pass
+					flowInfo=firstPassFlowInfo.mergedWith(flowInfo.unconditionalInits());
+					
+					// testDoubleCheckWithCondition()
+					if (t instanceof WhileStatement) {
+						flowInfo = ((WhileStatement)t).condition.analyseCode(currentScope, flowContext, flowInfo);
+						flowInfo = flowInfo.initsWhenTrue().copy();
+					} else
+					if (t instanceof DoStatement) {
+						flowInfo = ((DoStatement)t).condition.analyseCode(currentScope, flowContext, flowInfo);
+						flowInfo = flowInfo.initsWhenTrue().copy();
+					} else
+					if (t instanceof ForStatement) {
+						flowInfo = ((ForStatement)t).condition.analyseCode(currentScope, flowContext, flowInfo);
+						flowInfo = flowInfo.initsWhenTrue().copy();
+						//TODO analyze the "increments" expressions twice
+					}
+					
+					// second pass
+					return action.analyseCode(currentScope, flowContext, flowInfo);
 				}		
 			}
 		} 
@@ -101,8 +101,8 @@ public aspect HandleIterations {
 		call(void handle(int, String[], int, String[], int, int, int, ReferenceContext, CompilationResult )) && 
 		args(problemId,	problemArguments, elaborationId, messageArguments, severity, problemStartPosition, problemEndPosition, referenceContext, unitResult) && target(problemHandler) {
 
-			Object key = NullibilityAnnos.getProblemKey(problemStartPosition,problemId);
-			if (!unitResult.alreadyReported.add(key)) return;
+		Object key = NullibilityAnnos.getProblemKey(problemStartPosition,problemId);
+		if (!unitResult.alreadyReported.add(key)) return;
 		proceed(problemHandler,problemId,problemArguments,elaborationId,messageArguments,severity,problemStartPosition,problemEndPosition,referenceContext,unitResult);
 	}	
 
