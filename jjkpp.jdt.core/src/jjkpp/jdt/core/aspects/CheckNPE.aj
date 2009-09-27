@@ -144,6 +144,9 @@ privileged public aspect CheckNPE {
 		}
 		ReferenceBinding[] thrownExceptions;
 		if ((thrownExceptions = t.binding.thrownExceptions) != Binding.NO_EXCEPTIONS) {
+			if ((t.bits & ASTNode.Unchecked) != 0 && t.genericTypeArguments == null) {
+				thrownExceptions = currentScope.environment().convertToRawTypes(t.binding.original().thrownExceptions, true, true);
+			}			
 			// must verify that exceptions potentially thrown by t expression are caught in the method
 			flowContext.checkExceptionHandlers(thrownExceptions, t, flowInfo.copy(), currentScope);
 			// TODO (maxime) the copy above is needed because of a side effect into 
