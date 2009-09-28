@@ -181,7 +181,7 @@ privileged public aspect CheckNPE {
 			if (t.arguments != null) {
 				MethodBinding binding=t.binding;
 				if (binding.declaringClass.isAnonymousType()) {
-					// custom code: TODO description
+					// custom code: use super constructor instead of its anonymous duplicate
 					MethodBinding superBinding=NullibilityAnnos.findSuperMethod(binding);
 					if (superBinding!=null)
 						binding=superBinding;
@@ -227,7 +227,7 @@ privileged public aspect CheckNPE {
 		if (t.arguments != null) {
 			MethodBinding binding=t.binding;
 			if (binding.declaringClass.isAnonymousType()) {
-				// custom code: TODO description
+				// custom code: use super constructor instead of its anonymous duplicate
 				MethodBinding superBinding=NullibilityAnnos.findSuperMethod(binding);
 				if (superBinding!=null)
 					binding=superBinding;
