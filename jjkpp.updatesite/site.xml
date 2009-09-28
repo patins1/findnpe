@@ -3,8 +3,12 @@
    <description>
       JJKPP Update Site
    </description>
-   <feature url="features/jjkpp.firstfix.feature_1.0.0.200909271357.jar" id="jjkpp.firstfix.feature" version="1.0.0.200909271357"/>
-   <feature url="features/jjkpp.jdt.feature_1.0.0.200909271357.jar" id="jjkpp.jdt.feature" version="1.0.0.200909271357"/>
+   <feature url="features/jjkpp.firstfix.feature_1.0.0.200909271906.jar" id="jjkpp.firstfix.feature" version="1.0.0.200909271906">
+      <category name="category_1"/>
+   </feature>
+   <feature url="features/jjkpp.jdt.feature_1.0.0.200909271906.jar" id="jjkpp.jdt.feature" version="1.0.0.200909271906">
+      <category name="category_1"/>
+   </feature>
    <category-def name="category_1" label="Java Tools">
       <description>
          Set of Java tools
