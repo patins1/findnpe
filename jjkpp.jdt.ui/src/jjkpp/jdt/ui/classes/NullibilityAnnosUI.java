@@ -115,6 +115,7 @@ public class NullibilityAnnosUI extends ProposalCollector {
 			ClassInstanceCreation methodImpl = (ClassInstanceCreation) invocationNode;
 			IMethodBinding binding = methodImpl.resolveConstructorBinding();
 			if (binding.getDeclaringClass().isAnonymous()) {
+				// use super constructor instead of its anonymous duplicate
 				ITypeBinding superclass = binding.getDeclaringClass().getSuperclass();
 				if (superclass != null) {
 					for (IMethodBinding method : superclass.getDeclaredMethods()) {
