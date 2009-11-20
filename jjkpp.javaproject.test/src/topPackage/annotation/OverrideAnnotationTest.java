@@ -73,4 +73,20 @@ public class OverrideAnnotationTest {
 
 	}
 
+	void test2() {
+		new OverrideAnnotationTest() {
+
+			@Override
+			protected String testParamCanBeNull(String s) {
+				testParamCanBeNull(null); /* OK */
+				return "";
+			}
+
+			@Override
+			protected String testReturnCanBeNull() {
+				return null; /* OK */    
+			}
+		};
+
+	}
 }
