@@ -54,7 +54,7 @@ import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
  */
 @SuppressWarnings("restriction")
 public class NullibilityAnnos {
-
+	
 	static public int RequireCanBeNull = IProblem.MethodRelated + 148;
 
 	private static final boolean ALLOW_ASSIGN_NULL_TO_FIELD = true;
@@ -69,17 +69,23 @@ public class NullibilityAnnos {
 	public static final int FlowInfo_OnlyUseFlowInfo = 4;
 
 	public static boolean getSolidityWithParent(MethodBinding binding) {
-		ReferenceBinding declaringClass = binding.declaringClass;
-		int result = NullibilityAnnos.getSolidityWithParent(binding.getAnnotations(), declaringClass);
-		if (result != FlowInfo.UNKNOWN) {
-			return result == FlowInfo.NON_NULL;
-		}
-
+		MethodBinding highest=binding;
+		MethodBinding _binding = binding;
+		do {
+			int result = NullibilityAnnos.hasSolidAnnotation(_binding.getAnnotations());
+			if (result != FlowInfo.UNKNOWN) {
+				return result == FlowInfo.NON_NULL;
+			}
+			MethodBinding superMethod = findSuperMethod(_binding);
+			if (superMethod != null)
+				highest = superMethod;
+			if (superMethod == _binding)
+				break;
+			_binding= superMethod;
+		} while (_binding != null);
+		
 		String methodName = new String(binding.selector);
-		MethodBinding highest = findSuperMethod(binding);
-		if (highest == null)
-			highest = binding;
-		if (declaringClass != null && highest != null && highest.declaringClass != null) {
+		if (binding.declaringClass != null && highest != null && highest.declaringClass != null) {
 
 			// Set<String> itfs = new HashSet<String>();
 			// itfs.add(getClassName(declaringClass));
@@ -117,7 +123,7 @@ public class NullibilityAnnos {
 			if (className.equals("java.sql.Statement") && !"".equals(methodName) && !"".equals(methodName) && !"".equals(methodName))
 				return true;
 		}
-		return false;
+		return NullibilityAnnos.hasSolidAnnotation(binding.declaringClass) == FlowInfo.NON_NULL;
 	}
 
 	public static boolean getSolidityWithParent(MethodBinding binding, int param) {
@@ -561,9 +567,10 @@ public class NullibilityAnnos {
 		if (_this.referenceContext == null)
 			return;
 		int severity = ProblemSeverities.Error;
-		if (declaringClass != null && declaringClass.isBinaryBinding()) {
-			severity = ProblemSeverities.Warning;
-		}
+//		if (declaringClass != null && declaringClass.isBinaryBinding()) {
+//			severity = ProblemSeverities.Warning;
+//			com.sun.jdi.VirtualMachine m;
+//		}
 		_this.handle(problemId, problemArguments, 0, // no message elaboration
 				messageArguments, severity, problemStartPosition, problemEndPosition, _this.referenceContext, _this.referenceContext == null ? null : _this.referenceContext.compilationResult());
 		_this.referenceContext = null;
