@@ -110,7 +110,7 @@ public class NullibilityAnnosUI extends ProposalCollector {
 			IMethodBinding binding = methodImpl.resolveMethodBinding();
 			int param = methodImpl.arguments().indexOf(selectedNode);
 			if (param >= 0)
-				addNullibilityProposals(cu, astRoot, binding, binding.getDeclaringClass().getTypeDeclaration(), param, invocationNode, "CanBeNull");
+				addNullibilityProposals(cu, astRoot, binding, binding.getDeclaringClass(), param, invocationNode, "CanBeNull");
 		} else if (invocationNode instanceof ClassInstanceCreation) {
 			ClassInstanceCreation methodImpl = (ClassInstanceCreation) invocationNode;
 			IMethodBinding binding = methodImpl.resolveConstructorBinding();
@@ -130,13 +130,13 @@ public class NullibilityAnnosUI extends ProposalCollector {
 			}
 			int param = methodImpl.arguments().indexOf(selectedNode);
 			if (param >= 0)
-				addNullibilityProposals(cu, astRoot, binding, binding.getDeclaringClass().getTypeDeclaration(), param, invocationNode, "CanBeNull");
+				addNullibilityProposals(cu, astRoot, binding, binding.getDeclaringClass(), param, invocationNode, "CanBeNull");
 		} else if (invocationNode instanceof SuperMethodInvocation) {
 			SuperMethodInvocation methodImpl = (SuperMethodInvocation) invocationNode;
 			IMethodBinding binding = methodImpl.resolveMethodBinding();
 			int param = methodImpl.arguments().indexOf(selectedNode);
 			if (param >= 0)
-				addNullibilityProposals(cu, astRoot, binding, binding.getDeclaringClass().getTypeDeclaration(), param, invocationNode, "CanBeNull");
+				addNullibilityProposals(cu, astRoot, binding, binding.getDeclaringClass(), param, invocationNode, "CanBeNull");
 		} else if (invocationNode instanceof ReturnStatement) {
 			ReturnStatement returnStatement = (ReturnStatement) invocationNode;
 			MethodDeclaration methodDeclaration = getMethodDeclaration(returnStatement);
@@ -154,25 +154,25 @@ public class NullibilityAnnosUI extends ProposalCollector {
 			MethodInvocation methodInvocation = (MethodInvocation) selectedNode;
 			IMethodBinding methodBinding = methodInvocation.resolveMethodBinding();
 
-			addNullibilityProposals(cu, astRoot, methodBinding, methodBinding.getDeclaringClass().getTypeDeclaration(), -1, selectedNode, marker);
+			addNullibilityProposals(cu, astRoot, methodBinding, methodBinding.getDeclaringClass(), -1, selectedNode, marker);
 
 		}
 		if (selectedNode instanceof FieldAccess) {
 			FieldAccess name = (FieldAccess) selectedNode;
 			IVariableBinding nameBinding = name.resolveFieldBinding();
-			addNullibilityProposals(cu, astRoot, nameBinding, nameBinding.getDeclaringClass().getTypeDeclaration(), -1, selectedNode, marker);
+			addNullibilityProposals(cu, astRoot, nameBinding, nameBinding.getDeclaringClass(), -1, selectedNode, marker);
 		}
 		if (selectedNode instanceof VariableDeclarationFragment) {
 			VariableDeclarationFragment name = (VariableDeclarationFragment) selectedNode;
 			IVariableBinding nameBinding = name.resolveBinding();
-			addNullibilityProposals(cu, astRoot, nameBinding, nameBinding.getDeclaringClass().getTypeDeclaration(), -1, selectedNode, marker);
+			addNullibilityProposals(cu, astRoot, nameBinding, nameBinding.getDeclaringClass(), -1, selectedNode, marker);
 		}
 		if (selectedNode instanceof QualifiedName) {
 			QualifiedName name = (QualifiedName) selectedNode;
 			IBinding nameBinding = name.resolveBinding();
 			if (nameBinding instanceof IVariableBinding) {
 				IVariableBinding varBinding = (IVariableBinding) nameBinding;
-				addNullibilityProposals(cu, astRoot, varBinding, varBinding.getDeclaringClass().getTypeDeclaration(), -1, selectedNode, marker);
+				addNullibilityProposals(cu, astRoot, varBinding, varBinding.getDeclaringClass(), -1, selectedNode, marker);
 			}
 		}
 	}
@@ -199,9 +199,10 @@ public class NullibilityAnnosUI extends ProposalCollector {
 		fetchProposalStructures(cu, astRoot, problem.getCoveringNode(astRoot));
 	}
 
-	protected void addNullibilityProposals(ICompilationUnit cu, CompilationUnit astRoot, IBinding binding, ITypeBinding declaringTypeDecl, int param, ASTNode invocationNode, String marker) throws CoreException {
-
-		if (declaringTypeDecl.isFromSource()) {
+	protected void addNullibilityProposals(ICompilationUnit cu, CompilationUnit astRoot, IBinding binding, ITypeBinding declaringClass, int param, ASTNode invocationNode, String marker) throws CoreException {
+		if (declaringClass==null) return;
+		ITypeBinding declaringTypeDecl = declaringClass.getTypeDeclaration();		
+		if (declaringTypeDecl!=null && declaringTypeDecl.isFromSource()) {
 			ICompilationUnit targetCU = ASTResolving.findCompilationUnitForBinding(cu, astRoot, declaringTypeDecl);
 			if (targetCU != null) {
 
