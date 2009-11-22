@@ -58,27 +58,27 @@ privileged public aspect CheckNPE {
 				SingleNameReference singleNameReference=(SingleNameReference) t.lhs;
 				if (singleNameReference.binding instanceof FieldBinding) {
 					FieldBinding fieldBinding=(FieldBinding) singleNameReference.binding;
-					if (NullibilityAnnos.getSolidityWithParent(fieldBinding) && NullibilityAnnos.checkFieldAssignment(t)) {
+					if (NullibilityAnnos.checkOnNonNull(fieldBinding) && NullibilityAnnos.checkFieldAssignment(t)) {
 						t.expression.checkNPE(currentScope, flowContext, flowInfo);
 					}
 				} else
 				if (singleNameReference.binding instanceof VariableBinding) {
 					VariableBinding variableBinding=(VariableBinding) singleNameReference.binding;
-					if (NullibilityAnnos.getSolidityWithParent(variableBinding)) {
+					if (NullibilityAnnos.checkOnNonNull(variableBinding)) {
 						t.expression.checkNPE(currentScope, flowContext, flowInfo);
 					} 
 				}
 			} else
 			if (t.lhs instanceof FieldReference) {
 				FieldBinding fieldBinding=((FieldReference) t.lhs).binding;
-				if (NullibilityAnnos.getSolidityWithParent(fieldBinding) && NullibilityAnnos.checkFieldAssignment(t)) {
+				if (NullibilityAnnos.checkOnNonNull(fieldBinding) && NullibilityAnnos.checkFieldAssignment(t)) {
 					t.expression.checkNPE(currentScope, flowContext, flowInfo);			
 				}
 			}
 			 else
 			if (t.lhs instanceof QualifiedNameReference) {
 				FieldBinding fieldBinding=NullibilityAnnos.getLastFieldBinding((QualifiedNameReference)t.lhs);
-				if (fieldBinding!=null && NullibilityAnnos.getSolidityWithParent(fieldBinding) && NullibilityAnnos.checkFieldAssignment(t)) {
+				if (fieldBinding!=null && NullibilityAnnos.checkOnNonNull(fieldBinding) && NullibilityAnnos.checkFieldAssignment(t)) {
 					t.expression.checkNPE(currentScope, flowContext, flowInfo);			
 				}
 			}
@@ -137,7 +137,7 @@ privileged public aspect CheckNPE {
 				flowInfo = t.arguments[i].analyseCode(currentScope, flowContext, flowInfo).unconditionalInits();
 				// custom code: check parameters
 				if (NullibilityAnnos.enableNullibility()) 			
-					if (NullibilityAnnos.getSolidityWithParent(t.binding,i)) { 
+					if (NullibilityAnnos.checkOnNonNull(t.binding,i)) { 
 						NullibilityAnnos.checkEasyNPE(t.arguments[i], currentScope, flowContext, flowInfo, t.binding.declaringClass); 
 					}
 			}
@@ -190,7 +190,7 @@ privileged public aspect CheckNPE {
 					flowInfo = t.arguments[i].analyseCode(currentScope, flowContext, flowInfo);
 					// custom code: check parameters
 					if (NullibilityAnnos.enableNullibility()) 			
-						if (NullibilityAnnos.getSolidityWithParent(binding,i)) {
+						if (NullibilityAnnos.checkOnNonNull(binding,i)) {
 							NullibilityAnnos.checkEasyNPE(t.arguments[i], currentScope, flowContext, flowInfo, binding.declaringClass); 
 						}
 				}
@@ -239,7 +239,7 @@ privileged public aspect CheckNPE {
 						.unconditionalInits();
 				// custom code: check parameters
 				if (NullibilityAnnos.enableNullibility()) 			
-					if (NullibilityAnnos.getSolidityWithParent(binding,i)) {
+					if (NullibilityAnnos.checkOnNonNull(binding,i)) {
 						NullibilityAnnos.checkEasyNPE(t.arguments[i], currentScope, flowContext, flowInfo, binding.declaringClass); 
 					}
 			}
@@ -532,7 +532,7 @@ privileged public aspect CheckNPE {
 			
 		if (NullibilityAnnos.enableNullibility()) 
 		if (t.initialization != null) { 
-			if (NullibilityAnnos.getSolidityWithParent(t.binding))
+			if (NullibilityAnnos.checkOnNonNull(t.binding))
 				t.initialization.checkNPE(initializationScope, flowContext, result);
 		}
 	}
@@ -613,7 +613,7 @@ privileged public aspect CheckNPE {
 		if (NullibilityAnnos.enableNullibility())
 			if (currentScope.referenceContext() instanceof MethodDeclaration) {
 				MethodDeclaration methodDeclaration = (MethodDeclaration)currentScope.referenceContext();
-				if (NullibilityAnnos.getSolidityWithParent(methodDeclaration.binding)) {
+				if (NullibilityAnnos.checkOnNonNull(methodDeclaration.binding)) {
 					NullibilityAnnos.checkEasyNPE(t, currentScope, flowContext, result, null);
 				}
 			}

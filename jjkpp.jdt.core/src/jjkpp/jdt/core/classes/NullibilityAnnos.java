@@ -55,6 +55,8 @@ import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 @SuppressWarnings("restriction")
 public class NullibilityAnnos {
 	
+	public static boolean ATTACK = !true;
+	
 	static public int RequireCanBeNull = IProblem.MethodRelated + 148;
 
 	private static final boolean ALLOW_ASSIGN_NULL_TO_FIELD = true;
@@ -68,7 +70,24 @@ public class NullibilityAnnos {
 	 */
 	public static final int FlowInfo_OnlyUseFlowInfo = 4;
 
+	public static boolean checkOnNonNull(MethodBinding binding) {
+		if (ATTACK) {
+			Boolean result=_getSolidityWithParent(binding);
+			if (result!=null)
+				return result;
+			return false;			
+		}
+		return getSolidityWithParent(binding);
+	}
+	
 	public static boolean getSolidityWithParent(MethodBinding binding) {
+		Boolean result=_getSolidityWithParent(binding);
+		if (result!=null)
+			return result;
+		return NullibilityAnnos.hasSolidAnnotation(binding.declaringClass) == FlowInfo.NON_NULL;
+	}
+
+	private static Boolean _getSolidityWithParent(MethodBinding binding) {
 		MethodBinding highest=binding;
 		MethodBinding _binding = binding;
 		do {
@@ -84,9 +103,9 @@ public class NullibilityAnnos {
 			_binding= superMethod;
 		} while (_binding != null);
 		
-		String methodName = new String(binding.selector);
-		if (binding.declaringClass != null && highest != null && highest.declaringClass != null) {
+		if (false && binding.declaringClass != null && highest != null && highest.declaringClass != null) {
 
+			String methodName = new String(binding.selector);
 			// Set<String> itfs = new HashSet<String>();
 			// itfs.add(getClassName(declaringClass));
 			// addSuperClasses(declaringClass, itfs);
@@ -123,10 +142,27 @@ public class NullibilityAnnos {
 			if (className.equals("java.sql.Statement") && !"".equals(methodName) && !"".equals(methodName) && !"".equals(methodName))
 				return true;
 		}
-		return NullibilityAnnos.hasSolidAnnotation(binding.declaringClass) == FlowInfo.NON_NULL;
+		return null;
+	}
+
+	public static boolean checkOnNonNull(MethodBinding binding, int param) {
+		if (ATTACK) {
+			Boolean result=_getSolidityWithParent(binding,param);
+			if (result!=null)
+				return result;
+			return false;			
+		}
+		return getSolidityWithParent(binding,param);
 	}
 
 	public static boolean getSolidityWithParent(MethodBinding binding, int param) {
+		Boolean result=_getSolidityWithParent(binding,param);
+		if (result!=null)
+			return result;
+		return NullibilityAnnos.hasSolidAnnotation(binding.declaringClass) == FlowInfo.NON_NULL;
+	}
+
+	public static Boolean _getSolidityWithParent(MethodBinding binding, int param) {
 		MethodBinding _binding = binding;
 		do {
 			int result = hasSolidAnnotation(_binding, param);
@@ -137,8 +173,18 @@ public class NullibilityAnnos {
 				break;
 			_binding = superMethod;
 		} while (_binding != null);
-		return NullibilityAnnos.hasSolidAnnotation(binding.declaringClass) == FlowInfo.NON_NULL;
+		return null;
 	}
+	
+	public static boolean checkOnNonNull(VariableBinding var) {
+		if (var instanceof FieldBinding) {
+			return checkOnNonNull((FieldBinding) var);
+		}
+		if (var instanceof LocalVariableBinding) {
+			return checkOnNonNull((LocalVariableBinding) var);
+		}
+		return false;
+	}	
 
 	public static boolean getSolidityWithParent(VariableBinding var) {
 		if (var instanceof FieldBinding) {
@@ -148,6 +194,10 @@ public class NullibilityAnnos {
 			return getSolidityWithParent((LocalVariableBinding) var);
 		}
 		return false;
+	}
+
+	public static boolean checkOnNonNull(LocalVariableBinding local) {
+		return getSolidityWithParent(local);
 	}
 
 	public static boolean getSolidityWithParent(LocalVariableBinding local) {
@@ -164,15 +214,35 @@ public class NullibilityAnnos {
 		return false;
 	}
 
-	public static boolean getSolidityWithParent(FieldBinding binding) {
-		int result = getSolidityWithParent(binding.getAnnotations(), binding.declaringClass);
-		if (result != FlowInfo.UNKNOWN) {
-			return result == FlowInfo.NON_NULL;
+
+	public static boolean checkOnNonNull(FieldBinding binding) {
+		if (ATTACK) {
+			Boolean result=_getSolidityWithParent(binding);
+			if (result!=null)
+				return result;
+			return false;			
 		}
+		return getSolidityWithParent(binding);
+	}
+	
+	public static boolean getSolidityWithParent(FieldBinding binding) {
+		Boolean result=_getSolidityWithParent(binding);
+		if (result!=null)
+			return result;
+		if (NullibilityAnnos.hasSolidAnnotation(binding.declaringClass) == FlowInfo.NON_NULL)
+			return true;
 		String className = getClassName(binding.declaringClass);
 		if ("".equals(className))
 			return true;
 		return false;
+	}	
+	
+	private static Boolean _getSolidityWithParent(FieldBinding binding) {
+		int result = hasSolidAnnotation(binding.getAnnotations());
+		if (result != FlowInfo.UNKNOWN) {
+			return result == FlowInfo.NON_NULL;
+		}
+		return null;
 	}
 
 	public static FieldBinding getLastFieldBinding(QualifiedNameReference qualifiedNameReference) {
