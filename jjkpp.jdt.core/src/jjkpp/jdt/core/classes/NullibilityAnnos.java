@@ -202,12 +202,12 @@ public class NullibilityAnnos {
 
 	public static boolean getSolidityWithParent(LocalVariableBinding local) {
 		if (local.declaration instanceof Argument && local.declaringScope != null && local.declaringScope.referenceContext() instanceof AbstractMethodDeclaration) {
-			Argument argument = (Argument) local.declaration;
-			AbstractMethodDeclaration decl = (AbstractMethodDeclaration) local.declaringScope.referenceContext();
-			for (int param = 0; param < decl.arguments.length; param++)
-				if (decl.arguments[param] == argument) {
-					return getSolidityWithParent(decl.binding, param);
-				}
+//			Argument argument = (Argument) local.declaration;
+//			AbstractMethodDeclaration decl = (AbstractMethodDeclaration) local.declaringScope.referenceContext();
+//			for (int param = 0; param < decl.arguments.length; param++)
+//				if (decl.arguments[param] == argument) {
+//					return getSolidityWithParent(decl.binding, param);
+//				}
 		} else {
 			return getSolidityWithParent(local.getAnnotations()) == FlowInfo.NON_NULL;
 		}

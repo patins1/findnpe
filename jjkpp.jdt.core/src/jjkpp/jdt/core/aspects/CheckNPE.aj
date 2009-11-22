@@ -50,6 +50,20 @@ privileged public aspect CheckNPE {
 	// replace-advices for analyseCode() have comments with "custom code" text in their body
 	declare precedence : HandleIterations, CheckNPE, HandleNullStatusMethod;
 
+
+	before(MethodDeclaration t, ClassScope classScope, InitializationFlowContext initializationContext, FlowInfo flowInfo) : 
+		call(void analyseCode(ClassScope, InitializationFlowContext, FlowInfo)) && target(t) && args(classScope,initializationContext,flowInfo) {
+					
+			if (NullibilityAnnos.enableNullibility()) 	
+			if (!t.ignoreFurtherInvestigation && t.binding!=null && t.arguments!=null) {
+				MethodBinding methodBinding = (MethodBinding)t.binding;
+				for (int i = 0, count = t.arguments.length; i < count; i++) {
+					if (NullibilityAnnos.getSolidityWithParent(methodBinding,i))
+						flowInfo.markAsDefinitelyNonNull(t.arguments[i].binding);
+				}
+			}		
+	}
+	
 	before(Assignment t,BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) : 
 		call(FlowInfo analyseCode(BlockScope, FlowContext, FlowInfo)) && args(currentScope,flowContext,flowInfo) && target(t) {
 		
