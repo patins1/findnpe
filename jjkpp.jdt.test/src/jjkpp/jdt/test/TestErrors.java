@@ -3,6 +3,7 @@ package jjkpp.jdt.test;
 import java.util.HashSet;
 import java.util.Set;
 
+import jjkpp.jdt.core.classes.NullibilityAnnos;
 import junit.framework.Assert;
 import junit.framework.AssertionFailedError;
 import junit.framework.TestCase;
@@ -40,6 +41,7 @@ public class TestErrors extends TestCase {
 	int totalChecks = 0;
 
 	public void testErrors() throws CoreException, InterruptedException {
+		Display.getCurrent().update();
 		PlatformUI.getWorkbench().showPerspective("org.eclipse.jdt.ui.JavaPerspective", PlatformUI.getWorkbench().getActiveWorkbenchWindow());
 		Display.getCurrent().update();
 		final IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
@@ -51,6 +53,7 @@ public class TestErrors extends TestCase {
 		this.project.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
 		project.build(IncrementalProjectBuilder.CLEAN_BUILD, new NullProgressMonitor());
 		waitForBuild();
+		Display.getCurrent().update();
 		IFolder src = project.getFolder("src");
 		try {
 			src.accept(new IResourceVisitor() {
@@ -73,8 +76,9 @@ public class TestErrors extends TestCase {
 						String content = doc.get();
 						Display.getCurrent().update();
 						Set<IMarker> markers = findMarkers(file.findMarkers("org.eclipse.jdt.core.problem", true, IResource.DEPTH_ZERO));
-						int commentLineNumber = 1;
+						int commentLineNumber = 0;
 						for (String line : content.split("\n")) {
+							commentLineNumber++;
 							int errorIndex = line.indexOf("/* error");
 							if (errorIndex != -1) {
 								int lineNumber = commentLineNumber;
@@ -85,6 +89,8 @@ public class TestErrors extends TestCase {
 								int errorIndexTo = line.indexOf("*/", errorIndex) + 2;
 								String errorContent = line.substring(errorIndex, errorIndexTo);
 								boolean easyError = errorContent.contains("easy");
+								boolean cancel = errorContent.contains("ATTACK") && !errorContent.contains("NOATTACK") && !NullibilityAnnos.ATTACK || errorContent.contains("NOATTACK") && NullibilityAnnos.ATTACK;
+								if (cancel) continue;
 								IMarker marker = findMarker(markers, lineNumber);
 								if (marker == null || easyError != marker.getAttribute("message", "").contains("Easy")) {
 									reveal(ed, doc, commentLineNumber, errorIndex, errorIndexTo);
@@ -117,7 +123,6 @@ public class TestErrors extends TestCase {
 								}
 								markers.remove(marker);
 							}
-							commentLineNumber++;
 						}
 						for (IMarker marker : markers) {
 							int lineNumber = marker.getAttribute("lineNumber", -1);
