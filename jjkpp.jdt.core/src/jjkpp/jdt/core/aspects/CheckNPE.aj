@@ -6,6 +6,7 @@ import jjkpp.jdt.core.classes.ProposalCollector;
 
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration; 
+import org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration; 
 import org.eclipse.jdt.internal.compiler.ast.AllocationExpression;
 import org.eclipse.jdt.internal.compiler.ast.Assignment;
 import org.eclipse.jdt.internal.compiler.ast.Expression;
@@ -56,10 +57,27 @@ privileged public aspect CheckNPE {
 					
 			if (NullibilityAnnos.enableNullibility()) 	
 			if (!t.ignoreFurtherInvestigation && t.binding!=null && t.arguments!=null) {
-				MethodBinding methodBinding = (MethodBinding)t.binding;
+				MethodBinding methodBinding = t.binding;
 				for (int i = 0, count = t.arguments.length; i < count; i++) {
-					if (NullibilityAnnos.getSolidityWithParent(methodBinding,i))
+					if (NullibilityAnnos.getSolidityWithParent(methodBinding,i)) {
+						flowInfo.markAsDefinitelyAssigned(t.arguments[i].binding); // assure initialization of UnconditionalFlowInfo.extra
 						flowInfo.markAsDefinitelyNonNull(t.arguments[i].binding);
+					}
+				}
+			}		
+	}
+
+	before(ConstructorDeclaration t, ClassScope classScope, InitializationFlowContext initializationContext, FlowInfo flowInfo, int initialReachMode) : 
+		call(void analyseCode(ClassScope, InitializationFlowContext, FlowInfo, int)) && target(t) && args(classScope,initializationContext,flowInfo,initialReachMode) {
+					
+			if (NullibilityAnnos.enableNullibility()) 	
+			if (!t.ignoreFurtherInvestigation && t.binding!=null && t.arguments!=null) {
+				MethodBinding methodBinding = t.binding;
+				for (int i = 0, count = t.arguments.length; i < count; i++) {
+					if (NullibilityAnnos.getSolidityWithParent(methodBinding,i)) {
+						flowInfo.markAsDefinitelyAssigned(t.arguments[i].binding); // assure initialization of UnconditionalFlowInfo.extra
+						flowInfo.markAsDefinitelyNonNull(t.arguments[i].binding);
+					}
 				}
 			}		
 	}
@@ -556,7 +574,7 @@ privileged public aspect CheckNPE {
 				
 		if (NullibilityAnnos.enableNullibility()) 	
 		if (t.binding!=null && t.annotations!=null && t.annotations.length!=0) {
-			MethodBinding methodBinding = (MethodBinding)t.binding;
+			MethodBinding methodBinding = t.binding;
 			AnnotationBinding[] annos = methodBinding.getAnnotations();			
 			MethodBinding higher = null;
 			int argumentsCount = t.arguments==null ? 0 : t.arguments.length;
