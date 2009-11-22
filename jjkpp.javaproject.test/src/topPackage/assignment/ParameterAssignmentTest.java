@@ -5,6 +5,12 @@ import jjkpp.jdt.annotations.NonNullParam1;
 
 public class ParameterAssignmentTest {
 
+	public ParameterAssignmentTest(String s1) {
+		s1.toString(); /* OK */;
+		s1 = null/* OK */;   
+		s1.toString(); /* error1 */;
+	}
+	
 	private void testDefaultParameterVariableAssignNull(String s1) {
 		s1.toString(); /* OK */;
 		s1 = null/* OK */;  
