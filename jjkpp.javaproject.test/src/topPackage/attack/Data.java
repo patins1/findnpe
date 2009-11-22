@@ -7,7 +7,7 @@ import jjkpp.jdt.annotations.NonNullParam1;
 public class Data {
 
 	public String getS1() {
-		return null; /* error1 NOATTACK */
+		return null; /* error1 easy NOATTACK */
 	}
 
 	@CanBeNull

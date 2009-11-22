@@ -66,7 +66,7 @@ public class FieldAssignmentTest {
 		FieldAssignmentTest x = new FieldAssignmentTest();
 		if ("".contains("x"))
 			x = null;
-		t.tnn.tdefault = x; /* error2 */
+		t.tnn.tdefault = x; /* error2 NOATTACK */
 	}
 
 	private void testCanBeNullQualifiedNameReferenceFieldAssignUnknownValue() {

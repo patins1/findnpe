@@ -2,7 +2,7 @@ package topPackage;
 
 public class DefaultTest {
 
-	String s4 = null/* error1 */;
+	String s4 = null/* error1 NOATTACK */;
 
 	private String testNonNullReturn(String param1) {
 		String s = null;

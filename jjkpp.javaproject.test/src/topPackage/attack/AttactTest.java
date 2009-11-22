@@ -16,7 +16,7 @@ public class AttactTest {
 	}
 
 	public String testReturnNull() {
-		return null; /* error1 NOATTACK */
+		return null; /* error1 easy NOATTACK */
 	}
 
 	@NonNull
@@ -37,7 +37,7 @@ public class AttactTest {
 
 	public String testReturnCanBeNullReturn() {
 		String s = d.getS2();
-		return s; /* error1 NOATTACK */
+		return s; /* error2 NOATTACK */
 	}
 	
 	@NonNull
@@ -53,7 +53,7 @@ public class AttactTest {
 	}
 
 	public void testDefaultParam() {
-		d.doS1(null); /* error1 NOATTACK */ 
+		d.doS1(null); /* error1 easy NOATTACK */ 
 	}
 
 	public void testCanBeNullParam() {
