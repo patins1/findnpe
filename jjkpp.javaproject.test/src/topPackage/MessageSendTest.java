@@ -32,16 +32,16 @@ public class MessageSendTest {
 		new MessageSendTest((String[]) null/* OK */) {
 		};
 
-		new MessageSendTest((Boolean) null/* error1 easy */);
-		new MessageSendTest((Boolean) null/* error1 easy */) {
+		new MessageSendTest((Boolean) null/* error1 easy NOATTACK */);
+		new MessageSendTest((Boolean) null/* error1 easy NOATTACK */) {
 		};
 
 		new MessageSendTest((Object) null/* error0 easy */);
 		new MessageSendTest((Object) null/* error0 easy */) {
 		};
 
-		new MessageSendTest((Integer) null/* error1 easy */);
-		new MessageSendTest((Integer) null/* error1 easy */) {
+		new MessageSendTest((Integer) null/* error1 easy NOATTACK */);
+		new MessageSendTest((Integer) null/* error1 easy NOATTACK */) {
 		};
 	}
 
