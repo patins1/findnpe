@@ -10,8 +10,6 @@ public class AttactTest {
 	public String testReturnDefaultReturn() {
 		String s = d.getS1();
 		s.toString(); /* OK */
-//		if (s!=null)
-//			s.toString(); /* OK */
 		return s;
 	}
 

@@ -65,4 +65,19 @@ public class NullStatusTest {
 		ss.toCharArray(); /* error1 */
 	}
 
+	public void testMergeDefNNAndProtNull() {
+		String s = "";
+		if (s!=null)  
+			"".toCharArray();
+		s.hashCode(); /* OK */ 
+	}
+	
+	public void testMergeProtNullAndDefNN() {
+		String s = "";
+		if (s==null) 
+			; else
+			"".toCharArray();
+		s.hashCode(); /* OK */ 
+	}
+
 }
