@@ -684,11 +684,11 @@ public class NullibilityAnnos {
 		UnconditionalFlowInfo otherInits=b;
 		long mask, a1=a.nullBit1,a2=a.nullBit2,a3=a.nullBit3,a4=a.nullBit4,b1=b.nullBit1,b2=b.nullBit2,b3=b.nullBit3,b4=b.nullBit4;
 		mask = ~(a1 & a2 & a3 & ~a4 & b1 & ~b2 & b3 & ~b4);
-		a.nullBit2 = a2 = a2 & mask; 
+		a.nullBit2 = a2 = a2 & mask; // testMergeProtNullAndDefNN
 		mask = ~(b1 & b2 & b3 & ~b4 & a1 & ~a2 & a3 & ~a4);
 		if ((b2 & mask) != b2) {
-			b = (UnconditionalFlowInfo) otherInits.copy();			
-			b.nullBit2 = b2 & mask; 
+			b = (UnconditionalFlowInfo) otherInits.copy(); // testPreMerge			
+			b.nullBit2 = b2 & mask; // testMergeDefNNAndProtNull
 		}
 		return b;
 		// TODO extra
