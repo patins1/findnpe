@@ -10,8 +10,10 @@ public class TestNullBits extends TestCase {
 
 	public void testPreMerge() {
 		for (NullBitsCombi combi : NullBitsCombi.values()) {
+			
 			UnconditionalFlowInfo a;
 			UnconditionalFlowInfo b;
+			
 			a = combi.bits();
 			b = NullBitsCombi.ProtNull.bits();
 			a.mergedWith(b);
@@ -31,8 +33,8 @@ public class TestNullBits extends TestCase {
 
 			if (combi.equals(NullBitsCombi.DefNonnull)) {
 				Assert.assertNotSame(NullBitsCombi.DefNonnull, c1);
-				Assert.assertEquals(NullBitsCombi.DefNonnull, c2);
-				Assert.assertEquals(NullBitsCombi.DefNonnull, c3);
+				Assert.assertEquals(NullBitsCombi.DefNonnull, c2); // testMergeDefNNAndProtNull
+				Assert.assertEquals(NullBitsCombi.DefNonnull, c3); // testMergeProtNullAndDefNN
 			} else {
 				Assert.assertSame(c1, c2);
 				Assert.assertSame(c1, c3);
