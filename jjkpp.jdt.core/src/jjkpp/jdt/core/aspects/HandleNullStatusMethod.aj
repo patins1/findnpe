@@ -8,15 +8,20 @@ import org.eclipse.jdt.internal.compiler.ast.ArrayReference;
 import org.eclipse.jdt.internal.compiler.ast.Expression;
 import org.eclipse.jdt.internal.compiler.ast.FieldReference;
 import org.eclipse.jdt.internal.compiler.ast.MessageSend;
+import org.eclipse.jdt.internal.compiler.ast.MethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.QualifiedNameReference;
 import org.eclipse.jdt.internal.compiler.ast.SingleNameReference;
 import org.eclipse.jdt.internal.compiler.ast.Reference;
 import org.eclipse.jdt.internal.compiler.ast.NameReference;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
+import org.eclipse.jdt.internal.compiler.flow.InitializationFlowContext;
+import org.eclipse.jdt.internal.compiler.flow.UnconditionalFlowInfo;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
+import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
+import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 import org.eclipse.jdt.internal.compiler.lookup.VariableBinding;
@@ -31,7 +36,15 @@ public aspect HandleNullStatusMethod {
 	public static final int ASTNode_IsNonNull = ASTNode.IsNonNull;
 	public static final int ASTNode_IsNull = ASTNode.Bit20;
 	public static final int ASTNode_CheckedNullOrNonNull = ASTNode.Bit21;
-	
+
+	UnconditionalFlowInfo around(UnconditionalFlowInfo t, UnconditionalFlowInfo otherInits) : 
+		call(UnconditionalFlowInfo mergedWith(UnconditionalFlowInfo)) && target(t) && args(otherInits) {
+					
+			if (NullibilityAnnos.enableNullibility()) {
+				otherInits = NullibilityAnnos.mergedWithPrepare(t,otherInits);
+			}
+			return proceed(t,otherInits);
+	}
 
 	int around(ArrayAllocationExpression t,FlowInfo flowInfo) : 
 		call(int nullStatus(FlowInfo)) && args(flowInfo) && target(t) {

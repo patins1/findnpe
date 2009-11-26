@@ -55,7 +55,7 @@ import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 @SuppressWarnings("restriction")
 public class NullibilityAnnos {
 	
-	public static boolean ATTACK = !true;
+	public static boolean ATTACK = true;
 	
 	static public int RequireCanBeNull = IProblem.MethodRelated + 148;
 
@@ -676,5 +676,23 @@ public class NullibilityAnnos {
 		}
 		return true;
 	}
+
+
+	public static UnconditionalFlowInfo mergedWithPrepare(UnconditionalFlowInfo a, UnconditionalFlowInfo b) {
+		if ((a.tagBits & b.tagBits & FlowInfo.NULL_FLAG_MASK) == 0) return b;
+		if (((a.tagBits | b.tagBits) & FlowInfo.UNREACHABLE) != 0) return b;
+		UnconditionalFlowInfo otherInits=b;
+		long mask, a1=a.nullBit1,a2=a.nullBit2,a3=a.nullBit3,a4=a.nullBit4,b1=b.nullBit1,b2=b.nullBit2,b3=b.nullBit3,b4=b.nullBit4;
+		mask = ~(a1 & a2 & a3 & ~a4 & b1 & ~b2 & b3 & ~b4);
+		a.nullBit2 = a2 = a2 & mask; 
+		mask = ~(b1 & b2 & b3 & ~b4 & a1 & ~a2 & a3 & ~a4);
+		if ((b2 & mask) != b2) {
+			b = (UnconditionalFlowInfo) otherInits.copy();			
+			b.nullBit2 = b2 & mask; 
+		}
+		return b;
+		// TODO extra
+	}
+
 
 }
