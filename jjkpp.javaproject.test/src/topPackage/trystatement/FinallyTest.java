@@ -1,6 +1,26 @@
 package topPackage.trystatement;
 
+import java.util.NoSuchElementException;
+
 public class FinallyTest {
+
+	private void testFinallyUnreachable(Class parent) {
+		try {
+			return;
+		} finally {
+			"".equals("");   
+		}
+	}
+	
+	private void testFinallyUnreachable_CanBeNull(Class parent) {
+		String s = "";
+		try {
+			s = null;
+			return;
+		} finally {
+			s.toString(); /* OK TODO */
+		}
+	}
 
 	private void testNonNullAfter() {
 		String s = "";
