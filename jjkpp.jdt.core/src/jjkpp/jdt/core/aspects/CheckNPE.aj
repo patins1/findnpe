@@ -297,7 +297,7 @@ privileged public aspect CheckNPE {
 	
 	FlowInfo around(TryStatement t, BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) : 
 		call(FlowInfo analyseCode(BlockScope, FlowContext, FlowInfo)) && target(t) && args(currentScope,flowContext,flowInfo) {
-		/*ikv custom code: exchange nullInfoLessUnconditionalCopy by unconditionalCopy, since our advice for this not advices this method */
+		/*custom code: exchange nullInfoLessUnconditionalCopy by unconditionalCopy, since our advice for this not advices this method */
 		
 
 		// Consider the try block and catch block so as to compute the intersection of initializations and
