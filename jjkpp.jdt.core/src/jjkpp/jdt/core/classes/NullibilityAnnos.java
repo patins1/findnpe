@@ -441,6 +441,8 @@ public class NullibilityAnnos {
 	}
 
 	public static boolean retainCannotBeNull(FlowInfo flowInfo, FlowInfo currentFlow, BlockScope currentScope) {
+		if ((flowInfo.tagBits & currentFlow.tagBits & FlowInfo.NULL_FLAG_MASK) == 0) return true;
+		if (((flowInfo.tagBits | currentFlow.tagBits) & FlowInfo.UNREACHABLE) != 0) return true; // testFinallyUnreachable()
 		UnconditionalFlowInfo unconditionalFlowInfo = flowInfo.unconditionalInits();
 		UnconditionalFlowInfo unconditionalCurrentFlow = currentFlow.unconditionalInits();
 		if ((getCannotBeNull(unconditionalFlowInfo) & ~getCannotBeNull(unconditionalCurrentFlow)) != 0) {
