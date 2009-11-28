@@ -275,6 +275,10 @@ public class NullibilityAnnos {
 		return true;
 	}
 
+	public static boolean enableNullibilityFields() {
+		return enableNullibility() && true;
+	}
+
 	/**
 	 * 
 	 * @param binding

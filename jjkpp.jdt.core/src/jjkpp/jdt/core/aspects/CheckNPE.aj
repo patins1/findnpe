@@ -156,7 +156,9 @@ privileged public aspect CheckNPE {
 		
 	FlowInfo around(MessageSend t, BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) : 
 		call(FlowInfo analyseCode(BlockScope, FlowContext, FlowInfo)) && target(t) && args(currentScope,flowContext,flowInfo) {
-	
+
+		if (!NullibilityAnnos.enableNullibility()) return proceed(t,currentScope,flowContext,flowInfo); 	
+		
 		boolean nonStatic = !t.binding.isStatic();
 		flowInfo = t.receiver.analyseCode(currentScope, flowContext, flowInfo, nonStatic).unconditionalInits();
 		if (nonStatic) {
@@ -191,6 +193,8 @@ privileged public aspect CheckNPE {
 
 	FlowInfo around(AllocationExpression t, BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) : 
 		call(FlowInfo analyseCode(BlockScope, FlowContext, FlowInfo)) && target(t) && args(currentScope,flowContext,flowInfo) {
+		
+		if (!NullibilityAnnos.enableNullibility()) return proceed(t,currentScope,flowContext,flowInfo); 	
 		
 		if (t instanceof QualifiedAllocationExpression) {
 			
@@ -297,9 +301,11 @@ privileged public aspect CheckNPE {
 	
 	FlowInfo around(TryStatement t, BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) : 
 		call(FlowInfo analyseCode(BlockScope, FlowContext, FlowInfo)) && target(t) && args(currentScope,flowContext,flowInfo) {
+
+		if (!NullibilityAnnos.enableNullibility()) return proceed(t,currentScope,flowContext,flowInfo); 	
+
 		/*custom code: exchange nullInfoLessUnconditionalCopy by unconditionalCopy, since our advice for this not advices this method */
 		
-
 		// Consider the try block and catch block so as to compute the intersection of initializations and
 		// the minimum exit relative depth amongst all of them. Then consider the subroutine, and append its
 		// initialization to the try/catch ones, if the subroutine completes normally. If the subroutine does not
@@ -536,6 +542,7 @@ privileged public aspect CheckNPE {
 				currentScope.methodScope().recordInitializationStates(tryInfo);
 			
 			/*custom code: second pass if required*/			
+			if (NullibilityAnnos.doubleCheck())
 			if (!NullibilityAnnos.retainCannotBeNull(flowInfo,tryInfo,currentScope)) {
 				t.finallyBlock
 					.analyseCode(
@@ -654,6 +661,7 @@ privileged public aspect CheckNPE {
 	after(CompilerOptions t, boolean newval): 
 		set(public boolean CompilerOptions.storeAnnotations) && args(newval) && target(t) {
 		
+		if (NullibilityAnnos.enableNullibility()) 	
 		if (!t.storeAnnotations)
 			t.storeAnnotations=true; 
 	 }

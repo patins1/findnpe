@@ -1,19 +1,22 @@
 package jjkpp.jdt.core.aspects;
 
-import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
+import jjkpp.jdt.core.classes.NullibilityAnnos;
+
 import org.eclipse.jdt.internal.compiler.ast.FieldReference;
+import org.eclipse.jdt.internal.compiler.ast.SingleNameReference;
+import org.eclipse.jdt.internal.compiler.ast.ThisReference;
+import org.eclipse.jdt.internal.compiler.flow.UnconditionalFlowInfo;
+import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TagBits;
-import org.eclipse.jdt.internal.compiler.ast.SingleNameReference;
-import org.eclipse.jdt.internal.compiler.flow.UnconditionalFlowInfo;
-import org.eclipse.jdt.internal.compiler.ast.ThisReference;
 
 @SuppressWarnings("restriction")
 public aspect HandleFields {
 	
 	LocalVariableBinding around(SingleNameReference ref) : 
 		call(LocalVariableBinding localVariableBinding()) && target(ref) {
-		
+
+		if (NullibilityAnnos.enableNullibilityFields())
 		if (ref.binding instanceof FieldBinding) {
 			FieldBinding fieldBinding=(FieldBinding) ref.binding;
 			if (fieldBinding.original().declaringClass == ref.actualReceiverType.erasure())
@@ -26,10 +29,13 @@ public aspect HandleFields {
 	LocalVariableBinding around(FieldReference ref) : 
 		call(LocalVariableBinding localVariableBinding()) && target(ref) {
 
-		FieldBinding fieldBinding=(FieldBinding) ref.binding;
-		if (ref.receiver instanceof ThisReference && fieldBinding.original().declaringClass == ref.actualReceiverType.erasure())
-			return fakeLocalVariableBinding(fieldBinding);
-		return null; // CheckFieldSubclassTest
+		if (NullibilityAnnos.enableNullibilityFields()) {
+			FieldBinding fieldBinding=(FieldBinding) ref.binding;
+			if (ref.receiver instanceof ThisReference && fieldBinding.original().declaringClass == ref.actualReceiverType.erasure())
+				return fakeLocalVariableBinding(fieldBinding);
+			return null; // CheckFieldSubclassTest
+		}
+		return proceed(ref);
 	}	
 	
 	/**

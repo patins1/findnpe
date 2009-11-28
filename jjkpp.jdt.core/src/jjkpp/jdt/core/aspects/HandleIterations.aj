@@ -37,8 +37,11 @@ public aspect HandleIterations {
 	UnconditionalFlowInfo around(FlowInfo flowInfo) : 
 		withincode(FlowInfo analyseCode(BlockScope, FlowContext, FlowInfo)) && (this(TryStatement) || this(WhileStatement) || this(DoStatement) || this(ForeachStatement) || this(ForStatement)) && 
 		call(UnconditionalFlowInfo nullInfoLessUnconditionalCopy()) && target(flowInfo) {
- 
-		return flowInfo.unconditionalCopy();	
+
+		if (NullibilityAnnos.enableNullibility()) {
+			return flowInfo.unconditionalCopy();
+		}
+		return proceed(flowInfo);
 	}	
 
 	/**
@@ -101,8 +104,10 @@ public aspect HandleIterations {
 		call(void handle(int, String[], int, String[], int, int, int, ReferenceContext, CompilationResult )) && 
 		args(problemId,	problemArguments, elaborationId, messageArguments, severity, problemStartPosition, problemEndPosition, referenceContext, unitResult) && target(problemHandler) {
 
-		Object key = NullibilityAnnos.getProblemKey(problemStartPosition,problemId);
-		if (!unitResult.alreadyReported.add(key)) return;
+		if (NullibilityAnnos.doubleCheck()) {
+			Object key = NullibilityAnnos.getProblemKey(problemStartPosition,problemId);
+			if (!unitResult.alreadyReported.add(key)) return;
+		}
 		proceed(problemHandler,problemId,problemArguments,elaborationId,messageArguments,severity,problemStartPosition,problemEndPosition,referenceContext,unitResult);
 	}	
 
@@ -112,8 +117,11 @@ public aspect HandleIterations {
 	FlowInfo around(FlowInfo exitBranch, FlowInfo actionInfo_unconditionalInits) : 
 		withincode(FlowInfo analyseCode(BlockScope, FlowContext, FlowInfo)) && (this(WhileStatement) || this(ForStatement)) && 
 		call(FlowInfo addPotentialInitializationsFrom(FlowInfo)) && args(actionInfo_unconditionalInits) && target(exitBranch) {
-		
-		return new FakeFlowInfo(exitBranch,actionInfo_unconditionalInits);
+
+		if (NullibilityAnnos.enableNullibility()) {
+			return new FakeFlowInfo(exitBranch,actionInfo_unconditionalInits);
+		}		
+		return proceed(exitBranch,actionInfo_unconditionalInits);
 	}	
 
 	/**
@@ -122,8 +130,12 @@ public aspect HandleIterations {
 	void around(UnconditionalFlowInfo actionInfo, LocalVariableBinding local) : 
 		withincode(FlowInfo analyseCode(BlockScope, FlowContext, FlowInfo)) && this(ForeachStatement) && 
 		call(void markAsDefinitelyUnknown(LocalVariableBinding)) && args(local) && target(actionInfo) {
-		
-		actionInfo.markAsDefinitelyNonNull(local);
+
+		if (NullibilityAnnos.enableNullibility()) {
+			actionInfo.markAsDefinitelyNonNull(local);
+			return;
+		}		
+		proceed(actionInfo,local);
 	}	
 	
 }

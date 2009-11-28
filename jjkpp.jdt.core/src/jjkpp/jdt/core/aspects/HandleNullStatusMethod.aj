@@ -40,10 +40,10 @@ public aspect HandleNullStatusMethod {
 	UnconditionalFlowInfo around(UnconditionalFlowInfo t, UnconditionalFlowInfo otherInits) : 
 		call(UnconditionalFlowInfo mergedWith(UnconditionalFlowInfo)) && target(t) && args(otherInits) {
 					
-			if (NullibilityAnnos.enableNullibility()) {
-				otherInits = NullibilityAnnos.mergedWithPrepare(t,otherInits);
-			}
-			return proceed(t,otherInits);
+		if (NullibilityAnnos.enableNullibility()) {
+			otherInits = NullibilityAnnos.mergedWithPrepare(t,otherInits);
+		}
+		return proceed(t,otherInits);
 	}
 
 	int around(ArrayAllocationExpression t,FlowInfo flowInfo) : 
@@ -64,37 +64,46 @@ public aspect HandleNullStatusMethod {
 	int around(ArrayReference t,FlowInfo flowInfo) : 
 		call(int nullStatus(FlowInfo)) && args(flowInfo) && target(t) {
 		
-		if (NullibilityAnnos.enableNullibility()) 		
+		if (NullibilityAnnos.enableNullibility()) {
 			return t.receiver.nullStatus(flowInfo);
+		}
 		return proceed(t,flowInfo);
 	}	
 
 	int around(FieldReference t,FlowInfo flowInfo) : 
 		call(int nullStatus(FlowInfo)) && args(flowInfo) && target(t) {
 
-		return getNullStatus(t,t.binding,flowInfo);
+		if (NullibilityAnnos.enableNullibility()) {
+			return getNullStatus(t,t.binding,flowInfo);
+		}
+		return proceed(t,flowInfo);
 	}	
 
 	int around(MessageSend t,FlowInfo flowInfo) : 
 		call(int nullStatus(FlowInfo)) && args(flowInfo) && target(t) {
 
-		if (NullibilityAnnos.enableNullibility())
+		if (NullibilityAnnos.enableNullibility()) {
 			return NullibilityAnnos.getSolidityWithParent(t.binding)?FlowInfo.NON_NULL:FlowInfo.UNKNOWN;
+		}
 		return proceed(t,flowInfo);
 	}	
 
 	int around(QualifiedNameReference t,FlowInfo flowInfo) : 
 		call(int nullStatus(FlowInfo)) && args(flowInfo) && target(t) {
 		
-		if (NullibilityAnnos.enableNullibility()) 
+		if (NullibilityAnnos.enableNullibility()) { 
 			return NullibilityAnnos.calcNullStatus(t)?FlowInfo.NON_NULL:FlowInfo.UNKNOWN;
+		}
 		return proceed(t,flowInfo);
 	}
 
 	int around(SingleNameReference t,FlowInfo flowInfo) : 
 		call(int nullStatus(FlowInfo)) && args(flowInfo) && target(t) {
 
-		return getNullStatus(t,t.binding,flowInfo);
+		if (NullibilityAnnos.enableNullibility()) { 
+			return getNullStatus(t,t.binding,flowInfo);
+		}
+		return proceed(t,flowInfo);
 	}
 
 	/**
@@ -102,6 +111,9 @@ public aspect HandleNullStatusMethod {
 	 */
 	FlowInfo around(Assignment t, BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) : 
 		call(FlowInfo analyseCode(BlockScope, FlowContext, FlowInfo)) && target(t) && (!target(CompoundAssignment)) && args(currentScope,flowContext,flowInfo) {
+		
+			if (!NullibilityAnnos.enableNullibility()) return proceed(t,currentScope,flowContext,flowInfo);
+			
 			// custom code: execute analyseCode() (called by analyseAssignment()) before nullStatus()
 			flowInfo = ((Reference) t.lhs)
 				.analyseAssignment(currentScope, flowContext, flowInfo, t, false)
@@ -150,6 +162,8 @@ public aspect HandleNullStatusMethod {
 	FlowInfo around(LocalDeclaration t, BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) : 
 		call(FlowInfo analyseCode(BlockScope, FlowContext, FlowInfo)) && target(t) && args(currentScope,flowContext,flowInfo) {
 
+		if (!NullibilityAnnos.enableNullibility()) return proceed(t,currentScope,flowContext,flowInfo);
+
 		// record variable initialization if any
 		if ((flowInfo.tagBits & FlowInfo.UNREACHABLE) == 0) {
 			t.bits |= ASTNode.IsLocalDeclarationReachable; // only set if actually reached
@@ -189,14 +203,16 @@ public aspect HandleNullStatusMethod {
 	before(Reference t, BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) : 
 		call(FlowInfo analyseCode(BlockScope, FlowContext, FlowInfo)) && target(t) && args(currentScope,flowContext,flowInfo) && (target(SingleNameReference) || target(FieldReference)) {
 
-		t.bits = (t.bits | ASTNode_CheckedNullOrNonNull) & ~(ASTNode_IsNonNull | ASTNode_IsNull) ;
-		LocalVariableBinding local = t.localVariableBinding();
-		if (local != null) {
-			// NullStatusEnhancedTest
-			if (flowInfo.isDefinitelyNull(local))
-				t.bits |= ASTNode_IsNull;
-			if (flowInfo.isDefinitelyNonNull(local))
-				t.bits |= ASTNode_IsNonNull;//see t.markAsNonNull()
+		if (NullibilityAnnos.enableNullibility()) {
+			t.bits = (t.bits | ASTNode_CheckedNullOrNonNull) & ~(ASTNode_IsNonNull | ASTNode_IsNull) ;
+			LocalVariableBinding local = t.localVariableBinding();
+			if (local != null) {
+				// NullStatusEnhancedTest
+				if (flowInfo.isDefinitelyNull(local))
+					t.bits |= ASTNode_IsNull;
+				if (flowInfo.isDefinitelyNonNull(local))
+					t.bits |= ASTNode_IsNonNull;//see t.markAsNonNull()
+			}
 		}
 	}
 	
