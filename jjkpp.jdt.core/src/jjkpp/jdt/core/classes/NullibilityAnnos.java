@@ -88,6 +88,7 @@ public class NullibilityAnnos {
 	}
 
 	private static Boolean _getSolidityWithParent(MethodBinding binding) {
+		if (!enableAnnotations()) return null;
 		MethodBinding highest=binding;
 		MethodBinding _binding = binding;
 		do {
@@ -163,6 +164,7 @@ public class NullibilityAnnos {
 	}
 
 	public static Boolean _getSolidityWithParent(MethodBinding binding, int param) {
+		if (!enableAnnotations()) return null;
 		MethodBinding _binding = binding;
 		do {
 			int result = hasSolidAnnotation(_binding, param);
@@ -279,6 +281,10 @@ public class NullibilityAnnos {
 		return enableNullibility() && true;
 	}
 
+	public static boolean enableAnnotations() {
+		return enableNullibility() && true;
+	}
+
 	/**
 	 * 
 	 * @param binding
@@ -378,6 +384,7 @@ public class NullibilityAnnos {
 	}
 
 	private static int hasSolidAnnotation(AnnotationBinding[] annos) {
+		if (enableAnnotations())
 		if (annos != null)
 			for (int i = 0; i < annos.length; i++) {
 				AnnotationBinding annotation = annos[i];
@@ -391,6 +398,7 @@ public class NullibilityAnnos {
 
 	@SuppressWarnings("unused")
 	private static int hasSolidAnnotation(Annotation[] annos) {
+		if (enableAnnotations())
 		if (annos != null)
 			for (int i = 0; i < annos.length; i++) {
 				Annotation annotation = annos[i];
@@ -404,6 +412,7 @@ public class NullibilityAnnos {
 	}
 
 	public static boolean hasSolidAnnotation(IAnnotationBinding[] annos, String comp) {
+		if (enableAnnotations())
 		if (annos != null)
 			for (int i = 0; i < annos.length; i++) {
 				IAnnotationBinding annotation = annos[i];

@@ -661,7 +661,7 @@ privileged public aspect CheckNPE {
 	after(CompilerOptions t, boolean newval): 
 		set(public boolean CompilerOptions.storeAnnotations) && args(newval) && target(t) {
 		
-		if (NullibilityAnnos.enableNullibility()) 	
+		if (NullibilityAnnos.enableAnnotations()) 	
 		if (!t.storeAnnotations)
 			t.storeAnnotations=true; 
 	 }
