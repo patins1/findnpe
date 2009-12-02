@@ -200,9 +200,10 @@ public class NullibilityAnnosUI extends ProposalCollector {
 	}
 
 	protected void addNullibilityProposals(ICompilationUnit cu, CompilationUnit astRoot, IBinding binding, ITypeBinding declaringClass, int param, ASTNode invocationNode, String marker) throws CoreException {
-		if (declaringClass==null) return;
-		ITypeBinding declaringTypeDecl = declaringClass.getTypeDeclaration();		
-		if (declaringTypeDecl!=null && declaringTypeDecl.isFromSource()) {
+		if (declaringClass == null)
+			return;
+		ITypeBinding declaringTypeDecl = declaringClass.getTypeDeclaration();
+		if (declaringTypeDecl != null && declaringTypeDecl.isFromSource()) {
 			ICompilationUnit targetCU = ASTResolving.findCompilationUnitForBinding(cu, astRoot, declaringTypeDecl);
 			if (targetCU != null) {
 
