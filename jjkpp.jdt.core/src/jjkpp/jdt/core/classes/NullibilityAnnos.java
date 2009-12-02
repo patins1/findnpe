@@ -54,9 +54,9 @@ import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
  */
 @SuppressWarnings("restriction")
 public class NullibilityAnnos {
-	
+
 	public static boolean ATTACK = true;
-	
+
 	static public int RequireCanBeNull = IProblem.MethodRelated + 148;
 
 	private static final boolean ALLOW_ASSIGN_NULL_TO_FIELD = true;
@@ -72,24 +72,25 @@ public class NullibilityAnnos {
 
 	public static boolean checkOnNonNull(MethodBinding binding) {
 		if (ATTACK) {
-			Boolean result=_getSolidityWithParent(binding);
-			if (result!=null)
+			Boolean result = _getSolidityWithParent(binding);
+			if (result != null)
 				return result;
-			return false;			
+			return false;
 		}
 		return getSolidityWithParent(binding);
 	}
-	
+
 	public static boolean getSolidityWithParent(MethodBinding binding) {
-		Boolean result=_getSolidityWithParent(binding);
-		if (result!=null)
+		Boolean result = _getSolidityWithParent(binding);
+		if (result != null)
 			return result;
 		return NullibilityAnnos.hasSolidAnnotation(binding.declaringClass) == FlowInfo.NON_NULL;
 	}
 
 	private static Boolean _getSolidityWithParent(MethodBinding binding) {
-		if (!enableAnnotations()) return null;
-		MethodBinding highest=binding;
+		if (!enableAnnotations())
+			return null;
+		MethodBinding highest = binding;
 		MethodBinding _binding = binding;
 		do {
 			int result = NullibilityAnnos.hasSolidAnnotation(_binding.getAnnotations());
@@ -101,9 +102,9 @@ public class NullibilityAnnos {
 				highest = superMethod;
 			if (superMethod == _binding)
 				break;
-			_binding= superMethod;
+			_binding = superMethod;
 		} while (_binding != null);
-		
+
 		if (false && binding.declaringClass != null && highest != null && highest.declaringClass != null) {
 
 			String methodName = new String(binding.selector);
@@ -148,23 +149,24 @@ public class NullibilityAnnos {
 
 	public static boolean checkOnNonNull(MethodBinding binding, int param) {
 		if (ATTACK) {
-			Boolean result=_getSolidityWithParent(binding,param);
-			if (result!=null)
+			Boolean result = _getSolidityWithParent(binding, param);
+			if (result != null)
 				return result;
-			return false;			
+			return false;
 		}
-		return getSolidityWithParent(binding,param);
+		return getSolidityWithParent(binding, param);
 	}
 
 	public static boolean getSolidityWithParent(MethodBinding binding, int param) {
-		Boolean result=_getSolidityWithParent(binding,param);
-		if (result!=null)
+		Boolean result = _getSolidityWithParent(binding, param);
+		if (result != null)
 			return result;
 		return NullibilityAnnos.hasSolidAnnotation(binding.declaringClass) == FlowInfo.NON_NULL;
 	}
 
 	public static Boolean _getSolidityWithParent(MethodBinding binding, int param) {
-		if (!enableAnnotations()) return null;
+		if (!enableAnnotations())
+			return null;
 		MethodBinding _binding = binding;
 		do {
 			int result = hasSolidAnnotation(_binding, param);
@@ -177,7 +179,7 @@ public class NullibilityAnnos {
 		} while (_binding != null);
 		return null;
 	}
-	
+
 	public static boolean checkOnNonNull(VariableBinding var) {
 		if (var instanceof FieldBinding) {
 			return checkOnNonNull((FieldBinding) var);
@@ -186,7 +188,7 @@ public class NullibilityAnnos {
 			return checkOnNonNull((LocalVariableBinding) var);
 		}
 		return false;
-	}	
+	}
 
 	public static boolean getSolidityWithParent(VariableBinding var) {
 		if (var instanceof FieldBinding) {
@@ -204,32 +206,32 @@ public class NullibilityAnnos {
 
 	public static boolean getSolidityWithParent(LocalVariableBinding local) {
 		if (local.declaration instanceof Argument && local.declaringScope != null && local.declaringScope.referenceContext() instanceof AbstractMethodDeclaration) {
-//			Argument argument = (Argument) local.declaration;
-//			AbstractMethodDeclaration decl = (AbstractMethodDeclaration) local.declaringScope.referenceContext();
-//			for (int param = 0; param < decl.arguments.length; param++)
-//				if (decl.arguments[param] == argument) {
-//					return getSolidityWithParent(decl.binding, param);
-//				}
+			// Argument argument = (Argument) local.declaration;
+			// AbstractMethodDeclaration decl = (AbstractMethodDeclaration)
+			// local.declaringScope.referenceContext();
+			// for (int param = 0; param < decl.arguments.length; param++)
+			// if (decl.arguments[param] == argument) {
+			// return getSolidityWithParent(decl.binding, param);
+			// }
 		} else {
 			return getSolidityWithParent(local.getAnnotations()) == FlowInfo.NON_NULL;
 		}
 		return false;
 	}
 
-
 	public static boolean checkOnNonNull(FieldBinding binding) {
 		if (ATTACK) {
-			Boolean result=_getSolidityWithParent(binding);
-			if (result!=null)
+			Boolean result = _getSolidityWithParent(binding);
+			if (result != null)
 				return result;
-			return false;			
+			return false;
 		}
 		return getSolidityWithParent(binding);
 	}
-	
+
 	public static boolean getSolidityWithParent(FieldBinding binding) {
-		Boolean result=_getSolidityWithParent(binding);
-		if (result!=null)
+		Boolean result = _getSolidityWithParent(binding);
+		if (result != null)
 			return result;
 		if (NullibilityAnnos.hasSolidAnnotation(binding.declaringClass) == FlowInfo.NON_NULL)
 			return true;
@@ -237,8 +239,8 @@ public class NullibilityAnnos {
 		if ("".equals(className))
 			return true;
 		return false;
-	}	
-	
+	}
+
 	private static Boolean _getSolidityWithParent(FieldBinding binding) {
 		int result = hasSolidAnnotation(binding.getAnnotations());
 		if (result != FlowInfo.UNKNOWN) {
@@ -385,41 +387,41 @@ public class NullibilityAnnos {
 
 	private static int hasSolidAnnotation(AnnotationBinding[] annos) {
 		if (enableAnnotations())
-		if (annos != null)
-			for (int i = 0; i < annos.length; i++) {
-				AnnotationBinding annotation = annos[i];
-				int result = getSolidAnnotation(annotation.getAnnotationType());
-				if (result != FlowInfo.UNKNOWN) {
-					return result;
+			if (annos != null)
+				for (int i = 0; i < annos.length; i++) {
+					AnnotationBinding annotation = annos[i];
+					int result = getSolidAnnotation(annotation.getAnnotationType());
+					if (result != FlowInfo.UNKNOWN) {
+						return result;
+					}
 				}
-			}
 		return FlowInfo.UNKNOWN;
 	}
 
 	@SuppressWarnings("unused")
 	private static int hasSolidAnnotation(Annotation[] annos) {
 		if (enableAnnotations())
-		if (annos != null)
-			for (int i = 0; i < annos.length; i++) {
-				Annotation annotation = annos[i];
-				if (annotation.getCompilerAnnotation() != null) {
-					int result = getSolidAnnotation(annotation.getCompilerAnnotation().getAnnotationType());
-					if (result != FlowInfo.UNKNOWN)
-						return result;
+			if (annos != null)
+				for (int i = 0; i < annos.length; i++) {
+					Annotation annotation = annos[i];
+					if (annotation.getCompilerAnnotation() != null) {
+						int result = getSolidAnnotation(annotation.getCompilerAnnotation().getAnnotationType());
+						if (result != FlowInfo.UNKNOWN)
+							return result;
+					}
 				}
-			}
 		return FlowInfo.UNKNOWN;
 	}
 
 	public static boolean hasSolidAnnotation(IAnnotationBinding[] annos, String comp) {
 		if (enableAnnotations())
-		if (annos != null)
-			for (int i = 0; i < annos.length; i++) {
-				IAnnotationBinding annotation = annos[i];
-				if (comp.equals(annotation.getName())) {
-					return true;
+			if (annos != null)
+				for (int i = 0; i < annos.length; i++) {
+					IAnnotationBinding annotation = annos[i];
+					if (comp.equals(annotation.getName())) {
+						return true;
+					}
 				}
-			}
 		return false;
 	}
 
@@ -454,8 +456,10 @@ public class NullibilityAnnos {
 	}
 
 	public static boolean retainCannotBeNull(FlowInfo flowInfo, FlowInfo currentFlow, BlockScope currentScope) {
-		if ((flowInfo.tagBits & currentFlow.tagBits & FlowInfo.NULL_FLAG_MASK) == 0) return true;
-		if (((flowInfo.tagBits | currentFlow.tagBits) & FlowInfo.UNREACHABLE) != 0) return true; // testFinallyUnreachable()
+		if ((flowInfo.tagBits & currentFlow.tagBits & FlowInfo.NULL_FLAG_MASK) == 0)
+			return true;
+		if (((flowInfo.tagBits | currentFlow.tagBits) & FlowInfo.UNREACHABLE) != 0)
+			return true; // testFinallyUnreachable()
 		UnconditionalFlowInfo unconditionalFlowInfo = flowInfo.unconditionalInits();
 		UnconditionalFlowInfo unconditionalCurrentFlow = currentFlow.unconditionalInits();
 		if ((getCannotBeNull(unconditionalFlowInfo) & ~getCannotBeNull(unconditionalCurrentFlow)) != 0) {
@@ -652,10 +656,10 @@ public class NullibilityAnnos {
 		if (_this.referenceContext == null)
 			return;
 		int severity = ProblemSeverities.Error;
-//		if (declaringClass != null && declaringClass.isBinaryBinding()) {
-//			severity = ProblemSeverities.Warning;
-//			com.sun.jdi.VirtualMachine m;
-//		}
+		// if (declaringClass != null && declaringClass.isBinaryBinding()) {
+		// severity = ProblemSeverities.Warning;
+		// com.sun.jdi.VirtualMachine m;
+		// }
 		_this.handle(problemId, problemArguments, 0, // no message elaboration
 				messageArguments, severity, problemStartPosition, problemEndPosition, _this.referenceContext, _this.referenceContext == null ? null : _this.referenceContext.compilationResult());
 		_this.referenceContext = null;
@@ -692,22 +696,22 @@ public class NullibilityAnnos {
 		return true;
 	}
 
-
 	public static UnconditionalFlowInfo mergedWithPrepare(UnconditionalFlowInfo a, UnconditionalFlowInfo b) {
-		if ((a.tagBits & b.tagBits & FlowInfo.NULL_FLAG_MASK) == 0) return b;
-		if (((a.tagBits | b.tagBits) & FlowInfo.UNREACHABLE) != 0) return b;
-		UnconditionalFlowInfo otherInits=b;
-		long mask, a1=a.nullBit1,a2=a.nullBit2,a3=a.nullBit3,a4=a.nullBit4,b1=b.nullBit1,b2=b.nullBit2,b3=b.nullBit3,b4=b.nullBit4;
+		if ((a.tagBits & b.tagBits & FlowInfo.NULL_FLAG_MASK) == 0)
+			return b;
+		if (((a.tagBits | b.tagBits) & FlowInfo.UNREACHABLE) != 0)
+			return b;
+		UnconditionalFlowInfo otherInits = b;
+		long mask, a1 = a.nullBit1, a2 = a.nullBit2, a3 = a.nullBit3, a4 = a.nullBit4, b1 = b.nullBit1, b2 = b.nullBit2, b3 = b.nullBit3, b4 = b.nullBit4;
 		mask = ~(a1 & a2 & a3 & ~a4 & b1 & ~b2 & b3 & ~b4);
 		a.nullBit2 = a2 = a2 & mask; // testMergeProtNullAndDefNN
 		mask = ~(b1 & b2 & b3 & ~b4 & a1 & ~a2 & a3 & ~a4);
 		if ((b2 & mask) != b2) {
-			b = (UnconditionalFlowInfo) otherInits.copy(); // testPreMerge			
+			b = (UnconditionalFlowInfo) otherInits.copy(); // testPreMerge
 			b.nullBit2 = b2 & mask; // testMergeDefNNAndProtNull
 		}
 		return b;
 		// TODO extra
 	}
-
 
 }
