@@ -56,9 +56,7 @@ public class CheckNPETest {
 	}
 
 	@CanBeNull
-	@CanBeNullParam1
-	@NonNullParam2
-	private String testMethod(String x1, String x2) {
+	private String testMethod(@CanBeNull String x1, @NonNull String x2) {
 		testMethod("", "").toString();/* error0 */
 		x1.toString();/* error0 */
 		x2.toString();/* ok */

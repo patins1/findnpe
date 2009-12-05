@@ -2,6 +2,7 @@ package topPackage.attack;
 
 import jjkpp.jdt.annotations.CanBeNull;
 import jjkpp.jdt.annotations.NonNull;
+import binaryTopPackage.BinaryData;
 
 public class AttactTest {
 
@@ -22,7 +23,6 @@ public class AttactTest {
 		return null; /* error0 easy */
 	}
 
-
 	public void testAccessCanBeNullReturn() {
 		String s = d.getS2();
 		s.toString(); /* error1 */
@@ -37,7 +37,7 @@ public class AttactTest {
 		String s = d.getS2();
 		return s; /* error2 NOATTACK */
 	}
-	
+
 	@NonNull
 	public String testNonNullReturnCanBeNullReturn() {
 		String s = d.getS2();
@@ -51,15 +51,23 @@ public class AttactTest {
 	}
 
 	public void testDefaultParam() {
-		d.doS1(null); /* error1 easy NOATTACK */ 
+		d.doS1(null); /* error1 easy NOATTACK */
 	}
 
 	public void testCanBeNullParam() {
 		d.doS2(null); /* OK */
 	}
-	
+
 	public void testNonNullParam() {
 		d.doS3(null); /* error0 easy */
+	}
+
+	public void testCanBeNullParamBinary() {
+		new BinaryData().doS2(null); /* OK */
+	} 
+
+	public void testNonNullParamBinary() {
+		new BinaryData().doS3(null); /* error0 easy */
 	}
 
 }
