@@ -256,16 +256,24 @@ public class NullibilityAnnosUI extends ProposalCollector {
 			varType = "field " + varDecl.getName().getIdentifier();
 			existingAnnots = varDecl.resolveBinding().getAnnotations();
 		} else if (variableDeclaration.getParent() instanceof MethodDeclaration && variableDeclaration instanceof SingleVariableDeclaration) {
-			SingleVariableDeclaration varDecl = (SingleVariableDeclaration) variableDeclaration;
-			decl = (MethodDeclaration) variableDeclaration.getParent();
-			MethodDeclaration mdecl = (MethodDeclaration) variableDeclaration.getParent();
-			modifiers = mdecl.getModifiersProperty();
-			int param = mdecl.parameters().indexOf(varDecl);
-			String suffix = "Param" + (param + 1);
-			existingAnnots = mdecl.resolveBinding().getAnnotations();
-			marker = marker + suffix;
-			oppositeMarker = oppositeMarker + suffix;
-			varType = "parameter " + mdecl.getName().getIdentifier() + "(" + varDecl.getName().getIdentifier() + ")";
+			if (NullibilityAnnos.USE_PARAM_ANNOS) {
+				VariableDeclaration varDecl = (VariableDeclaration) variableDeclaration;
+				decl = (SingleVariableDeclaration) variableDeclaration;
+				modifiers = SingleVariableDeclaration.MODIFIERS2_PROPERTY;
+				varType = "parameter " + varDecl.getName().getIdentifier();
+				existingAnnots = varDecl.resolveBinding().getAnnotations();
+			} else {
+				SingleVariableDeclaration varDecl = (SingleVariableDeclaration) variableDeclaration;
+				decl = (MethodDeclaration) variableDeclaration.getParent();
+				MethodDeclaration mdecl = (MethodDeclaration) variableDeclaration.getParent();
+				modifiers = mdecl.getModifiersProperty();
+				int param = mdecl.parameters().indexOf(varDecl);
+				String suffix = "Param" + (param + 1);
+				existingAnnots = mdecl.resolveBinding().getAnnotations();
+				marker = marker + suffix;
+				oppositeMarker = oppositeMarker + suffix;
+				varType = "parameter " + mdecl.getName().getIdentifier() + "(" + varDecl.getName().getIdentifier() + ")";
+			}
 		} else if (variableDeclaration instanceof MethodDeclaration) {
 			MethodDeclaration mdecl = (MethodDeclaration) variableDeclaration;
 			decl = mdecl;
