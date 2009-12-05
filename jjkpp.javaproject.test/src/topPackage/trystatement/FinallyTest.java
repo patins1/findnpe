@@ -8,10 +8,10 @@ public class FinallyTest {
 		try {
 			return;
 		} finally {
-			"".equals("");   
+			"".equals("");
 		}
 	}
-	
+
 	private void testFinallyUnreachable_CanBeNull(Class parent) {
 		String s = "";
 		try {

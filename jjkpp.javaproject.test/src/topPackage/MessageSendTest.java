@@ -56,7 +56,6 @@ public class MessageSendTest {
 		testPassNullToNonNullParameter(null/* error0 easy */);
 	}
 
-	
 	private void testPassNullToCanBeNullParameter(@CanBeNull String param1) {
 		testPassNullToCanBeNullParameter(null/* OK */);
 	}
@@ -65,7 +64,6 @@ public class MessageSendTest {
 		testPassNonNullValueToNonNullParameter(param1/* OK */);
 	}
 
-	
 	private void testPassUnknownValueToNonNullParameter(@CanBeNull String param1) {
 		testPassUnknownValueToNonNullParameter(param1/* OK */);
 	}

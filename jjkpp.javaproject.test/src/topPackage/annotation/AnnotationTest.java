@@ -11,7 +11,6 @@ public class AnnotationTest {
 	private void testAnnotatedParameters(@NonNull String s1, @CanBeNull String s2) {
 	}
 
-	
 	private void testOppositeAnnotationsOnParameter(@CanBeNull @NonNull String s1) {/* error0 */
 	}
 

@@ -64,7 +64,7 @@ public class AttactTest {
 
 	public void testCanBeNullParamBinary() {
 		new BinaryData().doS2(null); /* OK */
-	} 
+	}
 
 	public void testNonNullParamBinary() {
 		new BinaryData().doS3(null); /* error0 easy */

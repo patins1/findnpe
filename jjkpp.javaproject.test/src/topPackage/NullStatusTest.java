@@ -67,17 +67,18 @@ public class NullStatusTest {
 
 	public void testMergeDefNNAndProtNull() {
 		String s = "";
-		if (s!=null)  
+		if (s != null)
 			"".toCharArray();
-		s.hashCode(); /* OK */ 
+		s.hashCode(); /* OK */
 	}
-	
+
 	public void testMergeProtNullAndDefNN() {
 		String s = "";
-		if (s==null) 
-			; else
+		if (s == null)
+			;
+		else
 			"".toCharArray();
-		s.hashCode(); /* OK */ 
+		s.hashCode(); /* OK */
 	}
 
 }
