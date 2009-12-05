@@ -34,10 +34,13 @@ import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
+import org.eclipse.jdt.internal.compiler.lookup.MethodVerifier;
 import org.eclipse.jdt.internal.compiler.lookup.ParameterizedTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 import org.eclipse.jdt.internal.compiler.lookup.VariableBinding;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import org.eclipse.jdt.internal.compiler.problem.ProblemHandler;
@@ -536,6 +539,91 @@ public class NullibilityAnnos {
 	}
 
 	/**
+	 * Return the next higher method/constructor in supertype hierarchy with
+	 * same selector and arguments; In contrast to
+	 * {@link MethodBinding#getHighestOverridenMethod(LookupEnvironment), the
+	 * highest method is not returned necessarily, by using the condition
+	 * <code>bestMethod == t</code>.
+	 */
+	static public MethodBinding getHigherOverridenMethod(MethodBinding t, LookupEnvironment environment) {
+		MethodBinding bestMethod = t;
+		ReferenceBinding currentType = t.declaringClass;
+		if (t.isConstructor()) {
+			// walk superclasses - only
+			do {
+				MethodBinding superMethod = currentType.getExactConstructor(t.parameters);
+				if (superMethod != null) {
+					bestMethod = superMethod;
+				}
+			} while ((currentType = currentType.superclass()) != null && bestMethod == t);
+			return bestMethod;
+		}
+		MethodVerifier verifier = environment.methodVerifier();
+		// walk superclasses
+		ReferenceBinding[] interfacesToVisit = null;
+		int nextPosition = 0;
+		do {
+			MethodBinding[] superMethods = currentType.getMethods(t.selector);
+			for (int i = 0, length = superMethods.length; i < length; i++) {
+				if (verifier.doesMethodOverride(t, superMethods[i])) {
+					bestMethod = superMethods[i];
+					break;
+				}
+			}
+			ReferenceBinding[] itsInterfaces = currentType.superInterfaces();
+			if (itsInterfaces != null && itsInterfaces != Binding.NO_SUPERINTERFACES) {
+				if (interfacesToVisit == null) {
+					interfacesToVisit = itsInterfaces;
+					nextPosition = interfacesToVisit.length;
+				} else {
+					int itsLength = itsInterfaces.length;
+					if (nextPosition + itsLength >= interfacesToVisit.length)
+						System.arraycopy(interfacesToVisit, 0, interfacesToVisit = new ReferenceBinding[nextPosition + itsLength + 5], 0, nextPosition);
+					nextInterface: for (int a = 0; a < itsLength; a++) {
+						ReferenceBinding next = itsInterfaces[a];
+						for (int b = 0; b < nextPosition; b++)
+							if (next == interfacesToVisit[b])
+								continue nextInterface;
+						interfacesToVisit[nextPosition++] = next;
+					}
+				}
+			}
+		} while ((currentType = currentType.superclass()) != null && bestMethod == t);
+		if (bestMethod.declaringClass.id == TypeIds.T_JavaLangObject) {
+			return bestMethod;
+		}
+		// walk superinterfaces
+		for (int i = 0; i < nextPosition; i++) {
+			currentType = interfacesToVisit[i];
+			MethodBinding[] superMethods = currentType.getMethods(t.selector);
+			for (int j = 0, length = superMethods.length; j < length; j++) {
+				MethodBinding superMethod = superMethods[j];
+				if (verifier.doesMethodOverride(t, superMethod)) {
+					TypeBinding bestReturnType = bestMethod.returnType;
+					if (bestReturnType == superMethod.returnType || bestMethod.returnType.findSuperTypeOriginatingFrom(superMethod.returnType) != null) {
+						bestMethod = superMethod;
+					}
+					break;
+				}
+			}
+			ReferenceBinding[] itsInterfaces = currentType.superInterfaces();
+			if (itsInterfaces != null && itsInterfaces != Binding.NO_SUPERINTERFACES) {
+				int itsLength = itsInterfaces.length;
+				if (nextPosition + itsLength >= interfacesToVisit.length)
+					System.arraycopy(interfacesToVisit, 0, interfacesToVisit = new ReferenceBinding[nextPosition + itsLength + 5], 0, nextPosition);
+				nextInterface: for (int a = 0; a < itsLength; a++) {
+					ReferenceBinding next = itsInterfaces[a];
+					for (int b = 0; b < nextPosition; b++)
+						if (next == interfacesToVisit[b])
+							continue nextInterface;
+					interfacesToVisit[nextPosition++] = next;
+				}
+			}
+		}
+		return bestMethod;
+	}
+
+	/**
 	 * Finds the highest super method
 	 * 
 	 * @param methodBinding
@@ -569,7 +657,7 @@ public class NullibilityAnnos {
 				return null;
 		}
 		if (environment != null) {
-			return methodBinding.getHighestOverridenMethod(environment);
+			return getHigherOverridenMethod(methodBinding, environment);
 		}
 		return null;
 		/*
