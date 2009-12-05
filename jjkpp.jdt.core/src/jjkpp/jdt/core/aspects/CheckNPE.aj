@@ -2,13 +2,15 @@ package jjkpp.jdt.core.aspects;
 
 
 import jjkpp.jdt.core.classes.NullibilityAnnos;
-import jjkpp.jdt.core.classes.ProposalCollector;
 
+import org.eclipse.jdt.internal.compiler.CompilationResult;
+import org.eclipse.jdt.internal.compiler.ISourceElementRequestor.MethodInfo;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
-import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration; 
-import org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration; 
+import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.AllocationExpression;
+import org.eclipse.jdt.internal.compiler.ast.Argument;
 import org.eclipse.jdt.internal.compiler.ast.Assignment;
+import org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Expression;
 import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.FieldReference;
@@ -16,9 +18,9 @@ import org.eclipse.jdt.internal.compiler.ast.LocalDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.MessageSend;
 import org.eclipse.jdt.internal.compiler.ast.MethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.QualifiedAllocationExpression;
+import org.eclipse.jdt.internal.compiler.ast.QualifiedNameReference;
 import org.eclipse.jdt.internal.compiler.ast.ReturnStatement;
 import org.eclipse.jdt.internal.compiler.ast.SingleNameReference;
-import org.eclipse.jdt.internal.compiler.ast.QualifiedNameReference;
 import org.eclipse.jdt.internal.compiler.ast.TryStatement;
 import org.eclipse.jdt.internal.compiler.flow.ExceptionHandlingFlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FinallyFlowContext;
@@ -28,20 +30,22 @@ import org.eclipse.jdt.internal.compiler.flow.InitializationFlowContext;
 import org.eclipse.jdt.internal.compiler.flow.InsideSubRoutineFlowContext;
 import org.eclipse.jdt.internal.compiler.flow.NullInfoRegistry;
 import org.eclipse.jdt.internal.compiler.flow.UnconditionalFlowInfo;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding;
-import org.eclipse.jdt.internal.compiler.lookup.BaseTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
+import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodScope;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
-import org.eclipse.jdt.internal.compiler.lookup.VariableBinding;
-import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TagBits;
-import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
-import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.eclipse.jdt.internal.compiler.lookup.VariableBinding;
+import org.eclipse.jdt.internal.compiler.parser.SourceTypeConverter;
+import org.eclipse.jdt.internal.core.CompilationUnitStructureRequestor;
+import org.eclipse.jdt.internal.core.SourceMethod;
+import org.eclipse.jdt.internal.core.SourceMethodElementInfo;
 
 @SuppressWarnings("restriction")
 privileged public aspect CheckNPE {
@@ -51,6 +55,7 @@ privileged public aspect CheckNPE {
 	// replace-advices for analyseCode() have comments with "custom code" text in their body
 	declare precedence : HandleIterations, CheckNPE, HandleNullStatusMethod;
 
+	private Argument[] SourceMethodElementInfo.originalArguments;
 
 	before(MethodDeclaration t, ClassScope classScope, InitializationFlowContext initializationContext, FlowInfo flowInfo) : 
 		call(void analyseCode(ClassScope, InitializationFlowContext, FlowInfo)) && target(t) && args(classScope,initializationContext,flowInfo) {
@@ -578,12 +583,12 @@ privileged public aspect CheckNPE {
 
 	after(MethodDeclaration t, ClassScope classScope, InitializationFlowContext initializationContext, FlowInfo info) returning: 
 		call(void analyseCode(ClassScope, InitializationFlowContext, FlowInfo)) && target(t) && args(classScope,initializationContext,info) {
-				
-		if (NullibilityAnnos.enableNullibility()) 	
+						
+		MethodBinding higher = null;
+		if (NullibilityAnnos.enableAnnotations())
 		if (t.binding!=null && t.annotations!=null && t.annotations.length!=0) {
 			MethodBinding methodBinding = t.binding;
-			AnnotationBinding[] annos = methodBinding.getAnnotations();			
-			MethodBinding higher = null;
+			AnnotationBinding[] annos = methodBinding.getAnnotations();	
 			int argumentsCount = t.arguments==null ? 0 : t.arguments.length;
 			if (annos!=null) {
 
@@ -633,6 +638,39 @@ privileged public aspect CheckNPE {
 				}
 			}
 		}
+		if (NullibilityAnnos.enableAnnotations() && NullibilityAnnos.USE_PARAM_ANNOS)
+		if (t.binding!=null) {
+			MethodBinding methodBinding = t.binding;
+			AnnotationBinding[][] paramAnnos = methodBinding.getParameterAnnotations();	
+			int argumentsCount = t.arguments==null ? 0 : t.arguments.length;
+			if (paramAnnos!=null && paramAnnos.length==argumentsCount)
+			for (int param = 0; param < argumentsCount; param++) {
+				AnnotationBinding[] annos = paramAnnos[param];
+				if (annos!=null)
+				for (int i = 0; i < annos.length; i++) {
+					AnnotationBinding annotation = annos[i];
+					ReferenceBinding annotationType = annotation
+							.getAnnotationType();
+					if (annotationType != null) {
+						String annoName = new String(annotationType.sourceName);
+						if (annoName.equals("NonNull")) {
+							if (!NullibilityAnnos.getSolidityWithParent(methodBinding,param)) {
+								NullibilityAnnos.invalidNullibility(classScope.problemReporter(),t.arguments[param].annotations[i],null,0,"Nullibility problem: Defined already as CanBeNull"); //$NON-NLS-1$
+							} else
+							if ((higher!=null || (higher=NullibilityAnnos.findSuperMethod(methodBinding))!=null) && higher!=methodBinding && !NullibilityAnnos.getSolidityWithParent(higher,param)) {
+								NullibilityAnnos.invalidNullibility(classScope.problemReporter(),t.arguments[param].annotations[i],higher.declaringClass,0,"Nullibility problem: Defined already as CanBeNull in super method"); //$NON-NLS-1$
+							}
+						} else {
+							if (annoName.equals("CanBeNull")) {
+								if (NullibilityAnnos.getSolidityWithParent(methodBinding,param)) {
+									NullibilityAnnos.invalidNullibility(classScope.problemReporter(),t.arguments[param].annotations[i],null,0,"Nullibility problem: Defined already as NonNull"); //$NON-NLS-1$
+								}
+							}					
+						}
+					}
+				}
+			}
+		}
 	}		
 
 	after(LocalDeclaration t, BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) 
@@ -654,6 +692,31 @@ privileged public aspect CheckNPE {
 				MethodDeclaration methodDeclaration = (MethodDeclaration)currentScope.referenceContext();
 				if (NullibilityAnnos.checkOnNonNull(methodDeclaration.binding)) {
 					NullibilityAnnos.checkEasyNPE(t, currentScope, flowContext, result, null);
+				}
+			}
+	}
+
+	after(CompilationUnitStructureRequestor t, MethodInfo methodInfo, SourceMethod handle) returning (SourceMethodElementInfo result) : 
+		call(SourceMethodElementInfo createMethodInfo(MethodInfo, SourceMethod)) && args(methodInfo,handle) && target(t) {
+
+		// AttactTest.testNonNullParam()
+		if (NullibilityAnnos.enableAnnotations() && NullibilityAnnos.USE_PARAM_ANNOS)
+			if (methodInfo.node != null) {
+				result.originalArguments = methodInfo.node.arguments;
+			}
+	}
+
+	after(SourceTypeConverter t, SourceMethod methodHandle, SourceMethodElementInfo methodInfo, CompilationResult compilationResult) returning (AbstractMethodDeclaration result) : 
+		call(AbstractMethodDeclaration convert(SourceMethod, SourceMethodElementInfo, CompilationResult)) && args(methodHandle,methodInfo,compilationResult) && target(t) {
+
+		// AttactTest.testNonNullParam()
+		if (NullibilityAnnos.enableAnnotations() && NullibilityAnnos.USE_PARAM_ANNOS)
+			if (methodInfo.originalArguments != null && result.arguments != null && methodInfo.originalArguments.length == result.arguments.length) {
+				for (int i=result.arguments.length-1; i>=0; i--) {
+					Argument argument = result.arguments[i];
+					Argument originalArgument = methodInfo.originalArguments[i];
+					if (argument.annotations == null)
+						argument.annotations = originalArgument.annotations;
 				}
 			}
 	}

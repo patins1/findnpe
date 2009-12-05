@@ -63,6 +63,8 @@ public class NullibilityAnnos {
 
 	private static final boolean ALLOW_ASSIGN_CANBENULL_TO_FIELD = ALLOW_ASSIGN_NULL_TO_FIELD && false;
 
+	public static final boolean USE_PARAM_ANNOS = true;
+
 	/**
 	 * Flag indicating the the null-status-method shall use only information
 	 * from the flow info, but not from the ASTNode itself; see FlowInfo for
@@ -295,29 +297,29 @@ public class NullibilityAnnos {
 	 *         {@link FlowInfo#UNKNOWN}
 	 */
 	private static int hasSolidAnnotation(MethodBinding binding, int param) {
-		AnnotationBinding[] annos = binding.getAnnotations();
-		if (annos != null)
-			for (int i = 0; i < annos.length; i++) {
-				AnnotationBinding annotation = annos[i];
-				ReferenceBinding annotationType = annotation.getAnnotationType();
-				if (annotationType != null) {
-					String annoName = new String(annotationType.sourceName);
-					if (getParamIndex(annoName, "NonNullParam") == param) {
-						return FlowInfo.NON_NULL;
-					}
-					if (getParamIndex(annoName, "CanBeNullParam") == param) {
-						return FlowInfo.NULL;
+		if (!USE_PARAM_ANNOS) {
+			AnnotationBinding[] annos = binding.getAnnotations();
+			if (annos != null)
+				for (int i = 0; i < annos.length; i++) {
+					AnnotationBinding annotation = annos[i];
+					ReferenceBinding annotationType = annotation.getAnnotationType();
+					if (annotationType != null) {
+						String annoName = new String(annotationType.sourceName);
+						if (getParamIndex(annoName, "NonNullParam") == param) {
+							return FlowInfo.NON_NULL;
+						}
+						if (getParamIndex(annoName, "CanBeNullParam") == param) {
+							return FlowInfo.NULL;
+						}
 					}
 				}
-			}
-		return FlowInfo.UNKNOWN;
-
-		// AnnotationBinding[][] annos=binding.getParameterAnnotations();
-		// if (annos==null)
-		// return FlowInfo.UNKNOWN;
-		// AnnotationBinding[] anno =
-		// param<annos.length?annos[param]:annos[annos.length-1];
-		// return hasSolidAnnotation(anno);
+			return FlowInfo.UNKNOWN;
+		}
+		AnnotationBinding[][] annos = binding.getParameterAnnotations();
+		if (annos == null)
+			return FlowInfo.UNKNOWN;
+		AnnotationBinding[] anno = param < annos.length ? annos[param] : annos[annos.length - 1];
+		return hasSolidAnnotation(anno);
 	}
 
 	private static boolean calcNullStatus(FieldBinding fieldBinding) {
