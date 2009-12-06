@@ -1,6 +1,5 @@
 package topPackage.assignment;
 
-import jjkpp.jdt.annotations.CanBeNull;
 import jjkpp.jdt.annotations.NonNull;
 
 public class LocalVariableAssignmentTest {
@@ -14,7 +13,6 @@ public class LocalVariableAssignmentTest {
 	private void testNonNullLocalVariableAssignCanBeNullVariableWithNonNullValue() {
 		@NonNull
 		String s1 = "";
-		@CanBeNull
 		String s2 = "";
 		s1 = s2/* OK */;
 	}
@@ -22,9 +20,8 @@ public class LocalVariableAssignmentTest {
 	private void testNonNullLocalVariableAssignCanBeNullVariableWithNullValue() {
 		@NonNull
 		String s1 = "";
-		@CanBeNull
 		String s2 = null;
-		s1 = s2/* error0 */;
+		s1 = s2/* error1 */;
 	}
 
 	private void testNonNullLocalVariableAssignUnknownValue() {

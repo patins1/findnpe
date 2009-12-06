@@ -15,11 +15,10 @@ public class CheckFieldTest {
 	}
 
 	private void testLocalVariable() {
-		@CanBeNull
 		String s5 = "".equals("") ? "" : null;
 		if (s5 != null)
 			s5.toString(); /* OK */
-		s5.toString(); /* error0 */
+		s5.toString(); /* error1 */
 		s5.toString(); /* OK */
 	}
 

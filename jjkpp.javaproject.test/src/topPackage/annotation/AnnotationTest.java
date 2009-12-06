@@ -1,8 +1,6 @@
 package topPackage.annotation;
 
 import jjkpp.jdt.annotations.CanBeNull;
-import jjkpp.jdt.annotations.CanBeNullParam1;
-import jjkpp.jdt.annotations.CanBeNullParam2;
 import jjkpp.jdt.annotations.NonNull;
 
 public class AnnotationTest {

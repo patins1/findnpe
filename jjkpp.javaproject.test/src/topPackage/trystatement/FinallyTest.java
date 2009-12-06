@@ -1,7 +1,5 @@
 package topPackage.trystatement;
 
-import java.util.NoSuchElementException;
-
 public class FinallyTest {
 
 	private void testFinallyUnreachable(Class parent) {

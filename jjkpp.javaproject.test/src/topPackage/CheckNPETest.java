@@ -1,9 +1,7 @@
 package topPackage;
 
 import jjkpp.jdt.annotations.CanBeNull;
-import jjkpp.jdt.annotations.CanBeNullParam1;
 import jjkpp.jdt.annotations.NonNull;
-import jjkpp.jdt.annotations.NonNullParam2;
 
 public class CheckNPETest {
 
