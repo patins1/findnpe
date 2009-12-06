@@ -35,11 +35,13 @@ import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodVerifier;
+import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ParameterizedTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 import org.eclipse.jdt.internal.compiler.lookup.VariableBinding;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
@@ -77,112 +79,58 @@ public class NullibilityAnnos {
 
 	public static boolean checkOnNonNull(MethodBinding binding) {
 		if (ATTACK) {
-			Boolean result = _getSolidityWithParent(binding);
-			if (result != null)
-				return result;
-			return false;
+			return _getSolidityWithParent(binding) == FlowInfo.NON_NULL;
 		}
 		return getSolidityWithParent(binding);
 	}
 
 	public static boolean getSolidityWithParent(MethodBinding binding) {
-		Boolean result = _getSolidityWithParent(binding);
-		if (result != null)
-			return result;
-		return NullibilityAnnos.hasSolidAnnotation(binding.declaringClass) == FlowInfo.NON_NULL;
+		return _getSolidityWithParent(binding) != FlowInfo.NULL;
 	}
 
-	private static Boolean _getSolidityWithParent(MethodBinding binding) {
+	private static int _getSolidityWithParent(MethodBinding binding) {
 		if (!enableAnnotations())
-			return null;
-		MethodBinding highest = binding;
-		MethodBinding _binding = binding;
-		do {
-			int result = NullibilityAnnos.hasSolidAnnotation(_binding.getAnnotations());
-			if (result != FlowInfo.UNKNOWN) {
-				return result == FlowInfo.NON_NULL;
-			}
-			MethodBinding superMethod = findSuperMethod(_binding);
-			if (superMethod != null)
-				highest = superMethod;
-			if (superMethod == _binding)
-				break;
-			_binding = superMethod;
-		} while (_binding != null);
-
-		if (false && binding.declaringClass != null && highest != null && highest.declaringClass != null) {
-
-			String methodName = new String(binding.selector);
-			// Set<String> itfs = new HashSet<String>();
-			// itfs.add(getClassName(declaringClass));
-			// addSuperClasses(declaringClass, itfs);
-
-			String className = getClassName(highest.declaringClass);
-			if (className.equals("java.util.Arrays"))
-				return true;
-			if (className.equals("java.util.List"))
-				return true;
-			if (className.equals("java.util.Map") && !"put".equals(methodName) && !"remove".equals(methodName) && !"get".equals(methodName))
-				return true;
-			if (className.equals("java.util.Entry"))
-				return true;
-			if (className.equals("java.lang.Object"))
-				return true;
-			if (className.equals("java.lang.String"))
-				return true;
-			if (className.equals("java.lang.Class") && "".equals(methodName))
-				return true;
-			if (className.equals("java.lang.AbstractList"))
-				return true;
-			if (className.equals("org.eclipse.swt.graphics.GC"))
-				return true;
-			if (className.equals("java.util.Set") && "iterator".equals(methodName))
-				return true;
-			if ((className.equals("java.util.HashMap") || className.equals("java.util.Map")) && !"get".equals(methodName) && !"put".equals(methodName) && !"remove".equals(methodName))
-				return true;
-			if (className.equals("java.util.Iterator"))
-				return true;
-			if (className.equals("java.text.DateFormat") && !"parseObject".equals(methodName))
-				return true;
-			if (className.equals("java.sql.Connection") && "".equals(methodName) && !"".equals(methodName) && !"".equals(methodName))
-				return true;
-			if (className.equals("java.sql.Statement") && !"".equals(methodName) && !"".equals(methodName) && !"".equals(methodName))
-				return true;
+			return FlowInfo.UNKNOWN;
+		int result = NullibilityAnnos.hasSolidAnnotation(binding.getAnnotations());
+		if (result != FlowInfo.UNKNOWN) {
+			return result;
 		}
-		return null;
+		MethodBinding superMethod = findSuperMethod(binding);
+		if (superMethod != null && superMethod != binding) {
+			result = _getSolidityWithParent(superMethod);
+			if (result != FlowInfo.UNKNOWN) {
+				return result;
+			}
+		}
+		return NullibilityAnnos.hasSolidAnnotation(binding.declaringClass);
 	}
 
 	public static boolean checkOnNonNull(MethodBinding binding, int param) {
 		if (ATTACK) {
-			Boolean result = _getSolidityWithParent(binding, param);
-			if (result != null)
-				return result;
-			return false;
+			return _getSolidityWithParent(binding, param) == FlowInfo.NON_NULL;
 		}
 		return getSolidityWithParent(binding, param);
 	}
 
 	public static boolean getSolidityWithParent(MethodBinding binding, int param) {
-		Boolean result = _getSolidityWithParent(binding, param);
-		if (result != null)
-			return result;
-		return NullibilityAnnos.hasSolidAnnotation(binding.declaringClass) == FlowInfo.NON_NULL;
+		return _getSolidityWithParent(binding, param) != FlowInfo.NULL;
 	}
 
-	public static Boolean _getSolidityWithParent(MethodBinding binding, int param) {
+	private static int _getSolidityWithParent(MethodBinding binding, int param) {
 		if (!enableAnnotations())
-			return null;
-		MethodBinding _binding = binding;
-		do {
-			int result = hasSolidAnnotation(_binding, param);
-			if (result != FlowInfo.UNKNOWN)
-				return result == FlowInfo.NON_NULL;
-			MethodBinding superMethod = findSuperMethod(_binding);
-			if (superMethod == _binding)
-				break;
-			_binding = superMethod;
-		} while (_binding != null);
-		return null;
+			return FlowInfo.UNKNOWN;
+		int result = NullibilityAnnos.hasSolidAnnotation(binding, param);
+		if (result != FlowInfo.UNKNOWN) {
+			return result;
+		}
+		MethodBinding superMethod = findSuperMethod(binding);
+		if (superMethod != null && superMethod != binding) {
+			result = _getSolidityWithParent(superMethod, param);
+			if (result != FlowInfo.UNKNOWN) {
+				return result;
+			}
+		}
+		return NullibilityAnnos.hasSolidAnnotation(binding.declaringClass);
 	}
 
 	public static boolean checkOnNonNull(VariableBinding var) {
@@ -226,32 +174,17 @@ public class NullibilityAnnos {
 
 	public static boolean checkOnNonNull(FieldBinding binding) {
 		if (ATTACK) {
-			Boolean result = _getSolidityWithParent(binding);
-			if (result != null)
-				return result;
-			return false;
+			return _getSolidityWithParent(binding) == FlowInfo.NON_NULL;
 		}
 		return getSolidityWithParent(binding);
 	}
 
 	public static boolean getSolidityWithParent(FieldBinding binding) {
-		Boolean result = _getSolidityWithParent(binding);
-		if (result != null)
-			return result;
-		if (NullibilityAnnos.hasSolidAnnotation(binding.declaringClass) == FlowInfo.NON_NULL)
-			return true;
-		String className = getClassName(binding.declaringClass);
-		if ("".equals(className))
-			return true;
-		return false;
+		return _getSolidityWithParent(binding) != FlowInfo.NULL;
 	}
 
-	private static Boolean _getSolidityWithParent(FieldBinding binding) {
-		int result = hasSolidAnnotation(binding.getAnnotations());
-		if (result != FlowInfo.UNKNOWN) {
-			return result == FlowInfo.NON_NULL;
-		}
-		return null;
+	private static int _getSolidityWithParent(FieldBinding binding) {
+		return hasSolidAnnotation(binding.getAnnotations());
 	}
 
 	public static FieldBinding getLastFieldBinding(QualifiedNameReference qualifiedNameReference) {
@@ -273,7 +206,7 @@ public class NullibilityAnnos {
 	}
 
 	public static boolean checkScope(Scope scope) {
-		return interestingScope(scope);
+		return true;
 	}
 
 	public static boolean doubleCheck() {
@@ -352,16 +285,24 @@ public class NullibilityAnnos {
 		return -1;
 	}
 
-	private static int getSolidityWithParent(AnnotationBinding[] annotationBindings, ReferenceBinding declaringClass) {
-		int result = hasSolidAnnotation(annotationBindings);
-		if (result == FlowInfo.UNKNOWN && declaringClass != null)
-			result = hasSolidAnnotation(declaringClass);
-		return result;
-	}
-
 	private static int hasSolidAnnotation(ReferenceBinding declaringClass) {
-		// return hasSolidAnnotation(declaringClass.getAnnotations());
-		return FlowInfo.NON_NULL;
+		int result = hasSolidAnnotation(declaringClass.getAnnotations());
+		if (result != FlowInfo.UNKNOWN) {
+			return result;
+		}
+		PackageBinding pack = declaringClass.getPackage();
+		while (pack != null) {
+			Binding binding = pack.getTypeOrPackage(TypeConstants.PACKAGE_INFO_NAME);
+			if (binding instanceof ReferenceBinding) {
+				ReferenceBinding referenceBinding = (ReferenceBinding) binding;
+				result = hasSolidAnnotation(referenceBinding.getAnnotations());
+				if (result != FlowInfo.UNKNOWN) {
+					return result;
+				}
+			}
+			pack = getParentPackage(pack);
+		}
+		return FlowInfo.UNKNOWN;
 	}
 
 	@SuppressWarnings("unused")
@@ -433,14 +374,11 @@ public class NullibilityAnnos {
 	private static int getSolidAnnotation(ReferenceBinding annotationType) {
 		if (annotationType != null) {
 			String annoName = new String(annotationType.sourceName);
-			if (annoName.endsWith("NonNull")) {
+			if (annoName.endsWith("NonNull") || annoName.endsWith("NonNullByDefault")) {
 				return FlowInfo.NON_NULL;
 			}
 			if (annoName.endsWith("CanBeNull")) {
 				return FlowInfo.NULL;
-			}
-			if (annoName.endsWith("NonNull") || annoName.endsWith("Solid")) {
-				return FlowInfo.NON_NULL;
 			}
 		}
 		return FlowInfo.UNKNOWN;
@@ -716,6 +654,16 @@ public class NullibilityAnnos {
 			((DefaultProblemFactory) _this.problemFactory).messageTemplates.put((RequireCanBeNull & IProblem.IgnoreCategoriesMask) + 1, caption);
 		handle(_this, RequireCanBeNull, ProblemHandler.NoArgument, ProblemHandler.NoArgument, callNodeSourceStart(_this, local, location), callNodeSourceEnd(_this, local, location), declaringClass);
 
+	}
+
+	private static PackageBinding getParentPackage(PackageBinding pack) {
+		try {
+			Field field = PackageBinding.class.getDeclaredField("parent");
+			field.setAccessible(true);
+			return (PackageBinding) field.get(pack);
+		} catch (Exception e) {
+			return null;
+		}
 	}
 
 	private static int callNodeSourceStart(ProblemReporter this1, Binding local, ASTNode location) {
