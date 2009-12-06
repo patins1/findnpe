@@ -185,7 +185,7 @@ public class Action1 implements IObjectActionDelegate {
 		}
 
 		long millis2 = System.currentTimeMillis();
-		System.out.println("millis=" + (millis2 - millis));
+		// System.out.println("millis=" + (millis2 - millis));
 	}
 
 	private void handleMarker(IMarker marker, IProgressMonitor monitor, List<IMarkerResolution> ssres) {
