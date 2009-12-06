@@ -10,7 +10,7 @@ import java.lang.annotation.Target;
  * be used only on parameterless static methods.
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target( { ElementType.LOCAL_VARIABLE, ElementType.FIELD, ElementType.METHOD, ElementType.PARAMETER })
+@Target( { ElementType.METHOD, ElementType.PARAMETER, ElementType.FIELD, ElementType.LOCAL_VARIABLE })
 public @interface NonNull {
 
 }

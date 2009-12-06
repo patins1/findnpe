@@ -10,7 +10,7 @@ import java.lang.annotation.Target;
  * be used only on parameterless static methods.
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target( { ElementType.METHOD, ElementType.CONSTRUCTOR })
-public @interface NonNullParam3 {
+@Target( { ElementType.TYPE, ElementType.PACKAGE })
+public @interface NonNullByDefault {
 
 }
