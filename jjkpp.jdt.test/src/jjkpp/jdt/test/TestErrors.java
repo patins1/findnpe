@@ -90,7 +90,8 @@ public class TestErrors extends TestCase {
 								String errorContent = line.substring(errorIndex, errorIndexTo);
 								boolean easyError = errorContent.contains("easy");
 								boolean cancel = errorContent.contains("ATTACK") && !errorContent.contains("NOATTACK") && !NullibilityAnnos.ATTACK || errorContent.contains("NOATTACK") && NullibilityAnnos.ATTACK;
-								if (cancel) continue;
+								if (cancel)
+									continue;
 								IMarker marker = findMarker(markers, lineNumber);
 								if (marker == null || easyError != marker.getAttribute("message", "").contains("Easy")) {
 									reveal(ed, doc, commentLineNumber, errorIndex, errorIndexTo);
