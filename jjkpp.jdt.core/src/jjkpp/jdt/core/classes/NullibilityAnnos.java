@@ -286,16 +286,21 @@ public class NullibilityAnnos {
 	}
 
 	private static int hasSolidAnnotation(ReferenceBinding declaringClass) {
-		int result = hasSolidAnnotation(declaringClass.getAnnotations());
-		if (result != FlowInfo.UNKNOWN) {
-			return result;
-		}
+		ReferenceBinding current = declaringClass;
+		do {
+			int result = hasSolidAnnotation(current.getAnnotations());
+			if (result != FlowInfo.UNKNOWN) {
+				return result;
+			}
+			current = current.enclosingType();
+		} while (current != null);
+
 		PackageBinding pack = declaringClass.getPackage();
 		while (pack != null) {
 			Binding binding = pack.getTypeOrPackage(TypeConstants.PACKAGE_INFO_NAME);
 			if (binding instanceof ReferenceBinding) {
 				ReferenceBinding referenceBinding = (ReferenceBinding) binding;
-				result = hasSolidAnnotation(referenceBinding.getAnnotations());
+				int result = hasSolidAnnotation(referenceBinding.getAnnotations());
 				if (result != FlowInfo.UNKNOWN) {
 					return result;
 				}
