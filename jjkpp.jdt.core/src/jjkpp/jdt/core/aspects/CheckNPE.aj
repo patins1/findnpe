@@ -623,7 +623,7 @@ privileged public aspect CheckNPE {
 									if (NullibilityAnnos.getSolidityWithParent(methodBinding)) {
 										NullibilityAnnos.invalidNullibility(classScope.problemReporter(),t.annotations[i],null,0,"Nullibility problem: Defined already as NonNull"); //$NON-NLS-1$
 									} else
-									if ((higher!=null || (higher=NullibilityAnnos.findSuperMethod(methodBinding))!=null) && higher!=methodBinding && NullibilityAnnos.getSolidityWithParent(higher)) {
+									if ((higher!=null || (higher=NullibilityAnnos.findSuperMethod(methodBinding))!=null) && higher!=methodBinding && NullibilityAnnos.checkOnNonNull(higher)) {
 										NullibilityAnnos.invalidNullibility(classScope.problemReporter(),t.annotations[i],higher.declaringClass,0,"Nullibility problem: Defined already as NonNull in super method"); //$NON-NLS-1$
 									}
 								} else
