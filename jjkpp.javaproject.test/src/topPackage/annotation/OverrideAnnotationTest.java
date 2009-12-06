@@ -22,6 +22,11 @@ public class OverrideAnnotationTest {
 		return "";
 	}
 
+	protected String testReturnDefault() {
+		return "";
+	}
+
+	@NonNull
 	protected String testReturnAndParamError(@CanBeNull String s) {
 		return "";
 	}
@@ -38,6 +43,12 @@ public class OverrideAnnotationTest {
 			@NonNull
 			/* OK */
 			protected String testReturnCanBeNull() {
+				return "";
+			}
+
+			@CanBeNull
+			/* OK */
+			protected String testReturnDefault() {
 				return "";
 			}
 
