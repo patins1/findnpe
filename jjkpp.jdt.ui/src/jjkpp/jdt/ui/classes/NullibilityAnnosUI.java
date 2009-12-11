@@ -1,5 +1,6 @@
 package jjkpp.jdt.ui.classes;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -11,6 +12,8 @@ import jjkpp.jdt.ui.classes.quickfix.NullibilityCodeFix;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IMethod;
+import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.Annotation;
@@ -37,7 +40,14 @@ import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 import org.eclipse.jdt.core.dom.rewrite.ImportRewrite;
+import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
+import org.eclipse.jdt.internal.compiler.lookup.Binding;
+import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
+import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 import org.eclipse.jdt.internal.corext.fix.IProposableFix;
+import org.eclipse.jdt.internal.corext.util.MethodOverrideTester;
+import org.eclipse.jdt.internal.corext.util.SuperTypeHierarchyCache;
 import org.eclipse.jdt.internal.ui.JavaPluginImages;
 import org.eclipse.jdt.internal.ui.text.correction.ASTResolving;
 import org.eclipse.jdt.internal.ui.text.correction.proposals.ASTRewriteCorrectionProposal;
@@ -140,7 +150,7 @@ public class NullibilityAnnosUI extends ProposalCollector {
 		} else if (invocationNode instanceof ReturnStatement) {
 			ReturnStatement returnStatement = (ReturnStatement) invocationNode;
 			MethodDeclaration methodDeclaration = getMethodDeclaration(returnStatement);
-			addMarker2(cu, methodDeclaration, "CanBeNull");
+			addMarker2(cu, astRoot, methodDeclaration, "CanBeNull");
 		}
 	}
 
@@ -191,7 +201,7 @@ public class NullibilityAnnosUI extends ProposalCollector {
 	protected void addNullibilityProposals2(ICompilationUnit cu, CompilationUnit astRoot, IBinding binding, String marker) throws CoreException {
 		ASTNode node = astRoot.findDeclaringNode(binding);
 		if (node != null)
-			addMarker2(cu, node, marker);
+			addMarker2(cu, astRoot, node, marker);
 
 	}
 
@@ -199,6 +209,7 @@ public class NullibilityAnnosUI extends ProposalCollector {
 		fetchProposalStructures(cu, astRoot, problem.getCoveringNode(astRoot));
 	}
 
+	@Override
 	protected void addNullibilityProposals(ICompilationUnit cu, CompilationUnit astRoot, IBinding binding, ITypeBinding declaringClass, int param, ASTNode invocationNode, String marker) throws CoreException {
 		if (declaringClass == null)
 			return;
@@ -218,17 +229,18 @@ public class NullibilityAnnosUI extends ProposalCollector {
 						MethodDeclaration mdecl = (MethodDeclaration) newDecl;
 						List params = mdecl.parameters();
 						if (params != null && param < params.size()) {
-							addMarker2(targetCU, (VariableDeclaration) params.get(param), marker);
+							addMarker2(targetCU, astRoot, (VariableDeclaration) params.get(param), marker);
 						}
 					} else {
-						addMarker2(targetCU, newDecl, marker);
+						addMarker2(targetCU, astRoot, newDecl, marker);
 					}
 			}
 		}
 
 	}
 
-	protected void addMarker2(ICompilationUnit cu, ASTNode variableDeclaration, String marker) {
+	@Override
+	protected void addMarker2(ICompilationUnit cu, CompilationUnit astRoot, ASTNode variableDeclaration, String marker) throws JavaModelException {
 		if (variableDeclaration == null)
 			return;
 
@@ -276,9 +288,97 @@ public class NullibilityAnnosUI extends ProposalCollector {
 			}
 		} else if (variableDeclaration instanceof MethodDeclaration) {
 			MethodDeclaration mdecl = (MethodDeclaration) variableDeclaration;
+			String methodName = mdecl.getName().getIdentifier();
+			IMethodBinding method = mdecl.resolveBinding();
+
+			// IMethod iMethod = (IMethod) method.getJavaElement();
+			// IMethod bestMethod = iMethod;
+			// do {
+			// IMethod superMethod = findSuperImplementation(bestMethod);
+			// if (superMethod != null && superMethod != bestMethod) {
+			// int result =
+			// NullibilityAnnos.hasSolidAnnotation(superMethod.getAnnotations());
+			// if (result == FlowInfo.UNKNOWN) {
+			// bestMethod = superMethod;
+			// } else {
+			// bestMethod = null;
+			// break;
+			// }
+			// } else {
+			// break;
+			// }
+			// } while (true);
+			// if (bestMethod != null && bestMethod != iMethod) {
+			// cu = bestMethod.getCompilationUnit();
+			// mdecl = ASTNodeSearchUtil.getMethodDeclarationNode(bestMethod,
+			// null);
+			// // mdecl = bestMethod;
+			// }
+
+			// MethodBinding binding = getBinding(method);
+			// MethodBinding bestMethod = binding;
+			// do {
+			// MethodBinding superMethod =
+			// NullibilityAnnos.findSuperMethod(bestMethod);
+			// if (superMethod != null && superMethod != bestMethod) {
+			// int result =
+			// NullibilityAnnos.hasSolidAnnotation(superMethod.getAnnotations());
+			// if (result == FlowInfo.UNKNOWN) {
+			// bestMethod = superMethod;
+			// } else {
+			// bestMethod = null;
+			// break;
+			// }
+			// } else {
+			// break;
+			// }
+			// } while (true);
+			// if (bestMethod != null && bestMethod != binding) {
+			// mdecl.resolveBinding();
+			// }
+
+			IMethodBinding bestMethod = method;
+			do {
+				IMethodBinding superMethod = getHigherOverridenMethod(bestMethod);
+				if (superMethod != null && superMethod != bestMethod) {
+					int result = NullibilityAnnos.hasSolidAnnotation(superMethod.getAnnotations());
+					if (result == FlowInfo.UNKNOWN) {
+						bestMethod = superMethod;
+					} else {
+						bestMethod = superMethod;
+						break;
+					}
+				} else {
+					break;
+				}
+			} while (true);
+			if (bestMethod != null && bestMethod != method) {
+				ITypeBinding declaringClass = bestMethod.getDeclaringClass();
+				IMethodBinding binding = bestMethod;
+
+				ITypeBinding declaringTypeDecl = declaringClass.getTypeDeclaration();
+				if (declaringTypeDecl != null && declaringTypeDecl.isFromSource()) {
+					ICompilationUnit targetCU = ASTResolving.findCompilationUnitForBinding(cu, astRoot, declaringTypeDecl);
+					if (targetCU != null) {
+
+						ASTNode newDecl = astRoot.findDeclaringNode(binding);
+						if (newDecl == null) {
+							astRoot = ASTResolving.createQuickFixAST(targetCU, null);
+							newDecl = astRoot.findDeclaringNode(binding.getKey());
+						}
+
+						if (newDecl != null) {
+							mdecl = (MethodDeclaration) newDecl;
+							cu = targetCU;
+							methodName = declaringClass.getName() + "." + methodName;
+						}
+					}
+				}
+			}
+
 			decl = mdecl;
 			modifiers = mdecl.getModifiersProperty();
-			varType = "method " + mdecl.getName().getIdentifier();
+			varType = "method " + methodName;
 			existingAnnots = mdecl.resolveBinding().getAnnotations();
 		} else {
 			return;
@@ -312,6 +412,104 @@ public class NullibilityAnnosUI extends ProposalCollector {
 		// ImportRewrite imports = proposal
 		// .createImportRewrite((CompilationUnit) decl.getRoot());
 		// imports.addImport("jjkpp.jdt.annotations." + marker);
+	}
+
+	private IMethod findSuperImplementation(IMethod method) throws JavaModelException {
+		MethodOverrideTester tester = SuperTypeHierarchyCache.getMethodOverrideTester(method.getDeclaringType());
+		return tester.findOverriddenMethod(method, false);
+	}
+
+	static protected MethodBinding getBinding(IMethodBinding method) {
+		try {
+			Field field = method.getClass().getDeclaredField("binding");
+			field.setAccessible(true);
+			return (MethodBinding) field.get(method);
+		} catch (Exception e) {
+			return null;
+		}
+	}
+
+	static protected TypeBinding getBinding(ITypeBinding type) {
+		try {
+			Field field = type.getClass().getDeclaredField("binding");
+			field.setAccessible(true);
+			return (TypeBinding) field.get(type);
+		} catch (Exception e) {
+			return null;
+		}
+	}
+
+	/**
+	 * Return the next higher method/constructor in supertype hierarchy with
+	 * same selector and arguments as
+	 * {@link NullibilityAnnos#getHigherOverridenMethod(MethodBinding, org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment)}
+	 * , however should be called only for non-construtor methods
+	 */
+	static public IMethodBinding getHigherOverridenMethod(IMethodBinding t) {
+		IMethodBinding bestMethod = t;
+		ITypeBinding currentType = t.getDeclaringClass();
+		// walk superclasses
+		ITypeBinding[] interfacesToVisit = null;
+		int nextPosition = 0;
+		do {
+			IMethodBinding[] superMethods = currentType.getDeclaredMethods();
+			for (int i = 0, length = superMethods.length; i < length; i++) {
+				if (t.overrides(superMethods[i])) {
+					bestMethod = superMethods[i];
+					break;
+				}
+			}
+			ITypeBinding[] itsInterfaces = currentType.getInterfaces();
+			if (itsInterfaces != null && itsInterfaces != Binding.NO_SUPERINTERFACES) {
+				if (interfacesToVisit == null) {
+					interfacesToVisit = itsInterfaces;
+					nextPosition = interfacesToVisit.length;
+				} else {
+					int itsLength = itsInterfaces.length;
+					if (nextPosition + itsLength >= interfacesToVisit.length)
+						System.arraycopy(interfacesToVisit, 0, interfacesToVisit = new ITypeBinding[nextPosition + itsLength + 5], 0, nextPosition);
+					nextInterface: for (int a = 0; a < itsLength; a++) {
+						ITypeBinding next = itsInterfaces[a];
+						for (int b = 0; b < nextPosition; b++)
+							if (next == interfacesToVisit[b])
+								continue nextInterface;
+						interfacesToVisit[nextPosition++] = next;
+					}
+				}
+			}
+		} while ((currentType = currentType.getSuperclass()) != null && bestMethod == t);
+		if (getBinding(bestMethod).declaringClass.id == TypeIds.T_JavaLangObject) {
+			return bestMethod;
+		}
+		// walk superinterfaces
+		for (int i = 0; i < nextPosition; i++) {
+			currentType = interfacesToVisit[i];
+			IMethodBinding[] superMethods = currentType.getDeclaredMethods();
+			for (int j = 0, length = superMethods.length; j < length; j++) {
+				IMethodBinding superMethod = superMethods[j];
+				if (t.overrides(superMethod)) {
+					ITypeBinding bestReturnType = bestMethod.getReturnType();
+					if (bestReturnType == superMethod.getReturnType() || getBinding(bestMethod.getReturnType()).findSuperTypeOriginatingFrom(getBinding(superMethod.getReturnType())) != null) {
+						bestMethod = superMethod;
+					}
+					break;
+				}
+			}
+			ITypeBinding[] itsInterfaces = currentType.getInterfaces();
+			if (itsInterfaces != null && itsInterfaces != Binding.NO_SUPERINTERFACES) {
+				int itsLength = itsInterfaces.length;
+				if (nextPosition + itsLength >= interfacesToVisit.length)
+					System.arraycopy(interfacesToVisit, 0, interfacesToVisit = new ITypeBinding[nextPosition + itsLength + 5], 0, nextPosition);
+				nextInterface: for (int a = 0; a < itsLength; a++) {
+					ITypeBinding next = itsInterfaces[a];
+					for (int b = 0; b < nextPosition; b++)
+						if (next == interfacesToVisit[b])
+							continue nextInterface;
+					interfacesToVisit[nextPosition++] = next;
+				}
+			}
+		}
+		return bestMethod;
 	}
 
 }
