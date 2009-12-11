@@ -4,6 +4,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Set;
 
+import org.eclipse.jdt.core.IAnnotation;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.dom.IAnnotationBinding;
 import org.eclipse.jdt.core.dom.IBinding;
@@ -336,7 +337,7 @@ public class NullibilityAnnos {
 		return false;
 	}
 
-	private static int hasSolidAnnotation(AnnotationBinding[] annos) {
+	public static int hasSolidAnnotation(AnnotationBinding[] annos) {
 		if (enableAnnotations())
 			if (annos != null)
 				for (int i = 0; i < annos.length; i++) {
@@ -374,6 +375,38 @@ public class NullibilityAnnos {
 					}
 				}
 		return false;
+	}
+
+	public static int hasSolidAnnotation(IAnnotationBinding[] annos) {
+		if (enableAnnotations())
+			if (annos != null)
+				for (int i = 0; i < annos.length; i++) {
+					IAnnotationBinding annotation = annos[i];
+					String annoName = annotation.getName();
+					if (annoName.endsWith("NonNull")) {
+						return FlowInfo.NON_NULL;
+					}
+					if (annoName.endsWith("CanBeNull")) {
+						return FlowInfo.NULL;
+					}
+				}
+		return FlowInfo.UNKNOWN;
+	}
+
+	public static int hasSolidAnnotation(IAnnotation[] annos) {
+		if (enableAnnotations())
+			if (annos != null)
+				for (int i = 0; i < annos.length; i++) {
+					IAnnotation annotation = annos[i];
+					String annoName = annotation.getElementName();
+					if (annoName.endsWith("NonNull")) {
+						return FlowInfo.NON_NULL;
+					}
+					if (annoName.endsWith("CanBeNull")) {
+						return FlowInfo.NULL;
+					}
+				}
+		return FlowInfo.UNKNOWN;
 	}
 
 	private static int getSolidAnnotation(ReferenceBinding annotationType) {

@@ -2,6 +2,7 @@ package jjkpp.jdt.core.classes;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.IBinding;
@@ -29,7 +30,7 @@ public class ProposalCollector {
 
 	}
 
-	protected void addMarker2(ICompilationUnit cu, ASTNode variableDeclaration, String marker) {
+	protected void addMarker2(ICompilationUnit cu, CompilationUnit astRoot, ASTNode variableDeclaration, String marker) throws JavaModelException {
 		canFind = true;
 	}
 
