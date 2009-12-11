@@ -22,7 +22,7 @@ class MultipleOverrideAnnotationTest3 extends MultipleOverrideAnnotationTest2 {
 
 	@Override
 	protected String testReturn() {
-		return null; /* error1 easy */
+		return null; /* error0 easy */
 	}
 
 }

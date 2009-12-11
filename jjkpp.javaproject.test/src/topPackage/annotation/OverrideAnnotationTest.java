@@ -72,6 +72,11 @@ public class OverrideAnnotationTest {
 	void test2() {
 		new OverrideAnnotationTest() {
 
+			
+			protected String testReturnNonNull() {
+				return null; /* error0 easy */
+			}
+
 			@Override
 			protected String testParamCanBeNull(String s) {
 				testParamCanBeNull(null); /* OK */

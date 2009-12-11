@@ -1,6 +1,5 @@
 package topPackage.annotation.packagetest.nested;
 
-
 public class NestedPackageAnnotationTest {
 
 	String testReturnNull() {

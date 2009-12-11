@@ -12,7 +12,6 @@ public class ClassAnnotationTest {
 	protected void testReturnNull(String param1) {
 		testReturnNull(null); /* error1 easy */
 	}
-	
 
 	class ClassAnnotationTest1 {
 
@@ -25,9 +24,9 @@ public class ClassAnnotationTest {
 		}
 
 	}
-	
+
 	void test() {
-		new  Object() {
+		new Object() {
 
 			protected String testReturnNull() {
 				return null; /* error1 easy */
@@ -38,7 +37,15 @@ public class ClassAnnotationTest {
 			}
 
 		};
-		
+
+	}
+
+	class ClassAnnotationTest2 extends ClassAnnotationTest {
+
+		protected String testReturnNull() {
+			return null; /* error1 easy */
+		}
+
 	}
 
 }
