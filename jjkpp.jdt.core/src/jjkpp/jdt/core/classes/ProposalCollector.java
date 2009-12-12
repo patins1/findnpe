@@ -1,10 +1,8 @@
 package jjkpp.jdt.core.classes;
 
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.ASTNode;
-import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 
@@ -22,7 +20,7 @@ public class ProposalCollector {
 	// return pc.canFind;
 	// }
 
-	protected void addNullibilityProposals(ICompilationUnit cu, CompilationUnit astRoot, IBinding binding, ITypeBinding declaringTypeDecl, int param, ASTNode invocationNode, String marker) throws CoreException {
+	protected void addNullibilityProposals(NPContext context, IBinding binding, ITypeBinding declaringTypeDecl, int param, ASTNode invocationNode, String marker) throws CoreException {
 
 		if (declaringTypeDecl.isFromSource()) {
 			canFind = true;
@@ -30,7 +28,7 @@ public class ProposalCollector {
 
 	}
 
-	protected void addMarker2(ICompilationUnit cu, CompilationUnit astRoot, ASTNode variableDeclaration, String marker) throws JavaModelException {
+	protected void addMarker2(NPContext context, ASTNode variableDeclaration, String marker) throws JavaModelException {
 		canFind = true;
 	}
 

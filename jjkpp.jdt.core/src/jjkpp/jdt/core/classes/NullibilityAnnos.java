@@ -233,7 +233,9 @@ public class NullibilityAnnos {
 	 * @return {@link FlowInfo#NON_NULL}, {@link FlowInfo#NULL} or
 	 *         {@link FlowInfo#UNKNOWN}
 	 */
-	private static int hasSolidAnnotation(MethodBinding binding, int param) {
+	public static int hasSolidAnnotation(MethodBinding binding, int param) {
+		if (param == -1)
+			return hasSolidAnnotation(binding.getAnnotations());
 		if (!USE_PARAM_ANNOS) {
 			AnnotationBinding[] annos = binding.getAnnotations();
 			if (annos != null)
