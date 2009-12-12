@@ -13,6 +13,7 @@ package jjkpp.jdt.ui.classes.quickfix;
 import java.util.ArrayList;
 import java.util.List;
 
+import jjkpp.jdt.core.classes.NPContext;
 import jjkpp.jdt.ui.classes.NullibilityAnnosUI;
 import jjkpp.jdt.ui.classes.NullibilityProposalStructure;
 
@@ -88,7 +89,7 @@ public class NullibilityCodeFix extends CompilationUnitRewriteOperationsFix {
 
 		for (IProblemLocation problem : problems) {
 			NullibilityAnnosUI nullibilityAnnosUI = new NullibilityAnnosUI();
-			nullibilityAnnosUI.fetchProposalStructures((ICompilationUnit) root.getJavaElement(), root, problem);
+			nullibilityAnnosUI.fetchProposalStructures(new NPContext((ICompilationUnit) root.getJavaElement(), root), problem);
 			if (!nullibilityAnnosUI.proposals.isEmpty()) {
 				NullibilityProposalStructure proposal = (NullibilityProposalStructure) nullibilityAnnosUI.proposals.iterator().next();
 				if (proposal.getRoot() != root)

@@ -5,14 +5,13 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import jjkpp.jdt.core.classes.NPContext;
 import jjkpp.jdt.core.classes.NullibilityAnnos;
 import jjkpp.jdt.core.classes.ProposalCollector;
 import jjkpp.jdt.ui.classes.quickfix.NullibilityCodeCleanUp;
 import jjkpp.jdt.ui.classes.quickfix.NullibilityCodeFix;
 
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.jdt.core.ICompilationUnit;
-import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
@@ -20,7 +19,6 @@ import org.eclipse.jdt.core.dom.Annotation;
 import org.eclipse.jdt.core.dom.Assignment;
 import org.eclipse.jdt.core.dom.ChildListPropertyDescriptor;
 import org.eclipse.jdt.core.dom.ClassInstanceCreation;
-import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.FieldAccess;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.IAnnotationBinding;
@@ -46,8 +44,6 @@ import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 import org.eclipse.jdt.internal.corext.fix.IProposableFix;
-import org.eclipse.jdt.internal.corext.util.MethodOverrideTester;
-import org.eclipse.jdt.internal.corext.util.SuperTypeHierarchyCache;
 import org.eclipse.jdt.internal.ui.JavaPluginImages;
 import org.eclipse.jdt.internal.ui.text.correction.ASTResolving;
 import org.eclipse.jdt.internal.ui.text.correction.proposals.ASTRewriteCorrectionProposal;
@@ -67,7 +63,8 @@ public class NullibilityAnnosUI extends ProposalCollector {
 
 		NullibilityAnnosUI nullibilityAnnosUI = new NullibilityAnnosUI();
 
-		nullibilityAnnosUI.fetchProposalStructures(context.getCompilationUnit(), context.getASTRoot(), problem);
+		NPContext npContext = new NPContext(context.getCompilationUnit(), context.getASTRoot());
+		nullibilityAnnosUI.fetchProposalStructures(npContext, problem);
 		List<NullibilityProposalStructure> proposals = nullibilityAnnosUI.proposals;
 
 		if (proposals.isEmpty())
@@ -104,23 +101,23 @@ public class NullibilityAnnosUI extends ProposalCollector {
 
 	public List<NullibilityProposalStructure> proposals = new ArrayList<NullibilityProposalStructure>();
 
-	public void fetchProposalStructures(ICompilationUnit cu, CompilationUnit astRoot, ASTNode selectedNode) throws CoreException {
+	public void fetchProposalStructures(NPContext context, ASTNode selectedNode) throws CoreException {
 
-		annotate(cu, astRoot, selectedNode, "NonNull");
+		annotate(context.duplicate(), selectedNode, "NonNull");
 
 		ASTNode invocationNode = selectedNode.getParent();
 		if (invocationNode instanceof VariableDeclarationFragment) {
 			VariableDeclarationFragment variableDeclarationFragment = (VariableDeclarationFragment) invocationNode;
-			annotate(cu, astRoot, variableDeclarationFragment, "CanBeNull");
+			annotate(context, variableDeclarationFragment, "CanBeNull");
 		} else if (invocationNode instanceof Assignment) {
 			Assignment assignment = (Assignment) invocationNode;
-			annotate(cu, astRoot, assignment.getLeftHandSide(), "CanBeNull");
+			annotate(context, assignment.getLeftHandSide(), "CanBeNull");
 		} else if (invocationNode instanceof MethodInvocation) {
 			MethodInvocation methodImpl = (MethodInvocation) invocationNode;
 			IMethodBinding binding = methodImpl.resolveMethodBinding();
 			int param = methodImpl.arguments().indexOf(selectedNode);
 			if (param >= 0)
-				addNullibilityProposals(cu, astRoot, binding, binding.getDeclaringClass(), param, invocationNode, "CanBeNull");
+				addNullibilityProposals(context, binding, binding.getDeclaringClass(), param, invocationNode, "CanBeNull");
 		} else if (invocationNode instanceof ClassInstanceCreation) {
 			ClassInstanceCreation methodImpl = (ClassInstanceCreation) invocationNode;
 			IMethodBinding binding = methodImpl.resolveConstructorBinding();
@@ -140,49 +137,49 @@ public class NullibilityAnnosUI extends ProposalCollector {
 			}
 			int param = methodImpl.arguments().indexOf(selectedNode);
 			if (param >= 0)
-				addNullibilityProposals(cu, astRoot, binding, binding.getDeclaringClass(), param, invocationNode, "CanBeNull");
+				addNullibilityProposals(context, binding, binding.getDeclaringClass(), param, invocationNode, "CanBeNull");
 		} else if (invocationNode instanceof SuperMethodInvocation) {
 			SuperMethodInvocation methodImpl = (SuperMethodInvocation) invocationNode;
 			IMethodBinding binding = methodImpl.resolveMethodBinding();
 			int param = methodImpl.arguments().indexOf(selectedNode);
 			if (param >= 0)
-				addNullibilityProposals(cu, astRoot, binding, binding.getDeclaringClass(), param, invocationNode, "CanBeNull");
+				addNullibilityProposals(context, binding, binding.getDeclaringClass(), param, invocationNode, "CanBeNull");
 		} else if (invocationNode instanceof ReturnStatement) {
 			ReturnStatement returnStatement = (ReturnStatement) invocationNode;
 			MethodDeclaration methodDeclaration = getMethodDeclaration(returnStatement);
-			addMarker2(cu, astRoot, methodDeclaration, "CanBeNull");
+			addMarker2(context, methodDeclaration, "CanBeNull");
 		}
 	}
 
-	protected void annotate(ICompilationUnit cu, CompilationUnit astRoot, ASTNode selectedNode, String marker) throws CoreException {
+	protected void annotate(NPContext context, ASTNode selectedNode, String marker) throws CoreException {
 		if (selectedNode instanceof SimpleName) {
 			SimpleName name = (SimpleName) selectedNode;
 			IBinding nameBinding = name.resolveBinding();
-			addNullibilityProposals2(cu, astRoot, nameBinding, marker);
+			addNullibilityProposals2(context, nameBinding, marker);
 		}
 		if (selectedNode instanceof MethodInvocation) {
 			MethodInvocation methodInvocation = (MethodInvocation) selectedNode;
 			IMethodBinding methodBinding = methodInvocation.resolveMethodBinding();
 
-			addNullibilityProposals(cu, astRoot, methodBinding, methodBinding.getDeclaringClass(), -1, selectedNode, marker);
+			addNullibilityProposals(context, methodBinding, methodBinding.getDeclaringClass(), -1, selectedNode, marker);
 
 		}
 		if (selectedNode instanceof FieldAccess) {
 			FieldAccess name = (FieldAccess) selectedNode;
 			IVariableBinding nameBinding = name.resolveFieldBinding();
-			addNullibilityProposals(cu, astRoot, nameBinding, nameBinding.getDeclaringClass(), -1, selectedNode, marker);
+			addNullibilityProposals(context, nameBinding, nameBinding.getDeclaringClass(), -1, selectedNode, marker);
 		}
 		if (selectedNode instanceof VariableDeclarationFragment) {
 			VariableDeclarationFragment name = (VariableDeclarationFragment) selectedNode;
 			IVariableBinding nameBinding = name.resolveBinding();
-			addNullibilityProposals(cu, astRoot, nameBinding, nameBinding.getDeclaringClass(), -1, selectedNode, marker);
+			addNullibilityProposals(context, nameBinding, nameBinding.getDeclaringClass(), -1, selectedNode, marker);
 		}
 		if (selectedNode instanceof QualifiedName) {
 			QualifiedName name = (QualifiedName) selectedNode;
 			IBinding nameBinding = name.resolveBinding();
 			if (nameBinding instanceof IVariableBinding) {
 				IVariableBinding varBinding = (IVariableBinding) nameBinding;
-				addNullibilityProposals(cu, astRoot, varBinding, varBinding.getDeclaringClass(), -1, selectedNode, marker);
+				addNullibilityProposals(context, varBinding, varBinding.getDeclaringClass(), -1, selectedNode, marker);
 			}
 		}
 	}
@@ -198,49 +195,63 @@ public class NullibilityAnnosUI extends ProposalCollector {
 		return null;
 	}
 
-	protected void addNullibilityProposals2(ICompilationUnit cu, CompilationUnit astRoot, IBinding binding, String marker) throws CoreException {
-		ASTNode node = astRoot.findDeclaringNode(binding);
+	protected void addNullibilityProposals2(NPContext context, IBinding binding, String marker) throws CoreException {
+		ASTNode node = context.astRoot.findDeclaringNode(binding);
 		if (node != null)
-			addMarker2(cu, astRoot, node, marker);
+			addMarker2(context, node, marker);
 
 	}
 
-	public void fetchProposalStructures(ICompilationUnit cu, CompilationUnit astRoot, IProblemLocation problem) throws CoreException {
-		fetchProposalStructures(cu, astRoot, problem.getCoveringNode(astRoot));
+	public void fetchProposalStructures(NPContext context, IProblemLocation problem) throws CoreException {
+		fetchProposalStructures(context, problem.getCoveringNode(context.astRoot));
 	}
 
-	@Override
-	protected void addNullibilityProposals(ICompilationUnit cu, CompilationUnit astRoot, IBinding binding, ITypeBinding declaringClass, int param, ASTNode invocationNode, String marker) throws CoreException {
+	/**
+	 * @param context
+	 *            if this method returns <code>null</code>, this object is
+	 *            unspecified
+	 * @param binding
+	 * @param declaringClass
+	 *            where the binding is declared
+	 * @return the declaring node of the given binding, or <code>null</code>
+	 * @throws JavaModelException
+	 */
+	private ASTNode findDeclaringNode(NPContext context, IBinding binding, ITypeBinding declaringClass) throws JavaModelException {
 		if (declaringClass == null)
-			return;
+			return null;
 		ITypeBinding declaringTypeDecl = declaringClass.getTypeDeclaration();
 		if (declaringTypeDecl != null && declaringTypeDecl.isFromSource()) {
-			ICompilationUnit targetCU = ASTResolving.findCompilationUnitForBinding(cu, astRoot, declaringTypeDecl);
-			if (targetCU != null) {
-
-				ASTNode newDecl = astRoot.findDeclaringNode(binding);
+			context.cu = ASTResolving.findCompilationUnitForBinding(context.cu, context.astRoot, declaringTypeDecl);
+			if (context.cu != null) {
+				ASTNode newDecl = context.astRoot.findDeclaringNode(binding);
 				if (newDecl == null) {
-					astRoot = ASTResolving.createQuickFixAST(targetCU, null);
-					newDecl = astRoot.findDeclaringNode(binding.getKey());
+					context.astRoot = ASTResolving.createQuickFixAST(context.cu, null);
+					newDecl = context.astRoot.findDeclaringNode(binding.getKey());
 				}
-
-				if (newDecl != null)
-					if (param >= 0) {
-						MethodDeclaration mdecl = (MethodDeclaration) newDecl;
-						List params = mdecl.parameters();
-						if (params != null && param < params.size()) {
-							addMarker2(targetCU, astRoot, (VariableDeclaration) params.get(param), marker);
-						}
-					} else {
-						addMarker2(targetCU, astRoot, newDecl, marker);
-					}
+				return newDecl;
 			}
 		}
-
+		return null;
 	}
 
 	@Override
-	protected void addMarker2(ICompilationUnit cu, CompilationUnit astRoot, ASTNode variableDeclaration, String marker) throws JavaModelException {
+	protected void addNullibilityProposals(NPContext context, IBinding binding, ITypeBinding declaringClass, int param, ASTNode invocationNode, String marker) throws CoreException {
+		ASTNode newDecl = findDeclaringNode(context, binding, declaringClass);
+		if (newDecl != null) {
+			if (param >= 0) {
+				MethodDeclaration mdecl = (MethodDeclaration) newDecl;
+				List<?> params = mdecl.parameters();
+				if (param < params.size()) {
+					addMarker2(context, (VariableDeclaration) params.get(param), marker);
+				}
+			} else {
+				addMarker2(context, newDecl, marker);
+			}
+		}
+	}
+
+	@Override
+	protected void addMarker2(NPContext context, ASTNode variableDeclaration, String marker) throws JavaModelException {
 		if (variableDeclaration == null)
 			return;
 
@@ -268,114 +279,47 @@ public class NullibilityAnnosUI extends ProposalCollector {
 			varType = "field " + varDecl.getName().getIdentifier();
 			existingAnnots = varDecl.resolveBinding().getAnnotations();
 		} else if (variableDeclaration.getParent() instanceof MethodDeclaration && variableDeclaration instanceof SingleVariableDeclaration) {
+			SingleVariableDeclaration varDecl = (SingleVariableDeclaration) variableDeclaration;
+			MethodDeclaration mdecl = (MethodDeclaration) variableDeclaration.getParent();
+			int param = mdecl.parameters().indexOf(varDecl);
+			if (param == -1) {
+				return;
+			}
+			SimpleName paramName = varDecl.getName();
+			MethodDeclaration betterMethod = findBetterMethod(context, mdecl, param);
+			if (betterMethod != null) {
+				mdecl = betterMethod;
+				if (param >= mdecl.parameters().size()) {
+					return;
+				}
+				Object superParam = mdecl.parameters().get(param);
+				if (!(superParam instanceof SingleVariableDeclaration)) {
+					return;
+				}
+				varDecl = (SingleVariableDeclaration) superParam;
+			}
 			if (NullibilityAnnos.USE_PARAM_ANNOS) {
-				VariableDeclaration varDecl = (VariableDeclaration) variableDeclaration;
-				decl = (SingleVariableDeclaration) variableDeclaration;
+				decl = varDecl;
 				modifiers = SingleVariableDeclaration.MODIFIERS2_PROPERTY;
-				varType = "parameter " + varDecl.getName().getIdentifier();
+				varType = "parameter " + paramName.getIdentifier();
 				existingAnnots = varDecl.resolveBinding().getAnnotations();
 			} else {
-				SingleVariableDeclaration varDecl = (SingleVariableDeclaration) variableDeclaration;
-				decl = (MethodDeclaration) variableDeclaration.getParent();
-				MethodDeclaration mdecl = (MethodDeclaration) variableDeclaration.getParent();
+				decl = (MethodDeclaration) varDecl.getParent();
 				modifiers = mdecl.getModifiersProperty();
-				int param = mdecl.parameters().indexOf(varDecl);
 				String suffix = "Param" + (param + 1);
 				existingAnnots = mdecl.resolveBinding().getAnnotations();
 				marker = marker + suffix;
 				oppositeMarker = oppositeMarker + suffix;
-				varType = "parameter " + mdecl.getName().getIdentifier() + "(" + varDecl.getName().getIdentifier() + ")";
+				varType = "parameter " + mdecl.getName().getIdentifier() + "(" + paramName.getIdentifier() + ")";
 			}
 		} else if (variableDeclaration instanceof MethodDeclaration) {
 			MethodDeclaration mdecl = (MethodDeclaration) variableDeclaration;
 			String methodName = mdecl.getName().getIdentifier();
-			IMethodBinding method = mdecl.resolveBinding();
-
-			// IMethod iMethod = (IMethod) method.getJavaElement();
-			// IMethod bestMethod = iMethod;
-			// do {
-			// IMethod superMethod = findSuperImplementation(bestMethod);
-			// if (superMethod != null && superMethod != bestMethod) {
-			// int result =
-			// NullibilityAnnos.hasSolidAnnotation(superMethod.getAnnotations());
-			// if (result == FlowInfo.UNKNOWN) {
-			// bestMethod = superMethod;
-			// } else {
-			// bestMethod = null;
-			// break;
-			// }
-			// } else {
-			// break;
-			// }
-			// } while (true);
-			// if (bestMethod != null && bestMethod != iMethod) {
-			// cu = bestMethod.getCompilationUnit();
-			// mdecl = ASTNodeSearchUtil.getMethodDeclarationNode(bestMethod,
-			// null);
-			// // mdecl = bestMethod;
-			// }
-
-			// MethodBinding binding = getBinding(method);
-			// MethodBinding bestMethod = binding;
-			// do {
-			// MethodBinding superMethod =
-			// NullibilityAnnos.findSuperMethod(bestMethod);
-			// if (superMethod != null && superMethod != bestMethod) {
-			// int result =
-			// NullibilityAnnos.hasSolidAnnotation(superMethod.getAnnotations());
-			// if (result == FlowInfo.UNKNOWN) {
-			// bestMethod = superMethod;
-			// } else {
-			// bestMethod = null;
-			// break;
-			// }
-			// } else {
-			// break;
-			// }
-			// } while (true);
-			// if (bestMethod != null && bestMethod != binding) {
-			// mdecl.resolveBinding();
-			// }
-
-			IMethodBinding bestMethod = method;
-			do {
-				IMethodBinding superMethod = getHigherOverridenMethod(bestMethod);
-				if (superMethod != null && superMethod != bestMethod) {
-					int result = NullibilityAnnos.hasSolidAnnotation(superMethod.getAnnotations());
-					if (result == FlowInfo.UNKNOWN) {
-						bestMethod = superMethod;
-					} else {
-						bestMethod = superMethod;
-						break;
-					}
-				} else {
-					break;
-				}
-			} while (true);
-			if (bestMethod != null && bestMethod != method) {
-				ITypeBinding declaringClass = bestMethod.getDeclaringClass();
-				IMethodBinding binding = bestMethod;
-
-				ITypeBinding declaringTypeDecl = declaringClass.getTypeDeclaration();
-				if (declaringTypeDecl != null && declaringTypeDecl.isFromSource()) {
-					ICompilationUnit targetCU = ASTResolving.findCompilationUnitForBinding(cu, astRoot, declaringTypeDecl);
-					if (targetCU != null) {
-
-						ASTNode newDecl = astRoot.findDeclaringNode(binding);
-						if (newDecl == null) {
-							astRoot = ASTResolving.createQuickFixAST(targetCU, null);
-							newDecl = astRoot.findDeclaringNode(binding.getKey());
-						}
-
-						if (newDecl != null) {
-							mdecl = (MethodDeclaration) newDecl;
-							cu = targetCU;
-							methodName = declaringClass.getName() + "." + methodName;
-						}
-					}
-				}
+			MethodDeclaration betterMethod = findBetterMethod(context, mdecl, -1);
+			if (betterMethod != null) {
+				mdecl = betterMethod;
+				methodName = betterMethod.resolveBinding().getDeclaringClass().getName() + "." + methodName;
 			}
-
 			decl = mdecl;
 			modifiers = mdecl.getModifiersProperty();
 			varType = "method " + methodName;
@@ -403,7 +347,7 @@ public class NullibilityAnnosUI extends ProposalCollector {
 		String label = "Mark " + varType + " " + " as " + marker;
 		// Image image = JavaPluginImages
 		// .get(JavaPluginImages.IMG_CORRECTION_CHANGE);
-		NullibilityProposalStructure proposal = new NullibilityProposalStructure(label, cu, decl, 15, marker, modifiers);
+		NullibilityProposalStructure proposal = new NullibilityProposalStructure(label, context.cu, decl, 15, marker, modifiers);
 		// ASTRewriteCorrectionProposal proposal = new
 		// ASTRewriteCorrectionProposal(
 		// label, cu, rewrite, 15, image);
@@ -414,9 +358,30 @@ public class NullibilityAnnosUI extends ProposalCollector {
 		// imports.addImport("jjkpp.jdt.annotations." + marker);
 	}
 
-	private IMethod findSuperImplementation(IMethod method) throws JavaModelException {
-		MethodOverrideTester tester = SuperTypeHierarchyCache.getMethodOverrideTester(method.getDeclaringType());
-		return tester.findOverriddenMethod(method, false);
+	private MethodDeclaration findBetterMethod(NPContext context, MethodDeclaration mdecl, int param) throws JavaModelException {
+		IMethodBinding method = mdecl.resolveBinding();
+		if (NullibilityAnnos.hasSolidAnnotation(getBinding(method), param) == FlowInfo.UNKNOWN) {
+			IMethodBinding bestMethod = method;
+			do {
+				IMethodBinding superMethod = getHigherOverridenMethod(bestMethod);
+				if (superMethod != null && superMethod != bestMethod) {
+					int result = NullibilityAnnos.hasSolidAnnotation(getBinding(superMethod), param);
+					if (result == FlowInfo.UNKNOWN) {
+						bestMethod = superMethod;
+					} else {
+						bestMethod = superMethod;
+						break;
+					}
+				} else {
+					break;
+				}
+			} while (true);
+			if (bestMethod != null && bestMethod != method) {
+				ASTNode newDecl = findDeclaringNode(context, bestMethod, bestMethod.getDeclaringClass());
+				return (MethodDeclaration) newDecl;
+			}
+		}
+		return null;
 	}
 
 	static protected MethodBinding getBinding(IMethodBinding method) {
