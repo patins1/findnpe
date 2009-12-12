@@ -72,7 +72,6 @@ public class OverrideAnnotationTest {
 	void test2() {
 		new OverrideAnnotationTest() {
 
-			
 			protected String testReturnNonNull() {
 				return null; /* error0 easy */
 			}
@@ -87,6 +86,19 @@ public class OverrideAnnotationTest {
 			protected String testReturnCanBeNull() {
 				return null; /* OK */
 			}
+		};
+
+	}
+
+	void test3() {
+		new OverrideAnnotationTest() {
+
+			@Override
+			protected String testParamCanBeNull(String s) {
+				s.toString(); /* error0 */
+				return "";
+			}
+
 		};
 
 	}

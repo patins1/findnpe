@@ -1,9 +1,14 @@
 package topPackage.annotation;
 
+import jjkpp.jdt.annotations.CanBeNull;
 import jjkpp.jdt.annotations.NonNullByDefault;
 
 @NonNullByDefault
 public class ClassAnnotationTest {
+
+	public ClassAnnotationTest(@CanBeNull String s) {
+
+	}
 
 	protected String testReturnNull() {
 		return null; /* error1 easy */
@@ -41,6 +46,10 @@ public class ClassAnnotationTest {
 	}
 
 	class ClassAnnotationTest2 extends ClassAnnotationTest {
+
+		public ClassAnnotationTest2(String s) {
+			super(s);
+		}
 
 		protected String testReturnNull() {
 			return null; /* error1 easy */
