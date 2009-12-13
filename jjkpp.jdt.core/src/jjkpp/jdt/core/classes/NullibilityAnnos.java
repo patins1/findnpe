@@ -254,6 +254,7 @@ public class NullibilityAnnos {
 				}
 			return FlowInfo.UNKNOWN;
 		}
+		binding = binding.original(); // testAnnotatedParametrizedParameter()
 		AnnotationBinding[][] annos = binding.getParameterAnnotations();
 		if (annos == null)
 			return FlowInfo.UNKNOWN;
