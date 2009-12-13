@@ -223,6 +223,12 @@ public class NullibilityAnnosUI extends ProposalCollector {
 		if (declaringTypeDecl != null && declaringTypeDecl.isFromSource()) {
 			context.cu = ASTResolving.findCompilationUnitForBinding(context.cu, context.astRoot, declaringTypeDecl);
 			if (context.cu != null) {
+				if (binding instanceof IMethodBinding) {
+					// testNotAnnotatedParametrizedParameter()
+					IMethodBinding methodBinding = (IMethodBinding) binding;
+					methodBinding = methodBinding.getMethodDeclaration();
+					binding = methodBinding;
+				}
 				ASTNode newDecl = context.astRoot.findDeclaringNode(binding);
 				if (newDecl == null) {
 					context.astRoot = ASTResolving.createQuickFixAST(context.cu, null);
