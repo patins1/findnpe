@@ -259,6 +259,25 @@ public class NullibilityAnnos {
 		if (annos == null)
 			return FlowInfo.UNKNOWN;
 		AnnotationBinding[] anno = param < annos.length ? annos[param] : annos[annos.length - 1];
+		if (anno.length == 0) {
+			// quick fix for: there may be annotations not returned!
+			// testCallBuildClean()
+			/**
+			 * see MethodBinding#getParameterAnnotations()
+			 */
+			if (binding.declaringClass instanceof SourceTypeBinding) {
+				SourceTypeBinding sourceType = (SourceTypeBinding) binding.declaringClass;
+				if (sourceType.scope != null) {
+					AbstractMethodDeclaration methodDecl = sourceType.scope.referenceType().declarationOf(binding);
+					if (methodDecl.arguments != null && param < methodDecl.arguments.length) {
+						Argument argument = methodDecl.arguments[param];
+						if (argument.annotations != null) {
+							return hasSolidAnnotation(argument.annotations);
+						}
+					}
+				}
+			}
+		}
 		return hasSolidAnnotation(anno);
 	}
 
