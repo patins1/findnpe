@@ -104,7 +104,8 @@ public aspect HandleIterations {
 		call(void handle(int, String[], int, String[], int, int, int, ReferenceContext, CompilationResult )) && 
 		args(problemId,	problemArguments, elaborationId, messageArguments, severity, problemStartPosition, problemEndPosition, referenceContext, unitResult) && target(problemHandler) {
 
-		if (NullibilityAnnos.doubleCheck()) {
+		if (NullibilityAnnos.doubleCheck())
+		if (unitResult != null) {
 			Object key = NullibilityAnnos.getProblemKey(problemStartPosition,problemId);
 			if (!unitResult.alreadyReported.add(key)) return;
 		}
