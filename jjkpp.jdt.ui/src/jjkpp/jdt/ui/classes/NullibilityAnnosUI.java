@@ -32,6 +32,7 @@ import org.eclipse.jdt.core.dom.QualifiedName;
 import org.eclipse.jdt.core.dom.ReturnStatement;
 import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
+import org.eclipse.jdt.core.dom.SuperConstructorInvocation;
 import org.eclipse.jdt.core.dom.SuperMethodInvocation;
 import org.eclipse.jdt.core.dom.VariableDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
@@ -141,6 +142,12 @@ public class NullibilityAnnosUI extends ProposalCollector {
 		} else if (invocationNode instanceof SuperMethodInvocation) {
 			SuperMethodInvocation methodImpl = (SuperMethodInvocation) invocationNode;
 			IMethodBinding binding = methodImpl.resolveMethodBinding();
+			int param = methodImpl.arguments().indexOf(selectedNode);
+			if (param >= 0)
+				addNullibilityProposals(context, binding, binding.getDeclaringClass(), param, invocationNode, "CanBeNull");
+		} else if (invocationNode instanceof SuperConstructorInvocation) {
+			SuperConstructorInvocation methodImpl = (SuperConstructorInvocation) invocationNode;
+			IMethodBinding binding = methodImpl.resolveConstructorBinding();
 			int param = methodImpl.arguments().indexOf(selectedNode);
 			if (param >= 0)
 				addNullibilityProposals(context, binding, binding.getDeclaringClass(), param, invocationNode, "CanBeNull");
