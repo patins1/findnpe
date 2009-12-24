@@ -20,6 +20,13 @@ public class MessageSendTest {
 	public MessageSendTest(Boolean param1) {
 	}
 
+	class MessageSendTest2 extends MessageSendTest {
+
+		public MessageSendTest2(@CanBeNull String param1) {
+			super(param1);/* error0 */
+		}
+	}
+
 	private void testConstructor() {
 		new MessageSendTest((String) null/* error0 easy */);
 		new MessageSendTest((String) null/* error0 easy */) {
