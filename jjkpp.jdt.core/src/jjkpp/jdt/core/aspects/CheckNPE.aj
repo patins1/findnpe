@@ -11,6 +11,7 @@ import org.eclipse.jdt.internal.compiler.ast.AllocationExpression;
 import org.eclipse.jdt.internal.compiler.ast.Argument;
 import org.eclipse.jdt.internal.compiler.ast.Assignment;
 import org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.ExplicitConstructorCall;
 import org.eclipse.jdt.internal.compiler.ast.Expression;
 import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.FieldReference;
@@ -194,6 +195,59 @@ privileged public aspect CheckNPE {
 		}
 		t.manageSyntheticAccessIfNecessary(currentScope, flowInfo);	
 		return flowInfo;			
+	}
+	
+
+	
+	FlowInfo around(ExplicitConstructorCall t, BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) : 
+		call(FlowInfo analyseCode(BlockScope, FlowContext, FlowInfo)) && target(t) && args(currentScope,flowContext,flowInfo) {
+		// must verify that exceptions potentially thrown by this expression are caught in the method.
+
+		try {
+			((MethodScope) currentScope).isConstructorCall = true;
+
+			// process enclosing instance
+			if (t.qualification != null) {
+				flowInfo =
+					t.qualification
+						.analyseCode(currentScope, flowContext, flowInfo)
+						.unconditionalInits();
+			}
+			// process arguments
+			if (t.arguments != null) {
+				for (int i = 0, max = t.arguments.length; i < max; i++) {
+					flowInfo =
+						t.arguments[i]
+							.analyseCode(currentScope, flowContext, flowInfo)
+							.unconditionalInits();
+					// custom code: check parameters (MessageSendTest2)
+					if (NullibilityAnnos.enableNullibility()) 			
+						if (NullibilityAnnos.checkOnNonNull(t.binding,i)) { 
+							NullibilityAnnos.checkEasyNPE(t.arguments[i], currentScope, flowContext, flowInfo, t.binding.declaringClass); 
+						}
+				}
+			}
+
+			ReferenceBinding[] thrownExceptions;
+			if ((thrownExceptions = t.binding.thrownExceptions) != Binding.NO_EXCEPTIONS) {
+				if ((t.bits & ASTNode.Unchecked) != 0 && t.genericTypeArguments == null) {
+					thrownExceptions = currentScope.environment().convertToRawTypes(t.binding.original().thrownExceptions, true, true);
+				}				
+				// check exceptions
+				flowContext.checkExceptionHandlers(
+					thrownExceptions,
+					(t.accessMode == ExplicitConstructorCall.ImplicitSuper)
+						? (ASTNode) currentScope.methodScope().referenceContext
+						: (ASTNode) t,
+					flowInfo,
+					currentScope);
+			}
+			t.manageEnclosingInstanceAccessIfNecessary(currentScope, flowInfo);
+			t.manageSyntheticAccessIfNecessary(currentScope, flowInfo);
+			return flowInfo;
+		} finally {
+			((MethodScope) currentScope).isConstructorCall = false;
+		}
 	}
 
 	FlowInfo around(AllocationExpression t, BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) : 
