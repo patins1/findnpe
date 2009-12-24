@@ -10,6 +10,10 @@ public class ClassAnnotationTest {
 
 	}
 
+	public ClassAnnotationTest(Integer s) {
+
+	}
+
 	protected String testReturnNull() {
 		return null; /* error1 easy */
 	}
