@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+<!--
+	<extension
+         point="org.eclipse.ui.popupMenus">   
+         
+      <viewerContribution
+            targetID="org.eclipse.debug.ui.ExpressionView"
+            id="org.eclipse.debug.ui.ExpressionViewPopupActionsForJava">
+         <action
+               label="Add Java Watch Expression"
+               helpContextId="add_watch_expression_context"
+               class="jjkpp.jdt.debug.ui.AddJavaWatchExpressionAction"
+               menubarPath="additions"
+               id="org.eclipse.debug.ui.expressionViewActions.AddWatchExpressionForJava">
+         </action>
+      </viewerContribution>
+          
+   </extension>  
+-->
+</plugin>
