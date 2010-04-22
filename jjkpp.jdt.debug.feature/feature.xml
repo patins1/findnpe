@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature
+      id="jjkpp.jdt.debug.feature"
+      label="Debug Utils"
+      version="1.0.0.qualifier">
+
+   <description url="http://www.example.com/description">
+      Java Content Assistence in Watch Expressions Dialog when debugging Java applications
+   </description>
+
+   <copyright url="http://www.example.com/copyright">
+      [Enter Copyright Description here.]
+   </copyright>
+
+   <license url="http://www.example.com/license">
+      [Enter License Description here.]
+   </license>
+
+   <includes
+         id="org.eclipse.contribution.weaving"
+         version="0.0.0"/>
+
+   <includes
+         id="org.eclipse.equinox.weaving"
+         version="0.0.0"/>
+
+   <requires>
+      <import plugin="org.eclipse.ui"/>
+      <import plugin="org.eclipse.core.runtime"/>
+      <import plugin="org.eclipse.jdt.core" version="3.5.1" match="greaterOrEqual"/>
+      <import plugin="org.eclipse.jdt.ui" version="3.5.1" match="greaterOrEqual"/>
+      <import plugin="org.eclipse.debug.ui" version="3.5.1" match="greaterOrEqual"/>
+      <import plugin="org.eclipse.jdt.debug.ui" version="3.4.1" match="greaterOrEqual"/>
+      <import plugin="org.eclipse.jface.text" version="3.5.1" match="greaterOrEqual"/>
+      <import plugin="org.eclipse.ui.workbench.texteditor" version="3.5.0" match="greaterOrEqual"/>
+      <import plugin="org.eclipse.ui.editors" version="3.5.0" match="greaterOrEqual"/>
+      <import plugin="org.eclipse.ui.console" version="3.4.0" match="greaterOrEqual"/>
+      <import plugin="org.eclipse.jdt.debug" version="3.5.0" match="greaterOrEqual"/>
+      <import plugin="org.aspectj.runtime" version="1.5.3" match="greaterOrEqual"/>
+   </requires>
+
+   <plugin
+         id="jjkpp.jdt.debug.ui"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.aspectj.runtime"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.aspectj.weaver"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+</feature>
