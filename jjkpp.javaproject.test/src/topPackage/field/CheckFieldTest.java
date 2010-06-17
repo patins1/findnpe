@@ -1,6 +1,6 @@
 package topPackage.field;
 
-import jjkpp.jdt.annotations.CanBeNull;
+import pingpong.annotations.CanBeNull;
 
 public class CheckFieldTest {
 

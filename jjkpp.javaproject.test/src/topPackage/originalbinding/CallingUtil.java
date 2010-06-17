@@ -4,11 +4,6 @@
  */
 package topPackage.originalbinding;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Map;
-
-import jjkpp.jdt.annotations.NonNullByDefault;
 
 public class CallingUtil {
 

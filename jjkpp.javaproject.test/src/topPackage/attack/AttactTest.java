@@ -1,7 +1,7 @@
 package topPackage.attack;
 
-import jjkpp.jdt.annotations.CanBeNull;
-import jjkpp.jdt.annotations.NonNull;
+import pingpong.annotations.CanBeNull;
+import pingpong.annotations.NonNull;
 import binaryTopPackage.BinaryData;
 
 public class AttactTest {
@@ -14,7 +14,7 @@ public class AttactTest {
 		return s;
 	}
 
-	public String testReturnNull() {
+	public String testReturnNull() { 
 		return null; /* error1 easy NOATTACK */
 	}
 

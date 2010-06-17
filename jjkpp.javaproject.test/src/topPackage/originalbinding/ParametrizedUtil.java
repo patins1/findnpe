@@ -1,8 +1,7 @@
 package topPackage.originalbinding;
 
-import jjkpp.jdt.annotations.CanBeNull;
-import jjkpp.jdt.annotations.NonNull;
-import jjkpp.jdt.annotations.NonNullByDefault;
+import pingpong.annotations.CanBeNull;
+import pingpong.annotations.NonNullByDefault;
 
 @NonNullByDefault
 public class ParametrizedUtil {

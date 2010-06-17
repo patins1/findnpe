@@ -1,10 +1,6 @@
 package topPackage.eclipsebugs;
 
-import java.util.Collection;
-import java.util.Iterator;
-
-import jjkpp.jdt.annotations.CanBeNull;
-import jjkpp.jdt.annotations.NonNullByDefault;
+import pingpong.annotations.NonNullByDefault;
 
 @NonNullByDefault
 public class TestBuildClean2 extends TestBuildClean {

@@ -1,6 +1,6 @@
 package topPackage.assignment;
 
-import jjkpp.jdt.annotations.NonNull;
+import pingpong.annotations.NonNull;
 
 public class LocalVariableAssignmentTest {
 

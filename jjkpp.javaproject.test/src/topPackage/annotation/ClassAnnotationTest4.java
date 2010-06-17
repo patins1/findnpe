@@ -1,6 +1,6 @@
 package topPackage.annotation;
 
-import jjkpp.jdt.annotations.NonNull;
+import pingpong.annotations.NonNull;
 
 public class ClassAnnotationTest4 extends ClassAnnotationTest {
 

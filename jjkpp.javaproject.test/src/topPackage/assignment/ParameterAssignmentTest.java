@@ -1,7 +1,7 @@
 package topPackage.assignment;
 
-import jjkpp.jdt.annotations.CanBeNull;
-import jjkpp.jdt.annotations.NonNull;
+import pingpong.annotations.CanBeNull;
+import pingpong.annotations.NonNull;
 
 public class ParameterAssignmentTest {
 

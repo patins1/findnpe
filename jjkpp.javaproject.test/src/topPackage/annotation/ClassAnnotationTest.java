@@ -1,7 +1,7 @@
 package topPackage.annotation;
 
-import jjkpp.jdt.annotations.CanBeNull;
-import jjkpp.jdt.annotations.NonNullByDefault;
+import pingpong.annotations.CanBeNull;
+import pingpong.annotations.NonNullByDefault;
 
 @NonNullByDefault
 public class ClassAnnotationTest {

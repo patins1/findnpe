@@ -2,7 +2,7 @@ package topPackage;
 
 import java.util.Random;
 
-import jjkpp.jdt.annotations.CanBeNull;
+import pingpong.annotations.CanBeNull;
 
 public class NullStatusEnhancedTest {
 
