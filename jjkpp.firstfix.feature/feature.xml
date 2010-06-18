@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
-      id="jjkpp.firstfix.feature"
+      id="pingpong.firstfix.feature"
       label="First Fix Feature"
       version="1.0.0.qualifier">
 
@@ -29,7 +29,7 @@
    </requires>
 
    <plugin
-         id="jjkpp.firstfix"
+         id="pingpong.firstfix"
          download-size="0"
          install-size="0"
          version="0.0.0"
