@@ -1,4 +1,4 @@
-package jjkpp.jdt.core.aspects;
+package pingpong.jdt.core.aspects;
 
 
 

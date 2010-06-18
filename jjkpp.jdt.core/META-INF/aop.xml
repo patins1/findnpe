@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <aspectj>
     <aspects>
-        <aspect name="jjkpp.jdt.core.aspects.CheckNPE" />
-        <aspect name="jjkpp.jdt.core.aspects.HandleFields" />
-        <aspect name="jjkpp.jdt.core.aspects.HandleIterations" />
-        <aspect name="jjkpp.jdt.core.aspects.HandleNullStatusMethod" />
+        <aspect name="pingpong.jdt.core.aspects.CheckNPE" />
+        <aspect name="pingpong.jdt.core.aspects.HandleFields" />
+        <aspect name="pingpong.jdt.core.aspects.HandleIterations" />
+        <aspect name="pingpong.jdt.core.aspects.HandleNullStatusMethod" />
     </aspects>
 </aspectj>
