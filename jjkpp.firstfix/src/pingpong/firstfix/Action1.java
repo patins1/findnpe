@@ -3,7 +3,7 @@
  * org.eclipse.jdt.internal.ui.javaeditor.ASTProvider#getAST() :
  * isActiveElement auf FALSE setzen in zeile 220
  */
-package jjkpp.firstfix;
+package pingpong.firstfix;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;

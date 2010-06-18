@@ -8,7 +8,7 @@
             id="quick.fix.npe.objectContribution1"
             objectClass="java.lang.Object">
          <action
-               class="jjkpp.firstfix.Action1"
+               class="pingpong.firstfix.Action1"
                enablesFor="+"
                id="jjkpp.firstfix.action1"
                label="First Fix">

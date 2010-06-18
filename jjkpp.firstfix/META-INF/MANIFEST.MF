@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: First Fix Plug-in
 Bundle-SymbolicName: jjkpp.firstfix;singleton:=true
 Bundle-Version: 1.0.0.qualifier
-Bundle-Activator: jjkpp.firstfix.Activator
+Bundle-Activator: pingpong.firstfix.Activator
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  org.eclipse.jdt.ui,

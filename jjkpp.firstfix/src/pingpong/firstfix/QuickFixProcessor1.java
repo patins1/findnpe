@@ -1,4 +1,4 @@
-package jjkpp.firstfix;
+package pingpong.firstfix;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.ICompilationUnit;
