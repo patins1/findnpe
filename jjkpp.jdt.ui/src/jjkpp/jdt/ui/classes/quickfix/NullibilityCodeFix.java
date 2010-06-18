@@ -13,7 +13,6 @@ package jjkpp.jdt.ui.classes.quickfix;
 import java.util.ArrayList;
 import java.util.List;
 
-import jjkpp.jdt.core.classes.NPContext;
 import jjkpp.jdt.ui.classes.NullibilityAnnosUI;
 import jjkpp.jdt.ui.classes.NullibilityProposalStructure;
 
@@ -31,6 +30,8 @@ import org.eclipse.jdt.internal.ui.text.correction.CorrectionMessages;
 import org.eclipse.jdt.ui.cleanup.ICleanUpFix;
 import org.eclipse.jdt.ui.text.java.IProblemLocation;
 import org.eclipse.text.edits.TextEditGroup;
+
+import pingpong.jdt.core.classes.NPContext;
 
 @SuppressWarnings("restriction")
 public class NullibilityCodeFix extends CompilationUnitRewriteOperationsFix {

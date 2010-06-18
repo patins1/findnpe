@@ -10,7 +10,6 @@
  *******************************************************************************/
 package jjkpp.jdt.ui.classes.quickfix;
 
-import jjkpp.jdt.core.classes.NullibilityAnnos;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.ICompilationUnit;
@@ -19,6 +18,8 @@ import org.eclipse.jdt.internal.ui.fix.AbstractMultiFix;
 import org.eclipse.jdt.ui.cleanup.CleanUpRequirements;
 import org.eclipse.jdt.ui.cleanup.ICleanUpFix;
 import org.eclipse.jdt.ui.text.java.IProblemLocation;
+
+import pingpong.jdt.core.classes.NullibilityAnnos;
 
 @SuppressWarnings("restriction")
 public class NullibilityCodeCleanUp extends AbstractMultiFix {

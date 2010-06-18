@@ -5,9 +5,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import jjkpp.jdt.core.classes.NPContext;
-import jjkpp.jdt.core.classes.NullibilityAnnos;
-import jjkpp.jdt.core.classes.ProposalCollector;
 import jjkpp.jdt.ui.classes.quickfix.NullibilityCodeCleanUp;
 import jjkpp.jdt.ui.classes.quickfix.NullibilityCodeFix;
 
@@ -54,6 +51,10 @@ import org.eclipse.jdt.ui.text.java.IInvocationContext;
 import org.eclipse.jdt.ui.text.java.IJavaCompletionProposal;
 import org.eclipse.jdt.ui.text.java.IProblemLocation;
 import org.eclipse.swt.graphics.Image;
+
+import pingpong.jdt.core.classes.NPContext;
+import pingpong.jdt.core.classes.NullibilityAnnos;
+import pingpong.jdt.core.classes.ProposalCollector;
 
 @SuppressWarnings("restriction")
 public class NullibilityAnnosUI extends ProposalCollector {

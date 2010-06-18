@@ -9,10 +9,11 @@ import org.eclipse.jdt.ui.text.java.IInvocationContext;
 import org.eclipse.jdt.ui.text.java.IProblemLocation;
 import java.util.Collection;
 
-import jjkpp.jdt.core.classes.NullibilityAnnos;
 import jjkpp.jdt.ui.classes.NullibilityAnnosUI;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.ICompilationUnit;
+
+import pingpong.jdt.core.classes.NullibilityAnnos;
 
 @SuppressWarnings("restriction")
 public aspect ExtendQuickFixProcessor {
