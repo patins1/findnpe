@@ -1,10 +1,11 @@
 package jjkpp.jdt.test;
 
-import jjkpp.jdt.core.classes.NullibilityAnnos;
 import junit.framework.Assert;
 import junit.framework.TestCase;
 
 import org.eclipse.jdt.internal.compiler.flow.UnconditionalFlowInfo;
+
+import pingpong.jdt.core.classes.NullibilityAnnos;
 
 public class TestNullBits extends TestCase {
 

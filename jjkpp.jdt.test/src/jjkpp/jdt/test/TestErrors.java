@@ -3,7 +3,6 @@ package jjkpp.jdt.test;
 import java.util.HashSet;
 import java.util.Set;
 
-import jjkpp.jdt.core.classes.NullibilityAnnos;
 import junit.framework.Assert;
 import junit.framework.AssertionFailedError;
 import junit.framework.TestCase;
@@ -33,6 +32,8 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.part.FileEditorInput;
 import org.eclipse.ui.texteditor.AbstractTextEditor;
+
+import pingpong.jdt.core.classes.NullibilityAnnos;
 
 public class TestErrors extends TestCase {
 
