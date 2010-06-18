@@ -1,4 +1,4 @@
-package jjkpp.jdt.core.classes;
+package pingpong.jdt.core.classes;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;

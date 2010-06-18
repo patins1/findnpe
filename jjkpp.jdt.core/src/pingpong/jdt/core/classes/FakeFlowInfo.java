@@ -1,4 +1,4 @@
-package jjkpp.jdt.core.classes;
+package pingpong.jdt.core.classes;
 
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.flow.UnconditionalFlowInfo;

@@ -1,6 +1,5 @@
 package jjkpp.jdt.core.aspects;
 
-import jjkpp.jdt.core.classes.NullibilityAnnos;
 
 import org.eclipse.jdt.internal.compiler.ast.FieldReference;
 import org.eclipse.jdt.internal.compiler.ast.SingleNameReference;
@@ -9,6 +8,8 @@ import org.eclipse.jdt.internal.compiler.flow.UnconditionalFlowInfo;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TagBits;
+
+import pingpong.jdt.core.classes.NullibilityAnnos;
 
 @SuppressWarnings("restriction")
 public aspect HandleFields {

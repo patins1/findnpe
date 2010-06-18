@@ -1,6 +1,5 @@
 package jjkpp.jdt.core.aspects;
 
-import jjkpp.jdt.core.classes.NullibilityAnnos;
 
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.ArrayAllocationExpression;
@@ -29,6 +28,8 @@ import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.ast.Assignment;
 import org.eclipse.jdt.internal.compiler.ast.CompoundAssignment;
 import org.eclipse.jdt.internal.compiler.ast.LocalDeclaration;
+
+import pingpong.jdt.core.classes.NullibilityAnnos;
 
 @SuppressWarnings("restriction")
 public aspect HandleNullStatusMethod {

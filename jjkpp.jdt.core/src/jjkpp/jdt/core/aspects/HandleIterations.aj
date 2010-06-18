@@ -5,8 +5,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import jjkpp.jdt.core.classes.FakeFlowInfo;
-import jjkpp.jdt.core.classes.NullibilityAnnos;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblem;
 
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
@@ -25,6 +23,9 @@ import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.problem.ProblemHandler;
+
+import pingpong.jdt.core.classes.FakeFlowInfo;
+import pingpong.jdt.core.classes.NullibilityAnnos;
 
 @SuppressWarnings("restriction")
 public aspect HandleIterations {

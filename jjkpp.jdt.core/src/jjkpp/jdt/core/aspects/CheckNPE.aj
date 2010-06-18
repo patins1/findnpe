@@ -1,7 +1,6 @@
 package jjkpp.jdt.core.aspects;
 
 
-import jjkpp.jdt.core.classes.NullibilityAnnos;
 
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.ISourceElementRequestor.MethodInfo;
@@ -47,6 +46,8 @@ import org.eclipse.jdt.internal.compiler.parser.SourceTypeConverter;
 import org.eclipse.jdt.internal.core.CompilationUnitStructureRequestor;
 import org.eclipse.jdt.internal.core.SourceMethod;
 import org.eclipse.jdt.internal.core.SourceMethodElementInfo;
+
+import pingpong.jdt.core.classes.NullibilityAnnos;
 
 @SuppressWarnings("restriction")
 privileged public aspect CheckNPE {
