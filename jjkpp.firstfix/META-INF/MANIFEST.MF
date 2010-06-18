@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: First Fix Plug-in
-Bundle-SymbolicName: jjkpp.firstfix;singleton:=true
+Bundle-SymbolicName: pingpong.firstfix;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Bundle-Activator: pingpong.firstfix.Activator
 Require-Bundle: org.eclipse.ui,
