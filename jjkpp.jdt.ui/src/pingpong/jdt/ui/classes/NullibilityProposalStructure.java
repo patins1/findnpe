@@ -1,4 +1,4 @@
-package jjkpp.jdt.ui.classes;
+package pingpong.jdt.ui.classes;
 
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.dom.AST;

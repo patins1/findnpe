@@ -13,8 +13,6 @@ package pingpong.jdt.ui.classes.quickfix;
 import java.util.ArrayList;
 import java.util.List;
 
-import jjkpp.jdt.ui.classes.NullibilityAnnosUI;
-import jjkpp.jdt.ui.classes.NullibilityProposalStructure;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.ICompilationUnit;
@@ -32,6 +30,8 @@ import org.eclipse.jdt.ui.text.java.IProblemLocation;
 import org.eclipse.text.edits.TextEditGroup;
 
 import pingpong.jdt.core.classes.NPContext;
+import pingpong.jdt.ui.classes.NullibilityAnnosUI;
+import pingpong.jdt.ui.classes.NullibilityProposalStructure;
 
 @SuppressWarnings("restriction")
 public class NullibilityCodeFix extends CompilationUnitRewriteOperationsFix {

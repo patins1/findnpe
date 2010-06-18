@@ -1,4 +1,4 @@
-package jjkpp.jdt.ui.classes;
+package pingpong.jdt.ui.classes;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
