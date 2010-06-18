@@ -8,7 +8,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package jjkpp.jdt.ui.classes.quickfix;
+package pingpong.jdt.ui.classes.quickfix;
 
 import java.util.ArrayList;
 import java.util.List;
