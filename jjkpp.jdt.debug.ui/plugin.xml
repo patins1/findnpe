@@ -11,7 +11,7 @@
          <action
                label="Add Java Watch Expression"
                helpContextId="add_watch_expression_context"
-               class="jjkpp.jdt.debug.ui.AddJavaWatchExpressionAction"
+               class="pingpong.jdt.debug.ui.AddJavaWatchExpressionAction"
                menubarPath="additions"
                id="org.eclipse.debug.ui.expressionViewActions.AddWatchExpressionForJava">
          </action>
