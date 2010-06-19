@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
-      id="jjkpp.jdt.debug.feature"
+      id="pingpong.jdt.debug.feature"
       label="Debug Utils"
       version="1.0.0.qualifier">
 
@@ -40,7 +40,7 @@
    </requires>
 
    <plugin
-         id="jjkpp.jdt.debug.ui"
+         id="pingpong.jdt.debug.ui"
          download-size="0"
          install-size="0"
          version="0.0.0"
