@@ -10,7 +10,7 @@
          <action
                class="pingpong.firstfix.Action1"
                enablesFor="+"
-               id="jjkpp.firstfix.action1"
+               id="pingpong.firstfix.action1"
                label="First Fix">
          </action>
       </objectContribution>
