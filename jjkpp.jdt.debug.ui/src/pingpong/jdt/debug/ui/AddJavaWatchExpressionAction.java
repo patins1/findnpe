@@ -1,4 +1,4 @@
-package jjkpp.jdt.debug.ui;
+package pingpong.jdt.debug.ui;
 
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.model.IWatchExpression;

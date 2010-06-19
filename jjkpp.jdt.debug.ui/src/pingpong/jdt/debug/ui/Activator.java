@@ -1,4 +1,4 @@
-package jjkpp.jdt.debug.ui;
+package pingpong.jdt.debug.ui;
 
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;

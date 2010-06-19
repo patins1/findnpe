@@ -5,9 +5,10 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.debug.internal.ui.actions.expressions.WatchExpressionDialog;
 import org.eclipse.debug.ui.DebugUITools;
 
-import jjkpp.jdt.debug.ui.JavaWatchExpressionDialog;
 import org.eclipse.jface.dialogs.StatusDialog;
 import org.eclipse.jdt.internal.debug.core.model.JDIStackFrame;
+
+import pingpong.jdt.debug.ui.JavaWatchExpressionDialog;
 public aspect PointAssertions {
 
     @SuppressWarnings("restriction")

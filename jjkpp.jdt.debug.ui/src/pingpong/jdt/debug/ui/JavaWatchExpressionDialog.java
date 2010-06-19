@@ -1,4 +1,4 @@
-package jjkpp.jdt.debug.ui;
+package pingpong.jdt.debug.ui;
 
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
