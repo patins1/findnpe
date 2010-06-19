@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.AST;
@@ -369,7 +368,7 @@ public class NullibilityAnnosUI extends ProposalCollector {
 
 		// ImportRewrite imports = proposal
 		// .createImportRewrite((CompilationUnit) decl.getRoot());
-		// imports.addImport("jjkpp.jdt.annotations." + marker);
+		// imports.addImport("pingpong.jdt.annotations." + marker);
 	}
 
 	private MethodDeclaration findBetterMethod(NPContext context, MethodDeclaration mdecl, int param) throws JavaModelException {
