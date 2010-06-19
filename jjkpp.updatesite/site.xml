@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <site>
    <description>
-      JJKPP Update Site
+      PingPong Update Site
    </description>
    <feature url="features/jjkpp.jdt.feature_1.0.0.201006181025.jar" id="jjkpp.jdt.feature" version="1.0.0.201006181025">
       <category name="category_1"/>
