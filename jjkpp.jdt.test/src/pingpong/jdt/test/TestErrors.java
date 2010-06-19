@@ -1,4 +1,4 @@
-package jjkpp.jdt.test;
+package pingpong.jdt.test;
 
 import java.util.HashSet;
 import java.util.Set;

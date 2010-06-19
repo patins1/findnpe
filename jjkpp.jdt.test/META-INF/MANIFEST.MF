@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Test
 Bundle-SymbolicName: jjkpp.jdt.test
 Bundle-Version: 1.0.0.qualifier
-Bundle-Activator: jjkpp.jdt.test.Activator
+Bundle-Activator: pingpong.jdt.test.Activator
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  org.eclipse.ui,

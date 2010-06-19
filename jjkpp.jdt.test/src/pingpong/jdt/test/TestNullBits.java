@@ -1,4 +1,4 @@
-package jjkpp.jdt.test;
+package pingpong.jdt.test;
 
 import junit.framework.Assert;
 import junit.framework.TestCase;
