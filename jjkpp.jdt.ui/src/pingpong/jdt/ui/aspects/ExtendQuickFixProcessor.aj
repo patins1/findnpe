@@ -1,4 +1,4 @@
-package jjkpp.jdt.ui.aspects;
+package pingpong.jdt.ui.aspects;
 
 
 import org.eclipse.jdt.internal.compiler.ast.SingleNameReference;
