@@ -368,7 +368,7 @@ public class NullibilityAnnosUI extends ProposalCollector {
 
 		// ImportRewrite imports = proposal
 		// .createImportRewrite((CompilationUnit) decl.getRoot());
-		// imports.addImport("pingpong.jdt.annotations." + marker);
+		// imports.addImport("pingpong.annotations." + marker);
 	}
 
 	private MethodDeclaration findBetterMethod(NPContext context, MethodDeclaration mdecl, int param) throws JavaModelException {

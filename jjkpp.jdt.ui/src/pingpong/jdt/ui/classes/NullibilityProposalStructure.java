@@ -27,7 +27,7 @@ public class NullibilityProposalStructure {
 	}
 
 	public String getImport() {
-		return "pingpong.jdt.annotations." + marker;
+		return "pingpong.annotations." + marker;
 	}
 
 	public AST getAst() {
