@@ -1,19 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
       id="pingpong.jdt.feature"
-      label="NPE Detector Feature"
+      label="PingPong Compiler"
       version="1.0.0.qualifier">
 
    <description url="http://www.example.com/description">
-      Detects possible NPEs
+      This feature checks for correct nullpointer usage in Java classes. The checks are performed as extension to the Java compiler, so there is no need to trigger a command. In order to work, Preferences -&gt; JDT Weaving must be enabled.
    </description>
 
    <copyright url="http://www.example.com/copyright">
-      [Enter Copyright Description here.]
+      Copyright 2010
+Jens Kiegeland
    </copyright>
 
    <license url="http://www.example.com/license">
-      [Enter License Description here.]
+      Free for non-commercial use
    </license>
 
    <includes
