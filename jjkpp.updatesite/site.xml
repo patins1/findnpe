@@ -3,18 +3,18 @@
    <description>
       PingPong Update Site
    </description>
-   <feature url="features/jjkpp.jdt.feature_1.0.0.201006181025.jar" id="jjkpp.jdt.feature" version="1.0.0.201006181025">
+   <feature url="features/pingpong.firstfix.feature_1.0.0.201006202017.jar" id="pingpong.firstfix.feature" version="1.0.0.201006202017">
       <category name="category_1"/>
    </feature>
-   <feature url="features/jjkpp.jdt.debug.feature_1.0.0.201006181025.jar" id="jjkpp.jdt.debug.feature" version="1.0.0.201006181025">
+   <feature url="features/pingpong.jdt.debug.feature_1.0.0.201006202017.jar" id="pingpong.jdt.debug.feature" version="1.0.0.201006202017">
       <category name="category_1"/>
    </feature>
-   <feature url="features/pingpong.firstfix.feature_1.0.0.201006181025.jar" id="pingpong.firstfix.feature" version="1.0.0.201006181025">
+   <feature url="features/pingpong.jdt.feature_1.0.0.201006202017.jar" id="pingpong.jdt.feature" version="1.0.0.201006202017">
       <category name="category_1"/>
    </feature>
-   <category-def name="category_1" label="Java Tools">
+   <category-def name="category_1" label="PingPong">
       <description>
-         Set of Java tools
+         Utilities for Java programmers. The main feature is the PingPong Compiler feature, but all features can be used separately.
       </description>
    </category-def>
 </site>
