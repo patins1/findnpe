@@ -20,3 +20,4 @@ Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Export-Package: pingpong.jdt.debug.ui.aspects
 Eclipse-SupplementBundle: org.eclipse.debug.ui
+Bundle-Vendor: Jens Kiegeland
