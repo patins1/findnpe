@@ -1,19 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
       id="pingpong.jdt.debug.feature"
-      label="Debug Utils"
-      version="1.0.0.qualifier">
+      label="Java Debugging Utils"
+      version="1.0.0.qualifier"
+      provider-name="Jens Kiegeland">
 
    <description url="http://www.example.com/description">
-      Java Content Assistence in Watch Expressions Dialog when debugging Java applications
+      Enables Java Code Completion in the Watch Expressions dialog. In order to work, a Java Debugger session must be active. Also, Preferences -&gt; JDT Weaving must be enabled.
    </description>
 
    <copyright url="http://www.example.com/copyright">
-      [Enter Copyright Description here.]
+      Copyright 2010
+Jens Kiegeland
    </copyright>
 
    <license url="http://www.example.com/license">
-      [Enter License Description here.]
+      Free for non-commercial use
    </license>
 
    <includes
