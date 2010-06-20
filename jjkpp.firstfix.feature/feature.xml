@@ -1,19 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
       id="pingpong.firstfix.feature"
-      label="First Fix Feature"
+      label="First-Fix Command"
       version="1.0.0.qualifier">
 
    <description url="http://www.example.com/description">
-      Adds context menu item &quot;First Fix&quot; for the Problems view, which applies the first proposed fix of a problem.
+      Adds the menu item &quot;First Fix&quot; to the context menu of the Problems view. This command applies the first proposed fix to a problem for which multiple fixes may exist. The first fix may not be the best fix in all cases, however it is often the most used one. Esp. helpfull in the context of problems reported by the PingPong compiler.
    </description>
 
    <copyright url="http://www.example.com/copyright">
-      [Enter Copyright Description here.]
+      Copyright 2010
+Jens Kiegeland
    </copyright>
 
    <license url="http://www.example.com/license">
-      [Enter License Description here.]
+      Free for non-commercial use
    </license>
 
    <requires>
