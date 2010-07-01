@@ -3,7 +3,7 @@
       id="pingpong.jdt.debug.feature"
       label="Java Debugging Utils"
       version="1.0.0.qualifier"
-      provider-name="Jens Kiegeland">
+      provider-name="J. Kiegeland">
 
    <description url="http://www.example.com/description">
       Enables Java Code Completion in the Watch Expressions dialog. In order to work, a Java Debugger session must be active. Also, Preferences -&gt; JDT Weaving must be enabled.
@@ -11,7 +11,7 @@
 
    <copyright url="http://www.example.com/copyright">
       Copyright 2010
-Jens Kiegeland
+J. Kiegeland
    </copyright>
 
    <license url="http://www.example.com/license">
