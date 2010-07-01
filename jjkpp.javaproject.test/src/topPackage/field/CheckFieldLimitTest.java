@@ -143,8 +143,14 @@ public class CheckFieldLimitTest {
 	@CanBeNull
 	String s68;
 	@CanBeNull
-	String s69;
+	String s69;	
 
+	private void testExtraLargeEnough() {
+    	// position -3-1+70=67 is in the extra array, so test that
+		// this position is allocated for fields faked as local variables
+    	s2 = ""; // if buggy, then NPE in JDT code
+	}
+	
 	private void testS0() {
 		if (s0 != null)
 			s0.toString(); /* OK */
@@ -157,8 +163,8 @@ public class CheckFieldLimitTest {
 			s63.toString(); /* OK */
 		s63.toString(); /* error0 */
 		s63.toString(); /* OK */
-	}
-
+	} 
+ 
 	private void testS64() {
 		if (s64 != null)
 			s64.toString(); /* error0 */
