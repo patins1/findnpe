@@ -167,16 +167,16 @@ public class CheckFieldLimitTest {
  
 	private void testS64() {
 		if (s64 != null)
-			s64.toString(); /* error0 */
+			s64.toString(); /* OK */
 		s64.toString(); /* error0 */
-		s64.toString(); /* error0 */
+		s64.toString(); /* OK */
 	}
 
 	private void testS65() {
 		if (s65 != null)
-			s65.toString(); /* error0 */
+			s65.toString(); /* OK */
 		s65.toString(); /* error0 */
-		s65.toString(); /* error0 */
+		s65.toString(); /* OK */
 	}
 
 	private void testDoubleCheckWithFieldS63() {
@@ -190,7 +190,7 @@ public class CheckFieldLimitTest {
 
 	private void testDoubleCheckWithFieldS64() {
 		s64 = "";
-		s64.toString();/* error0 */
+		s64.toString();/* OK */
 		while ("".contains("")) {
 			s64.toString();/* error0 */
 			s64 = null;
