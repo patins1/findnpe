@@ -13,4 +13,4 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Export-Package: pingpong.jdt.core.aspects,
  pingpong.jdt.core.classes
 Eclipse-SupplementBundle: org.eclipse.jdt.core
-Bundle-Vendor: Jens Kiegeland
+Bundle-Vendor: J. Kiegeland
