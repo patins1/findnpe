@@ -24,6 +24,7 @@ import org.eclipse.jdt.internal.compiler.ast.NameReference;
 import org.eclipse.jdt.internal.compiler.ast.NullLiteral;
 import org.eclipse.jdt.internal.compiler.ast.QualifiedNameReference;
 import org.eclipse.jdt.internal.compiler.ast.ReturnStatement;
+import org.eclipse.jdt.internal.compiler.flow.ConditionalFlowInfo;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.flow.UnconditionalFlowInfo;
@@ -52,8 +53,6 @@ import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import org.eclipse.jdt.internal.compiler.problem.ProblemHandler;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
-
-import pingpong.jdt.core.aspects.HandleNullStatusMethod;
 
 /**
  * TODO: QualifiedNameReference.otherBindings intermediate auf nullibility
@@ -838,7 +837,7 @@ public class NullibilityAnnos {
 					Expression last = t.arguments[pos];
 					LocalVariableBinding local = last.localVariableBinding();
 					if (local != null && (local.type.tagBits & TagBits.IsBaseType) == 0) {
-						HandleNullStatusMethod.assureExtraLargeEnough(flowInfo, local);
+						NullibilityAnnos.assureExtraLargeEnough(flowInfo, local);
 						flowInfo.markAsDefinitelyNonNull(local);
 					}
 				}
@@ -846,6 +845,64 @@ public class NullibilityAnnos {
 			}
 		}
 		return flowInfo;
+	}
+
+	/**
+	 * testExtraLargeEnough()
+	 */
+	static public void assureExtraLargeEnough(FlowInfo flowInfo, LocalVariableBinding local) {
+		if (!NullibilityAnnos.enableNullibilityFields())
+			return;
+		if (!(local.id < 0))
+			return; // if no faked field, return
+		if (flowInfo instanceof UnconditionalFlowInfo) {
+			UnconditionalFlowInfo t = (UnconditionalFlowInfo) flowInfo;
+			assureExtraLargeEnough(t, local.id + t.maxFieldCount);
+		} else if (flowInfo instanceof ConditionalFlowInfo) {
+			ConditionalFlowInfo c = (ConditionalFlowInfo) flowInfo;
+			assureExtraLargeEnough(c.initsWhenTrue, local);
+			assureExtraLargeEnough(c.initsWhenFalse, local);
+		}
+	}
+
+	/**
+	 * Assures that the given position is allocated in
+	 * {@link UnconditionalFlowInfo#extra} if required, so that
+	 * {@link UnconditionalFlowInfo#markAsDefinitelyNonNull(LocalVariableBinding)}
+	 * /
+	 * {@link UnconditionalFlowInfo#markAsDefinitelyNull(LocalVariableBinding)}
+	 * /
+	 * {@link UnconditionalFlowInfo#markAsDefinitelyUnknown(LocalVariableBinding)}
+	 * work which assumes a correct allocation
+	 * 
+	 * @param t
+	 * @param position
+	 */
+	static private void assureExtraLargeEnough(UnconditionalFlowInfo t, int position) {
+
+		if (t != FlowInfo.DEAD_END) {
+			// position is zero-based
+			if (position < UnconditionalFlowInfo.BitCacheSize) {
+				// nothing to do
+			} else {
+				// use extra vector
+				int vectorIndex = (position / UnconditionalFlowInfo.BitCacheSize) - 1;
+				if (t.extra == null) {
+					int length = vectorIndex + 1;
+					t.extra = new long[t.extraLength][];
+					for (int j = 0; j < t.extraLength; j++) {
+						t.extra[j] = new long[length];
+					}
+				} else {
+					int oldLength; // might need to grow the arrays
+					if (vectorIndex >= (oldLength = t.extra[0].length)) {
+						for (int j = 0; j < t.extraLength; j++) {
+							System.arraycopy(t.extra[j], 0, (t.extra[j] = new long[vectorIndex + 1]), 0, oldLength);
+						}
+					}
+				}
+			}
+		}
 	}
 
 }
