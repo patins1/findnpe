@@ -1,5 +1,7 @@
 package topPackage;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.Random;
 
 import junit.framework.Assert;
@@ -40,4 +42,17 @@ public class InterpretationsTest {
 		s.toString(); /* ok */
 	}
 
+	void testFailInCatch() {
+		String result = null;
+		try {
+			Thread.sleep(3);
+			new File("").createNewFile();
+			result = "";
+		} catch (InterruptedException e) {
+			org.junit.Assert.fail();
+		} catch (IOException e) {
+			junit.framework.Assert.fail(e.getLocalizedMessage());
+		}
+		result.toString(); /* ok */
+	}
 }
