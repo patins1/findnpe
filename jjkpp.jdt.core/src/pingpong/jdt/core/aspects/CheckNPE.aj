@@ -185,18 +185,24 @@ privileged public aspect CheckNPE {
 			}
 			if (length>=1) {
 				if ("assertNotNull".equals(name)) {
-					flowInfo = NullibilityAnnos.interpret3rdParty("junit.framework.Assert", t, flowInfo, length-1);
+					if (NullibilityAnnos.interprete3rdParty("org.junit.Assert", t, flowInfo, length-1) || NullibilityAnnos.interprete3rdParty("junit.framework.Assert", t, flowInfo, length-1)) {
+						//nothing to do
+					}
 				} else
 				if ("isNotNull".equals(name)) {
-					flowInfo = NullibilityAnnos.interpret3rdParty("org.eclipse.core.runtime.Assert", t, flowInfo, 0);
+					NullibilityAnnos.interprete3rdParty("org.eclipse.core.runtime.Assert", t, flowInfo, 0);
 				} else
 				if ("error".equals(name)) {
-					flowInfo = NullibilityAnnos.interpret3rdParty("org.eclipse.swt.SWT", t, flowInfo, -1);
+					if (NullibilityAnnos.interprete3rdParty("org.eclipse.swt.SWT", t, flowInfo, -1)) {
+						flowInfo = FlowInfo.DEAD_END;
+					}
 				}
 			}
 		}
 		if ("fail".equals(name)) {
-			flowInfo = NullibilityAnnos.interpret3rdParty("junit.framework.Assert", t, flowInfo, -1);
+			if (NullibilityAnnos.interprete3rdParty("org.junit.Assert", t, flowInfo, -1) || NullibilityAnnos.interprete3rdParty("junit.framework.Assert", t, flowInfo, -1)) {
+				flowInfo = FlowInfo.DEAD_END;
+			}
 		}
 		ReferenceBinding[] thrownExceptions;
 		if ((thrownExceptions = t.binding.thrownExceptions) != Binding.NO_EXCEPTIONS) {

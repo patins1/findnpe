@@ -815,28 +815,29 @@ public class NullibilityAnnos {
 	 * @param t
 	 * @param flowInfo
 	 * @param pos
-	 * @return
+	 * @return <code>true</code> if matched
 	 */
-	public static FlowInfo interpret3rdParty(String pack, MessageSend t, FlowInfo flowInfo, int pos) {
+	public static boolean interprete3rdParty(String pack, MessageSend t, FlowInfo flowInfo, int pos) {
 		if (t.receiver instanceof NameReference) {
 			NameReference nf = (NameReference) t.receiver;
 			if (nf.binding instanceof ReferenceBinding) {
 				ReferenceBinding nrf = (ReferenceBinding) nf.binding;
 				if (pack.equals(new String(nrf.readableName()))) {
 					if (pos == -1) {
-						return FlowInfo.DEAD_END;
+						return true;
 					}
 					Expression last = t.arguments[pos];
 					LocalVariableBinding local = last.localVariableBinding();
 					if (local != null && (local.type.tagBits & TagBits.IsBaseType) == 0) {
 						NullibilityAnnos.assureExtraLargeEnough(flowInfo, local);
 						flowInfo.markAsDefinitelyNonNull(local);
+						return true;
 					}
 				}
 
 			}
 		}
-		return flowInfo;
+		return false;
 	}
 
 	/**
