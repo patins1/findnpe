@@ -54,14 +54,6 @@ import org.eclipse.jdt.internal.compiler.problem.ProblemHandler;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 
-/**
- * TODO: QualifiedNameReference.otherBindings intermediate auf nullibility
- * prüfen
- * 
- * 
- * @author JoeKey
- * 
- */
 @SuppressWarnings("restriction")
 public class NullibilityAnnos {
 
