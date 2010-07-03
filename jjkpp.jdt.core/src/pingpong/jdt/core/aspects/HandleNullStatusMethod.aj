@@ -244,7 +244,7 @@ public aspect HandleNullStatusMethod {
 	/**
 	 * testExtraLargeEnough()
 	 */
-	void assureExtraLargeEnough(FlowInfo flowInfo, LocalVariableBinding local) {
+	static public void assureExtraLargeEnough(FlowInfo flowInfo, LocalVariableBinding local) {
 		if (!NullibilityAnnos.enableNullibilityFields()) return;
 		if (!(local.id <0)) return; // if no faked field, return
 		if (flowInfo instanceof UnconditionalFlowInfo) {
@@ -263,7 +263,7 @@ public aspect HandleNullStatusMethod {
 	 * @param t
 	 * @param position
 	 */
-	void assureExtraLargeEnough(UnconditionalFlowInfo t, int position) {
+	static public void assureExtraLargeEnough(UnconditionalFlowInfo t, int position) {
 
 		if (t != FlowInfo.DEAD_END) {
 			// position is zero-based

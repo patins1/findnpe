@@ -19,6 +19,8 @@ import org.eclipse.jdt.internal.compiler.ast.Argument;
 import org.eclipse.jdt.internal.compiler.ast.Assignment;
 import org.eclipse.jdt.internal.compiler.ast.CastExpression;
 import org.eclipse.jdt.internal.compiler.ast.Expression;
+import org.eclipse.jdt.internal.compiler.ast.MessageSend;
+import org.eclipse.jdt.internal.compiler.ast.NameReference;
 import org.eclipse.jdt.internal.compiler.ast.NullLiteral;
 import org.eclipse.jdt.internal.compiler.ast.QualifiedNameReference;
 import org.eclipse.jdt.internal.compiler.ast.ReturnStatement;
@@ -41,6 +43,7 @@ import org.eclipse.jdt.internal.compiler.lookup.ParameterizedTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
@@ -50,9 +53,11 @@ import org.eclipse.jdt.internal.compiler.problem.ProblemHandler;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 
+import pingpong.jdt.core.aspects.HandleNullStatusMethod;
+
 /**
  * TODO: QualifiedNameReference.otherBindings intermediate auf nullibility
- * prüfen SWT.error als alwaysThrow markieren
+ * prüfen
  * 
  * 
  * @author JoeKey
@@ -810,6 +815,37 @@ public class NullibilityAnnos {
 		}
 		return b;
 		// TODO extra
+	}
+
+	/**
+	 * InterpretationsTest
+	 * 
+	 * @param pack
+	 * @param t
+	 * @param flowInfo
+	 * @param pos
+	 * @return
+	 */
+	public static FlowInfo interpret3rdParty(String pack, MessageSend t, FlowInfo flowInfo, int pos) {
+		if (t.receiver instanceof NameReference) {
+			NameReference nf = (NameReference) t.receiver;
+			if (nf.binding instanceof ReferenceBinding) {
+				ReferenceBinding nrf = (ReferenceBinding) nf.binding;
+				if (pack.equals(new String(nrf.readableName()))) {
+					if (pos == -1) {
+						return FlowInfo.DEAD_END;
+					}
+					Expression last = t.arguments[pos];
+					LocalVariableBinding local = last.localVariableBinding();
+					if (local != null && (local.type.tagBits & TagBits.IsBaseType) == 0) {
+						HandleNullStatusMethod.assureExtraLargeEnough(flowInfo, local);
+						flowInfo.markAsDefinitelyNonNull(local);
+					}
+				}
+
+			}
+		}
+		return flowInfo;
 	}
 
 }

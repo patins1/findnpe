@@ -172,6 +172,7 @@ privileged public aspect CheckNPE {
 			t.receiver.checkNPE(currentScope, flowContext, flowInfo);
 		}
 
+		String name=new String(t.binding.selector);
 		if (t.arguments != null) {
 			int length = t.arguments.length;
 			for (int i = 0; i < length; i++) {
@@ -182,6 +183,20 @@ privileged public aspect CheckNPE {
 						NullibilityAnnos.checkEasyNPE(t.arguments[i], currentScope, flowContext, flowInfo, t.binding.declaringClass); 
 					}
 			}
+			if (length>=1) {
+				if ("assertNotNull".equals(name)) {
+					flowInfo = NullibilityAnnos.interpret3rdParty("junit.framework.Assert", t, flowInfo, length-1);
+				} else
+				if ("isNotNull".equals(name)) {
+					flowInfo = NullibilityAnnos.interpret3rdParty("org.eclipse.core.runtime.Assert", t, flowInfo, 0);
+				} else
+				if ("error".equals(name)) {
+					flowInfo = NullibilityAnnos.interpret3rdParty("org.eclipse.swt.SWT", t, flowInfo, -1);
+				}
+			}
+		}
+		if ("fail".equals(name)) {
+			flowInfo = NullibilityAnnos.interpret3rdParty("junit.framework.Assert", t, flowInfo, -1);
 		}
 		ReferenceBinding[] thrownExceptions;
 		if ((thrownExceptions = t.binding.thrownExceptions) != Binding.NO_EXCEPTIONS) {
