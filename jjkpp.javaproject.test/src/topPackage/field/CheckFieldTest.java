@@ -46,9 +46,9 @@ public class CheckFieldTest {
 
 		void work() {
 			if (s5 != null)
-				s5.toString(); /* OK */
+				s5.toString(); /* error0 */ // field-as-local-faking not done here
 			s5.toString(); /* error0 */
-			s5.toString(); /* OK */
+			s5.toString(); /* error0 */ // field-as-local-faking not done here
 		}
 
 	}
