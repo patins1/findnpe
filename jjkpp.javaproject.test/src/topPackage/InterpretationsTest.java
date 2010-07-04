@@ -12,13 +12,19 @@ public class InterpretationsTest {
 
 	void testAssertNull() {
 		String s = new Random().nextBoolean() ? "" : null;
-		Assert.assertNull("No HazardousEvent found in the model", s);
+		Assert.assertNull("", s);
 		s.toString(); /* error1 */
 	}
 
 	void testAssertNotNull() {
 		String s = new Random().nextBoolean() ? "" : null;
-		Assert.assertNotNull("No HazardousEvent found in the model", s);
+		Assert.assertNotNull("", s);
+		s.toString(); /* ok */
+	}
+
+	void testAssertNotNull2() {
+		String s = new Random().nextBoolean() ? "" : null;
+		org.junit.Assert.assertNotNull("", s);
 		s.toString(); /* ok */
 	}
 
@@ -26,7 +32,7 @@ public class InterpretationsTest {
 		String s = new Random().nextBoolean() ? "" : null;
 		if (s == null)
 			Assert.fail();
-		s.toString(); /* ok */
+		s.toString(); /* error1 */
 	}
 
 	void testIsNotNull() {
@@ -39,7 +45,7 @@ public class InterpretationsTest {
 		String s = new Random().nextBoolean() ? "" : null;
 		if (s == null)
 			SWT.error(0);
-		s.toString(); /* ok */
+		s.toString(); /* error1 */
 	}
 
 	void testFailInCatch() {
@@ -53,6 +59,27 @@ public class InterpretationsTest {
 		} catch (IOException e) {
 			junit.framework.Assert.fail(e.getLocalizedMessage());
 		}
-		result.toString(); /* ok */
+		result.toString(); /* error1 */
 	}
+
+	void testAssertNonNullInCatch() {
+		String s = null;
+		try {
+			Thread.sleep(3);
+			new File("").createNewFile();
+			s = "";
+		} catch (InterruptedException e) {
+			Assert.assertNotNull("", s);
+		} catch (IOException e) {
+			org.junit.Assert.assertNotNull("", s);
+		}
+		s.toString(); /* ok */
+	}
+
+	void testNoDeadCode() {
+		String s = "";
+		Assert.fail();
+		s.toString(); /* ok */
+	}
+
 }
