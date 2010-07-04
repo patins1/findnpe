@@ -222,6 +222,14 @@ public class NullibilityAnnos {
 		return enableNullibility() && true;
 	}
 
+	public static boolean enableInterpretationNonNull() {
+		return enableNullibility() && true;
+	}
+
+	public static boolean enableInterpretationAlwaysThrow() {
+		return enableNullibility() && false;
+	}
+
 	/**
 	 * 
 	 * @param binding

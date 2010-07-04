@@ -183,7 +183,7 @@ privileged public aspect CheckNPE {
 						NullibilityAnnos.checkEasyNPE(t.arguments[i], currentScope, flowContext, flowInfo, t.binding.declaringClass); 
 					}
 			}
-			if (length>=1) {
+			if (NullibilityAnnos.enableInterpretationNonNull() && length>=1) {
 				if ("assertNotNull".equals(name)) {
 					if (NullibilityAnnos.interprete3rdParty("org.junit.Assert", t, flowInfo, length-1) || NullibilityAnnos.interprete3rdParty("junit.framework.Assert", t, flowInfo, length-1)) {
 						//nothing to do
@@ -191,17 +191,19 @@ privileged public aspect CheckNPE {
 				} else
 				if ("isNotNull".equals(name)) {
 					NullibilityAnnos.interprete3rdParty("org.eclipse.core.runtime.Assert", t, flowInfo, 0);
-				} else
-				if ("error".equals(name)) {
-					if (NullibilityAnnos.interprete3rdParty("org.eclipse.swt.SWT", t, flowInfo, -1)) {
-						flowInfo = FlowInfo.DEAD_END;
-					}
 				}
-			}
+			}			
 		}
-		if ("fail".equals(name)) {
-			if (NullibilityAnnos.interprete3rdParty("org.junit.Assert", t, flowInfo, -1) || NullibilityAnnos.interprete3rdParty("junit.framework.Assert", t, flowInfo, -1)) {
-				flowInfo = FlowInfo.DEAD_END;
+		if (NullibilityAnnos.enableInterpretationAlwaysThrow()) {
+			if ("error".equals(name)) {
+				if (NullibilityAnnos.interprete3rdParty("org.eclipse.swt.SWT", t, flowInfo, -1)) {
+					flowInfo = FlowInfo.DEAD_END;
+				}
+			} else
+			if ("fail".equals(name)) {
+				if (NullibilityAnnos.interprete3rdParty("org.junit.Assert", t, flowInfo, -1) || NullibilityAnnos.interprete3rdParty("junit.framework.Assert", t, flowInfo, -1)) {
+					flowInfo = FlowInfo.DEAD_END;
+				}
 			}
 		}
 		ReferenceBinding[] thrownExceptions;
