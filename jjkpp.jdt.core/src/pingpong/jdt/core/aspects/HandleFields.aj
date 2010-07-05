@@ -47,7 +47,7 @@ public aspect HandleFields {
 	 * @return
 	 */
 	LocalVariableBinding fakeLocalVariableBinding(FieldBinding fieldBinding) {
-		if ((fieldBinding.type.tagBits & TagBits.IsBaseType) == 0) {
+		if ((fieldBinding.type.tagBits & TagBits.IsBaseType) == 0 && !NullibilityAnnos.getSolidityWithParent(fieldBinding)) {
 			LocalVariableBinding result = new LocalVariableBinding(fieldBinding.name,fieldBinding.type,fieldBinding.modifiers,(fieldBinding.tagBits & TagBits.IsArgument)!=0);
 			result.id=-fieldBinding.id-1;
 			result.setConstant(fieldBinding.constant());
