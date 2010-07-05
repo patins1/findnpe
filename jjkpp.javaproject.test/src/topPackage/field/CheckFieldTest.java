@@ -1,11 +1,17 @@
 package topPackage.field;
 
 import pingpong.annotations.CanBeNull;
+import pingpong.annotations.NonNull;
 
 public class CheckFieldTest {
 
 	@CanBeNull
 	String s5 = null/* OK */;
+
+	@NonNull
+	String s6;
+	
+	String s7;
 
 	private void testSingleNameReference() {
 		if (s5 != null)
@@ -40,6 +46,18 @@ public class CheckFieldTest {
 		CheckFieldTest var = this;
 		if (var.s5 != null)
 			var.s5.toString(); /* error0 */
+	}	
+
+	private void testNonNullFields() {
+		s6.toString(); /* OK */
+		if (s6 == null)
+			s6.toString(); /* OK */ // field-as-local-faking not done here
+	}
+
+	private void testNonNullFieldsAttack() {
+		s7.toString(); /* OK */
+		if (s7 == null)
+			s7.toString(); /* OK */ // field-as-local-faking not done here
 	}
 
 	private class InnerClass {
