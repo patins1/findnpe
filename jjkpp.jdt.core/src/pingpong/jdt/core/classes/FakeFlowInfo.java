@@ -178,4 +178,12 @@ public class FakeFlowInfo extends FlowInfo {
 		throw new RuntimeException("Unexpected call");
 	}
 
+	public boolean isMarkedAsNullOrNonNullInAssertExpression(LocalVariableBinding arg0) {
+		throw new RuntimeException("Unexpected call");
+	}
+
+	public void markedAsNullOrNonNullInAssertExpression(LocalVariableBinding arg0) {
+		throw new RuntimeException("Unexpected call");
+	}
+
 }
