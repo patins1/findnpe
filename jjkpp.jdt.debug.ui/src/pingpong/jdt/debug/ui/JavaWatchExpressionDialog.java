@@ -14,7 +14,6 @@ import org.eclipse.jdt.internal.debug.ui.actions.ExpressionInputDialog;
 import org.eclipse.jdt.internal.debug.ui.contentassist.CurrentFrameContext;
 import org.eclipse.jdt.internal.debug.ui.contentassist.JavaDebugContentAssistProcessor;
 import org.eclipse.jdt.internal.debug.ui.display.DisplayViewerConfiguration;
-import org.eclipse.jdt.internal.debug.ui.propertypages.BreakpointConditionEditor;
 import org.eclipse.jdt.ui.text.IJavaPartitions;
 import org.eclipse.jdt.ui.text.JavaTextTools;
 import org.eclipse.jface.action.IMenuListener;
@@ -70,8 +69,8 @@ public class JavaWatchExpressionDialog extends WatchExpressionDialog {
 	}
 
 	/**
-	 * See {@link BreakpointConditionEditor} and {@link ExpressionInputDialog}
-	 * to see where this is taken from!
+	 * See BreakpointConditionEditor(3.5)/JavaBreakpointConditionEditor(3.6) and
+	 * {@link ExpressionInputDialog} to see where this is taken from!
 	 */
 	private IDebugElement context;// !!
 
