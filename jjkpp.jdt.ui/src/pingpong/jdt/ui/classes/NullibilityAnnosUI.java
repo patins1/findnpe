@@ -13,6 +13,7 @@ import org.eclipse.jdt.core.dom.Annotation;
 import org.eclipse.jdt.core.dom.Assignment;
 import org.eclipse.jdt.core.dom.ChildListPropertyDescriptor;
 import org.eclipse.jdt.core.dom.ClassInstanceCreation;
+import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.FieldAccess;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.IAnnotationBinding;
@@ -28,6 +29,7 @@ import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.SuperConstructorInvocation;
 import org.eclipse.jdt.core.dom.SuperMethodInvocation;
+import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
@@ -155,6 +157,9 @@ public class NullibilityAnnosUI extends ProposalCollector {
 			ReturnStatement returnStatement = (ReturnStatement) invocationNode;
 			MethodDeclaration methodDeclaration = getMethodDeclaration(returnStatement);
 			addMarker2(context, methodDeclaration, "CanBeNull");
+		} else if (invocationNode instanceof CompilationUnit && selectedNode instanceof TypeDeclaration) {
+			TypeDeclaration typedecl = (TypeDeclaration) selectedNode;
+			addMarker2(context, typedecl, "NonNullByDefault");
 		}
 	}
 
@@ -336,6 +341,13 @@ public class NullibilityAnnosUI extends ProposalCollector {
 			decl = mdecl;
 			modifiers = mdecl.getModifiersProperty();
 			varType = "method " + methodName;
+			existingAnnots = mdecl.resolveBinding().getAnnotations();
+		} else if (variableDeclaration instanceof TypeDeclaration) {
+			TypeDeclaration mdecl = (TypeDeclaration) variableDeclaration;
+			String methodName = mdecl.getName().getIdentifier();
+			decl = mdecl;
+			modifiers = mdecl.getModifiersProperty();
+			varType = "type " + methodName;
 			existingAnnots = mdecl.resolveBinding().getAnnotations();
 		} else {
 			return;

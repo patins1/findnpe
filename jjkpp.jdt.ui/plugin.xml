@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="org.eclipse.ui.popupMenus">
+         
+      <objectContribution
+            objectClass="java.lang.Object"
+            adaptable="false"
+            id="iprojectcontributions5252">
+                     
+         <action
+               class="pingpong.jdt.ui.actions.AllNonNulllByDefaultAction"
+               enablesFor="*"
+               id="pingpong.jdt.ui.AllNonNulllByDefaultAction"
+               label="Annotate with NonNullByDefault"
+               menubarPath="edit"
+               style="push"/>
+      </objectContribution>
+         
+   </extension>
+
+</plugin>
