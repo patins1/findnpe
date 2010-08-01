@@ -14,6 +14,10 @@ public class ClassAnnotationTest {
 
 	}
 
+	public ClassAnnotationTest(int[] param1) {
+		this((Integer) null); /* error1 easy */
+	}
+
 	protected String testReturnNull() {
 		return null; /* error1 easy */
 	}
