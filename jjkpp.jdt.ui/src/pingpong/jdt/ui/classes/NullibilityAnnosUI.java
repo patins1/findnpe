@@ -14,6 +14,7 @@ import org.eclipse.jdt.core.dom.Assignment;
 import org.eclipse.jdt.core.dom.ChildListPropertyDescriptor;
 import org.eclipse.jdt.core.dom.ClassInstanceCreation;
 import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jdt.core.dom.ConstructorInvocation;
 import org.eclipse.jdt.core.dom.FieldAccess;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.IAnnotationBinding;
@@ -149,6 +150,12 @@ public class NullibilityAnnosUI extends ProposalCollector {
 				addNullibilityProposals(context, binding, binding.getDeclaringClass(), param, invocationNode, "CanBeNull");
 		} else if (invocationNode instanceof SuperConstructorInvocation) {
 			SuperConstructorInvocation methodImpl = (SuperConstructorInvocation) invocationNode;
+			IMethodBinding binding = methodImpl.resolveConstructorBinding();
+			int param = methodImpl.arguments().indexOf(selectedNode);
+			if (param >= 0)
+				addNullibilityProposals(context, binding, binding.getDeclaringClass(), param, invocationNode, "CanBeNull");
+		} else if (invocationNode instanceof ConstructorInvocation) {
+			ConstructorInvocation methodImpl = (ConstructorInvocation) invocationNode;
 			IMethodBinding binding = methodImpl.resolveConstructorBinding();
 			int param = methodImpl.arguments().indexOf(selectedNode);
 			if (param >= 0)
