@@ -14,7 +14,7 @@
                enablesFor="*"
                id="pingpong.jdt.ui.AllNonNulllByDefaultAction"
                label="Annotate with NonNullByDefault"
-               menubarPath="edit"
+               menubarPath="org.eclipse.jdt.ui.source.menu/additions"
                style="push"/>
       </objectContribution>
          
