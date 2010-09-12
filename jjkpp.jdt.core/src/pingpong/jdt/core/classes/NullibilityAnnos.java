@@ -517,7 +517,7 @@ public class NullibilityAnnos {
 		if (enableNullibility())
 			if (isNotNonNull(t, scope, flowInfo)) {
 				if (NullibilityAnnos.isAlwaysNull(t)) {
-					invalidNullibility(scope.problemReporter(), t, declaringClass, 0, "Easy Nullibility problem"); //$NON-NLS-1$
+					invalidNullibility(scope.problemReporter(), t, declaringClass, 0, "Basic nullibility problem"); //$NON-NLS-1$
 				} else {
 					invalidNullibility(scope.problemReporter(), t, declaringClass, 0, "Nullibility problem"); //$NON-NLS-1$
 				}
