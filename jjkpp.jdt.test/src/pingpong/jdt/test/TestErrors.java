@@ -94,7 +94,7 @@ public class TestErrors extends TestCase {
 								if (cancel)
 									continue;
 								IMarker marker = findMarker(markers, lineNumber);
-								if (marker == null || easyError != marker.getAttribute("message", "").contains("Easy")) {
+								if (marker == null || easyError != marker.getAttribute("message", "").contains("Basic")) {
 									reveal(ed, doc, commentLineNumber, errorIndex, errorIndexTo);
 									for (IMarker marker2 : markers) {
 										System.out.println("Marker " + marker2.getAttribute("message") + " line=" + marker2.getAttribute("lineNumber", -1));
