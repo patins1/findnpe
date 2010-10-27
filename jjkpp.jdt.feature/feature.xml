@@ -22,7 +22,7 @@ J. Kiegeland
          version="0.0.0"/>
 
    <includes
-         id="org.eclipse.equinox.weaving"
+         id="org.eclipse.equinox.weaving.sdk"
          version="0.0.0"/>
 
    <requires>
@@ -35,7 +35,7 @@ J. Kiegeland
       <import plugin="org.eclipse.text" version="3.5.0" match="greaterOrEqual"/>
       <import plugin="org.eclipse.ltk.core.refactoring" version="3.5.0" match="greaterOrEqual"/>
       <import feature="org.eclipse.contribution.weaving" version="2.0.0.e35x-20090624-1600"/>
-      <import feature="org.eclipse.equinox.weaving" version="1.0.0.200906171200"/>
+      <import feature="org.eclipse.equinox.weaving.sdk" version="1.0.0.200906171200"/>
       <import plugin="org.aspectj.weaver"/>
    </requires>
 
