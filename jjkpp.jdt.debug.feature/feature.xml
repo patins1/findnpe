@@ -23,7 +23,7 @@ J. Kiegeland
          version="0.0.0"/>
 
    <includes
-         id="org.eclipse.equinox.weaving"
+         id="org.eclipse.equinox.weaving.sdk"
          version="0.0.0"/>
 
    <requires>
