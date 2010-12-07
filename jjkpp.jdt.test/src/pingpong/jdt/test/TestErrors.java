@@ -1,5 +1,6 @@
 package pingpong.jdt.test;
 
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -152,7 +153,7 @@ public class TestErrors extends TestCase {
 					Set<IMarker> result = new HashSet<IMarker>();
 					for (IMarker marker : markers) {
 						String message = (String) marker.getAttribute("message");
-						if (message != null && message.contains("Nullibility"))
+						if (message != null && message.toLowerCase().contains("nullibility"))
 							result.add(marker);
 					}
 					return result;
@@ -162,7 +163,7 @@ public class TestErrors extends TestCase {
 					for (IMarker marker : markers) {
 						if (lineNumber == marker.getAttribute("lineNumber", -1)) {
 							String message = (String) marker.getAttribute("message");
-							if (message != null && message.contains("Nullibility"))
+							if (message != null && message.toLowerCase().contains("nullibility"))
 								return marker;
 						}
 					}
@@ -179,9 +180,13 @@ public class TestErrors extends TestCase {
 
 	protected void loop() {
 		Display current;
+		long start = new Date().getTime();
 		while ((current = Display.getCurrent()) != null && !current.isDisposed()) {
 			if (!current.readAndDispatch())
 				current.sleep();
+			long end = new Date().getTime();
+			if (end - start > 10000000)
+				break;
 		}
 	}
 
