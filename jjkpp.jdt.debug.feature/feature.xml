@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
-      id="pingpong.jdt.debug.feature"
+      id="pingpong.debugutils.feature"
       label="Java Debugging Utils"
       version="1.0.0.qualifier"
       provider-name="J. Kiegeland">
