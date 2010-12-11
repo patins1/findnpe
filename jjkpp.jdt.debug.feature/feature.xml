@@ -18,6 +18,10 @@ J. Kiegeland
       Free for non-commercial use
    </license>
 
+   <url>
+      <update url="http://pingpong.kiegeland.com/3.6/update"/>
+   </url>
+
    <includes
          id="org.eclipse.contribution.weaving"
          version="0.0.0"/>

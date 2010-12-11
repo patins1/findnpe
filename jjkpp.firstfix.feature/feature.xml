@@ -5,7 +5,12 @@
       version="1.0.0.qualifier">
 
    <description url="http://www.example.com/description">
-      Adds the menu item &quot;First Fix&quot; to the context menu of the Problems view. This command applies the first proposed fix to a problem for which multiple fixes may exist. The first fix may not be the best fix in all cases, however it is often the most used one. Esp. helpfull in the context of problems reported by the PingPong compiler.
+      Adds the menu item &quot;First Fix&quot; to the context menu of the Problems
+view. This command applies the first proposed fix to a problem
+for which multiple fixes may exist. The first fix may not be
+the best fix in all cases, however it is often the most used
+one. Esp. helpfull in the context of problems reported by
+FindNPE.
    </description>
 
    <copyright url="http://www.example.com/copyright">
@@ -16,6 +21,10 @@ J. Kiegeland
    <license url="http://www.example.com/license">
       Free for non-commercial use
    </license>
+
+   <url>
+      <update url="http://pingpong.kiegeland.com/3.6/update"/>
+   </url>
 
    <requires>
       <import plugin="org.eclipse.ui"/>
