@@ -1,6 +1,6 @@
 package topPackage.iteration;
 
-import pingpong.annotations.CanBeNull;
+import findnpe.annotations.CanBeNull;
 
 public class WhileTest {
 

@@ -1,6 +1,6 @@
 package topPackage.eclipsebugs;
 
-import pingpong.annotations.NonNullByDefault;
+import findnpe.annotations.NonNullByDefault;
 
 @NonNullByDefault
 public class TestBuildClean2 extends TestBuildClean {

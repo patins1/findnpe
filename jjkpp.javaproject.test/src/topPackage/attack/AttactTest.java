@@ -1,7 +1,7 @@
 package topPackage.attack;
 
-import pingpong.annotations.CanBeNull;
-import pingpong.annotations.NonNull;
+import findnpe.annotations.CanBeNull;
+import findnpe.annotations.NonNull;
 import binaryTopPackage.BinaryData;
 
 public class AttactTest {
@@ -12,7 +12,7 @@ public class AttactTest {
 		String s = d.getS1();
 		s.toString(); /* OK */
 		return s;
-	}
+	} 
 
 	public String testReturnNull() { 
 		return null; /* error1 easy NOATTACK */

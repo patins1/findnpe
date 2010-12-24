@@ -1,6 +1,6 @@
 package topPackage.field;
 
-import pingpong.annotations.CanBeNull;
+import findnpe.annotations.CanBeNull;
 
 public class CheckFieldLimitTest {
 

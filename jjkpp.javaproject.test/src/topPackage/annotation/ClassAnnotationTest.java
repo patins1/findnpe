@@ -1,7 +1,7 @@
 package topPackage.annotation;
 
-import pingpong.annotations.CanBeNull;
-import pingpong.annotations.NonNullByDefault;
+import findnpe.annotations.CanBeNull;
+import findnpe.annotations.NonNullByDefault;
 
 @NonNullByDefault
 public class ClassAnnotationTest {

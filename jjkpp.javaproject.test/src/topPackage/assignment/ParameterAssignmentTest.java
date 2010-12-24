@@ -1,7 +1,7 @@
 package topPackage.assignment;
 
-import pingpong.annotations.CanBeNull;
-import pingpong.annotations.NonNull;
+import findnpe.annotations.CanBeNull;
+import findnpe.annotations.NonNull;
 
 public class ParameterAssignmentTest {
 

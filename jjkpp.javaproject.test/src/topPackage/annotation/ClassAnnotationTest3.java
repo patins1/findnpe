@@ -1,6 +1,6 @@
 package topPackage.annotation;
 
-import pingpong.annotations.CanBeNull;
+import findnpe.annotations.CanBeNull;
 
 public class ClassAnnotationTest3 extends ClassAnnotationTest {
 

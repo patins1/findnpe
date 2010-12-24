@@ -4,10 +4,10 @@ Bundle-Name: Test
 Bundle-SymbolicName: pingpong.javaproject.test
 Bundle-Version: 1.0.0.qualifier
 Bundle-ClassPath: test.jar,
- lib/pingpong.annotations.jar,
+ lib/findnpe.annotations.jar,
  lib/pingpong.javaproject.test2.jar
 Export-Package: binaryTopPackage,
- pingpong.annotations,
+ findnpe.annotations,
  topPackage,
  topPackage.annotation,
  topPackage.annotation.packagetest,

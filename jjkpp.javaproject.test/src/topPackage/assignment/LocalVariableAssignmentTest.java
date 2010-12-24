@@ -1,6 +1,6 @@
 package topPackage.assignment;
 
-import pingpong.annotations.NonNull;
+import findnpe.annotations.NonNull;
 
 public class LocalVariableAssignmentTest {
 
