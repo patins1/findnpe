@@ -210,11 +210,14 @@ public aspect HandleNullStatusMethod {
 			t.bits = (t.bits | ASTNode_CheckedNullOrNonNull) & ~(ASTNode_IsNonNull | ASTNode_IsNull) ;
 			LocalVariableBinding local = t.localVariableBinding();
 			if (local != null) {
+				int tagBits = flowInfo.tagBits;
+				flowInfo.tagBits &= ~FlowInfo.UNREACHABLE; // testConditionalExpressionWithDeadCodeExpression()
 				// NullStatusEnhancedTest
 				if (flowInfo.isDefinitelyNull(local))
 					t.bits |= ASTNode_IsNull;
 				if (flowInfo.isDefinitelyNonNull(local))
 					t.bits |= ASTNode_IsNonNull;//see t.markAsNonNull()
+				flowInfo.tagBits = tagBits;
 			}
 		}
 	}
