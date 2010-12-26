@@ -36,6 +36,13 @@ public class NullStatusEnhancedTest {
 		ss.toCharArray(); /* OK */
 	}
 
+	void testConditionalExpressionWithDeadCodeExpression() {
+		String t = "";
+		String s = "";
+		String ss = (s != null) ? s : t/*dead code*/;
+		ss.toCharArray(); /* OK */
+	}
+
 	void testConditionalExpression1UsingAssignment() {
 		String s = new Random().nextBoolean() ? "" : null;
 		String ss = (s != null) ? s : "";
