@@ -31,18 +31,18 @@ public class NullStatusTest {
 
 	void testArrayAllocationExpression1() {
 		String[] x = new String[] { "x", null };
-		x[10].toString(); /* error1 */
+		x[10].toString(); /* ok */
 		x.toString(); /* ok */
 	}
 
 	void testArrayAllocationExpression2() {
 		String[] x = new String[] { "x", null };
-		x.toString(); /* error1 */
+		x.toString(); /* ok */
 		x[10].toString(); /* ok */
 	}
 
 	void testArrayAllocationExpression3() {
-		String[] x = new String[] { "x", null };
+		String[] x = null;
 		String[] y = new String[] {};
 		y[0].toString(); /* ok */
 		y = x;

@@ -12,22 +12,25 @@ public class NullStatusEnhancedTest {
 	void testArrayAllocationExpressionSophisticated1() {
 		String s = null;
 		String ss = "";
-		String[] x = new String[] { s = ss, s };
-		x[10].toString(); /* OK */
+		String r;
+		String[] x = new String[] { s = ss, r = s };
+		r.toString(); /* OK */
 	}
 
 	void testArrayAllocationExpressionSophisticated2() {
 		String s = null;
 		String ss = "";
-		String[] x = new String[] { s, s = ss };
-		x[10].toString(); /* error1 */
+		String r;
+		String[] x = new String[] { r = s, s = ss };
+		r.toString(); /* error1 */
 	}
 
 	void testArrayAllocationExpressionSophisticated3() {
 		String s = "";
 		String ss = null;
-		String[] x = new String[] { "" + (s = ss), s };
-		x[10].toString(); /* error1 */
+		String r;
+		String[] x = new String[] { "" + (s = ss), r = s };
+		r.toString(); /* error1 */
 	}
 
 	void testConditionalExpression1UsingLocalDeclaration() {
