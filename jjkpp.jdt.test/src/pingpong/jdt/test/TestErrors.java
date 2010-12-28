@@ -95,7 +95,7 @@ public class TestErrors extends TestCase {
 								if (cancel)
 									continue;
 								IMarker marker = findMarker(markers, lineNumber);
-								if (marker == null || easyError != marker.getAttribute("message", "").contains("Basic")) {
+								if (marker == null || easyError != marker.getAttribute("message", "").equals(NullibilityAnnos.EXPECTED_NONNULL_INSTEADOF_NULL)) {
 									reveal(ed, doc, commentLineNumber, errorIndex, errorIndexTo);
 									for (IMarker marker2 : markers) {
 										System.out.println("Marker " + marker2.getAttribute("message") + " line=" + marker2.getAttribute("lineNumber", -1));
@@ -148,12 +148,18 @@ public class TestErrors extends TestCase {
 						e.printStackTrace();
 					}
 				}
+				
+				boolean isFindNPEMessage(IMarker marker) throws CoreException {
+					String message = (String) marker.getAttribute("message");
+					if (message != null && (message.equals(NullibilityAnnos.EXPECTED_NONNULL) || message.equals(NullibilityAnnos.EXPECTED_NONNULL_INSTEADOF_NULL) || message.equals(NullibilityAnnos.NPE_HAZARD) || message.startsWith(NullibilityAnnos.ANNOTATION_PROBLEM)))
+						return true;	
+					return false;
+				}
 
 				private Set<IMarker> findMarkers(IMarker[] markers) throws CoreException {
 					Set<IMarker> result = new HashSet<IMarker>();
-					for (IMarker marker : markers) {
-						String message = (String) marker.getAttribute("message");
-						if (message != null && message.toLowerCase().contains("nullibility"))
+					for (IMarker marker : markers) {						
+						if (isFindNPEMessage(marker))
 							result.add(marker);
 					}
 					return result;
@@ -161,9 +167,8 @@ public class TestErrors extends TestCase {
 
 				private IMarker findMarker(Set<IMarker> markers, int lineNumber) throws CoreException {
 					for (IMarker marker : markers) {
-						if (lineNumber == marker.getAttribute("lineNumber", -1)) {
-							String message = (String) marker.getAttribute("message");
-							if (message != null && message.toLowerCase().contains("nullibility"))
+						if (lineNumber == marker.getAttribute("lineNumber", -1)) {			
+							if (isFindNPEMessage(marker))
 								return marker;
 						}
 					}
