@@ -52,12 +52,6 @@ public aspect HandleNullStatusMethod {
 		call(int nullStatus(FlowInfo)) && args(flowInfo) && target(t) {
 		
 		if (NullibilityAnnos.enableNullibility()) {
-			if (t.initializer!=null && t.initializer.expressions!=null)
-			for (Expression init:t.initializer.expressions) {
-				if (init.nullStatus(flowInfo)!=FlowInfo.NON_NULL) {
-					return FlowInfo.UNKNOWN;
-				}
-			} 
 			return FlowInfo.NON_NULL;		
 		}
 		return proceed(t,flowInfo);
