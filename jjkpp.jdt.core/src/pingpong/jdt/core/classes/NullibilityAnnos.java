@@ -67,6 +67,14 @@ public class NullibilityAnnos {
 
 	public static final boolean USE_PARAM_ANNOS = true;
 
+	final static public String NPE_HAZARD = "NPE hazard";
+
+	final static public String EXPECTED_NONNULL = "Expected NonNull value";
+	
+	final static public String EXPECTED_NONNULL_INSTEADOF_NULL = "Expected NonNull value, but value is always null";
+
+	final static public String ANNOTATION_PROBLEM = "FindNPE annotation problem: ";
+
 	/**
 	 * Flag indicating the the null-status-method shall use only information
 	 * from the flow info, but not from the ASTNode itself; see FlowInfo for
@@ -517,9 +525,9 @@ public class NullibilityAnnos {
 		if (enableNullibility())
 			if (isNotNonNull(t, scope, flowInfo)) {
 				if (NullibilityAnnos.isAlwaysNull(t)) {
-					invalidNullibility(scope.problemReporter(), t, declaringClass, 0, "Basic nullibility problem"); //$NON-NLS-1$
+					invalidNullibility(scope.problemReporter(), t, declaringClass, 0, EXPECTED_NONNULL_INSTEADOF_NULL); //$NON-NLS-1$
 				} else {
-					invalidNullibility(scope.problemReporter(), t, declaringClass, 0, "Nullibility problem"); //$NON-NLS-1$
+					invalidNullibility(scope.problemReporter(), t, declaringClass, 0, EXPECTED_NONNULL); //$NON-NLS-1$
 				}
 			}
 	}

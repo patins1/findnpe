@@ -137,7 +137,7 @@ privileged public aspect CheckNPE {
 				if ((local.type.tagBits & TagBits.IsBaseType) == 0) {
 					if ((t.bits & ASTNode.IsNonNull) == 0) {
 						if (flowInfo.isPotentiallyNull(local))
-							NullibilityAnnos.invalidNullibility(currentScope.problemReporter(),local,t,null,0,"Nullibility problem"); //$NON-NLS-1$
+							NullibilityAnnos.invalidNullibility(currentScope.problemReporter(),local,t,null,0,NullibilityAnnos.NPE_HAZARD); //$NON-NLS-1$
 					}
 				}
 			} else
@@ -145,7 +145,7 @@ privileged public aspect CheckNPE {
 				FieldBinding fieldBinding = (FieldBinding) t.binding;
 				if (!NullibilityAnnos.getSolidityWithParent(fieldBinding)) 
 				{
-					NullibilityAnnos.invalidNullibility(currentScope.problemReporter(),fieldBinding,t,null,0,"Nullibility problem"); //$NON-NLS-1$
+					NullibilityAnnos.invalidNullibility(currentScope.problemReporter(),fieldBinding,t,null,0,NullibilityAnnos.NPE_HAZARD); //$NON-NLS-1$
 				}
 			}
 			
@@ -154,7 +154,7 @@ privileged public aspect CheckNPE {
 				FieldBinding fieldBinding = t.otherBindings[i];
 				if (!NullibilityAnnos.getSolidityWithParent(fieldBinding)) 
 				{
-					NullibilityAnnos.invalidNullibility(currentScope.problemReporter(),fieldBinding,t,null,0,"Nullibility problem"); //$NON-NLS-1$
+					NullibilityAnnos.invalidNullibility(currentScope.problemReporter(),fieldBinding,t,null,0,NullibilityAnnos.NPE_HAZARD); //$NON-NLS-1$
 				}
 			}
 			
@@ -679,35 +679,35 @@ privileged public aspect CheckNPE {
 						int param=NullibilityAnnos.getParamIndex(annoName, "NonNullParam");
 						if (param!=-1) {
 							if (param>=argumentsCount) {
-								NullibilityAnnos.invalidNullibility(classScope.problemReporter(),t.annotations[i],null,0,"Nullibility problem: The "+(param+1)+"-th parameter does not exist"); //$NON-NLS-1$
+								NullibilityAnnos.invalidNullibility(classScope.problemReporter(),t.annotations[i],null,0,NullibilityAnnos.ANNOTATION_PROBLEM+"The "+(param+1)+"-th parameter does not exist"); //$NON-NLS-1$
 							} else
 							if (!NullibilityAnnos.getSolidityWithParent(methodBinding,param)) {
-								NullibilityAnnos.invalidNullibility(classScope.problemReporter(),t.annotations[i],null,0,"Nullibility problem: Defined already as CanBeNull"); //$NON-NLS-1$
+								NullibilityAnnos.invalidNullibility(classScope.problemReporter(),t.annotations[i],null,0,NullibilityAnnos.ANNOTATION_PROBLEM+"Defined already as CanBeNull"); //$NON-NLS-1$
 							} else
 							if ((higher!=null || (higher=NullibilityAnnos.findSuperMethod(methodBinding))!=null) && higher!=methodBinding && !NullibilityAnnos.getSolidityWithParent(higher,param)) {
-								NullibilityAnnos.invalidNullibility(classScope.problemReporter(),t.annotations[i],higher.declaringClass,0,"Nullibility problem: Defined already as CanBeNull in super method"); //$NON-NLS-1$
+								NullibilityAnnos.invalidNullibility(classScope.problemReporter(),t.annotations[i],higher.declaringClass,0,NullibilityAnnos.ANNOTATION_PROBLEM+"Defined already as CanBeNull in super method"); //$NON-NLS-1$
 							}
 						} else {
 							param=NullibilityAnnos.getParamIndex(annoName, "CanBeNullParam");
 							if (param!=-1) {
 								if (param>=argumentsCount) {
-									NullibilityAnnos.invalidNullibility(classScope.problemReporter(),t.annotations[i],null,0,"Nullibility problem: The "+(param+1)+"-th parameter does not exist"); //$NON-NLS-1$
+									NullibilityAnnos.invalidNullibility(classScope.problemReporter(),t.annotations[i],null,0,NullibilityAnnos.ANNOTATION_PROBLEM+"The "+(param+1)+"-th parameter does not exist"); //$NON-NLS-1$
 								} else
 								if (NullibilityAnnos.getSolidityWithParent(methodBinding,param)) {
-									NullibilityAnnos.invalidNullibility(classScope.problemReporter(),t.annotations[i],null,0,"Nullibility problem: Defined already as NonNull"); //$NON-NLS-1$
+									NullibilityAnnos.invalidNullibility(classScope.problemReporter(),t.annotations[i],null,0,NullibilityAnnos.ANNOTATION_PROBLEM+"Defined already as NonNull"); //$NON-NLS-1$
 								}
 							} else {
 								if (annoName.equals("CanBeNull")) {
 									if (NullibilityAnnos.getSolidityWithParent(methodBinding)) {
-										NullibilityAnnos.invalidNullibility(classScope.problemReporter(),t.annotations[i],null,0,"Nullibility problem: Defined already as NonNull"); //$NON-NLS-1$
+										NullibilityAnnos.invalidNullibility(classScope.problemReporter(),t.annotations[i],null,0,NullibilityAnnos.ANNOTATION_PROBLEM+"Defined already as NonNull"); //$NON-NLS-1$
 									} else
 									if ((higher!=null || (higher=NullibilityAnnos.findSuperMethod(methodBinding))!=null) && higher!=methodBinding && NullibilityAnnos.checkOnNonNull(higher)) {
-										NullibilityAnnos.invalidNullibility(classScope.problemReporter(),t.annotations[i],higher.declaringClass,0,"Nullibility problem: Defined already as NonNull in super method"); //$NON-NLS-1$
+										NullibilityAnnos.invalidNullibility(classScope.problemReporter(),t.annotations[i],higher.declaringClass,0,NullibilityAnnos.ANNOTATION_PROBLEM+"Defined already as NonNull in super method"); //$NON-NLS-1$
 									}
 								} else
 								if (annoName.equals("NonNull")) {
 									if (!NullibilityAnnos.getSolidityWithParent(methodBinding)) {
-										NullibilityAnnos.invalidNullibility(classScope.problemReporter(),t.annotations[i],null,0,"Nullibility problem: Defined already as CanBeNull"); //$NON-NLS-1$
+										NullibilityAnnos.invalidNullibility(classScope.problemReporter(),t.annotations[i],null,0,NullibilityAnnos.ANNOTATION_PROBLEM+"Defined already as CanBeNull"); //$NON-NLS-1$
 									}
 								}									
 							}							
@@ -733,15 +733,15 @@ privileged public aspect CheckNPE {
 						String annoName = new String(annotationType.sourceName);
 						if (annoName.equals("NonNull")) {
 							if (!NullibilityAnnos.getSolidityWithParent(methodBinding,param)) {
-								NullibilityAnnos.invalidNullibility(classScope.problemReporter(),t.arguments[param].annotations[i],null,0,"Nullibility problem: Defined already as CanBeNull"); //$NON-NLS-1$
+								NullibilityAnnos.invalidNullibility(classScope.problemReporter(),t.arguments[param].annotations[i],null,0,NullibilityAnnos.ANNOTATION_PROBLEM+"Defined already as CanBeNull"); //$NON-NLS-1$
 							} else
 							if ((higher!=null || (higher=NullibilityAnnos.findSuperMethod(methodBinding))!=null) && higher!=methodBinding && !NullibilityAnnos.getSolidityWithParent(higher,param)) {
-								NullibilityAnnos.invalidNullibility(classScope.problemReporter(),t.arguments[param].annotations[i],higher.declaringClass,0,"Nullibility problem: Defined already as CanBeNull in super method"); //$NON-NLS-1$
+								NullibilityAnnos.invalidNullibility(classScope.problemReporter(),t.arguments[param].annotations[i],higher.declaringClass,0,NullibilityAnnos.ANNOTATION_PROBLEM+"Defined already as CanBeNull in super method"); //$NON-NLS-1$
 							}
 						} else {
 							if (annoName.equals("CanBeNull")) {
 								if (NullibilityAnnos.getSolidityWithParent(methodBinding,param)) {
-									NullibilityAnnos.invalidNullibility(classScope.problemReporter(),t.arguments[param].annotations[i],null,0,"Nullibility problem: Defined already as NonNull"); //$NON-NLS-1$
+									NullibilityAnnos.invalidNullibility(classScope.problemReporter(),t.arguments[param].annotations[i],null,0,NullibilityAnnos.ANNOTATION_PROBLEM+"Defined already as NonNull"); //$NON-NLS-1$
 								}
 							}					
 						}
@@ -813,7 +813,7 @@ privileged public aspect CheckNPE {
 		if (NullibilityAnnos.enableNullibility()) 
 		if (NullibilityAnnos.isNotNonNull(t, scope, flowInfo)) 
 		{
-			NullibilityAnnos.invalidNullibility(scope.problemReporter(),t,null,0,"Nullibility problem"); //$NON-NLS-1$
+			NullibilityAnnos.invalidNullibility(scope.problemReporter(),t,null,0,NullibilityAnnos.NPE_HAZARD); //$NON-NLS-1$
 		}
 	}
 	
