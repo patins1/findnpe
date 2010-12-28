@@ -3,18 +3,18 @@
    <description>
       PingPong Update Site
    </description>
-   <feature url="features/pingpong.firstfix.feature_1.0.0.201006202017.jar" id="pingpong.firstfix.feature" version="1.0.0.201006202017">
+   <feature url="features/pingpong.debugutils.feature_1.0.0.201012290434.jar" id="pingpong.debugutils.feature" version="1.0.0.201012290434">
       <category name="category_1"/>
    </feature>
-   <feature url="features/pingpong.jdt.debug.feature_1.0.0.201006202017.jar" id="pingpong.jdt.debug.feature" version="1.0.0.201006202017">
+   <feature url="features/pingpong.findnpe.feature_1.0.0.201012290434.jar" id="pingpong.findnpe.feature" version="1.0.0.201012290434">
       <category name="category_1"/>
    </feature>
-   <feature url="features/pingpong.jdt.feature_1.0.0.201006202017.jar" id="pingpong.jdt.feature" version="1.0.0.201006202017">
+   <feature url="features/pingpong.firstfix.feature_1.0.0.201012290434.jar" id="pingpong.firstfix.feature" version="1.0.0.201012290434">
       <category name="category_1"/>
    </feature>
    <category-def name="category_1" label="PingPong">
       <description>
-         Utilities for Java programmers. The main feature is the PingPong Compiler feature, but all features can be used separately.
+         Utilities for Java programmers, FindNPE being the main feature. All features are independent of each other.
       </description>
    </category-def>
 </site>
