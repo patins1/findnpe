@@ -22,6 +22,7 @@ import org.eclipse.jdt.internal.compiler.ast.QualifiedNameReference;
 import org.eclipse.jdt.internal.compiler.ast.ReturnStatement;
 import org.eclipse.jdt.internal.compiler.ast.SingleNameReference;
 import org.eclipse.jdt.internal.compiler.ast.TryStatement;
+import org.eclipse.jdt.internal.compiler.env.IBinaryAnnotation;
 import org.eclipse.jdt.internal.compiler.flow.ExceptionHandlingFlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FinallyFlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
@@ -46,6 +47,12 @@ import org.eclipse.jdt.internal.compiler.parser.SourceTypeConverter;
 import org.eclipse.jdt.internal.core.CompilationUnitStructureRequestor;
 import org.eclipse.jdt.internal.core.SourceMethod;
 import org.eclipse.jdt.internal.core.SourceMethodElementInfo;
+import org.eclipse.jdt.internal.core.JavaElementDeltaBuilder;
+import org.eclipse.jdt.internal.core.JavaElementInfo;
+import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.IJavaElementDelta;
+import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 
 import pingpong.jdt.core.classes.NullibilityAnnos;
 
@@ -647,6 +654,35 @@ privileged public aspect CheckNPE {
 			}
 		}
 	}	
+
+	boolean around(ClassFileReader t, org.eclipse.jdt.internal.compiler.classfmt.MethodInfo currentMethodInfo, org.eclipse.jdt.internal.compiler.classfmt.MethodInfo otherMethodInfo) : 
+		call(boolean hasStructuralMethodChanges(org.eclipse.jdt.internal.compiler.classfmt.MethodInfo, org.eclipse.jdt.internal.compiler.classfmt.MethodInfo)) && args(currentMethodInfo, otherMethodInfo) && target(t) {
+
+		boolean result=proceed(t,currentMethodInfo,otherMethodInfo);
+		if (result)
+			return true;
+		
+		int paramCount = currentMethodInfo.getArgumentNames().length;
+		if (paramCount != otherMethodInfo.getArgumentNames().length) {
+			return true;
+		}
+		
+		for (int index=0; index<paramCount; index++) {
+			IBinaryAnnotation[] annos1=currentMethodInfo.getParameterAnnotations(index);
+			IBinaryAnnotation[] annos2=otherMethodInfo.getParameterAnnotations(index);
+	
+			int annotationsLength1 = annos1!=null ? annos1.length : 0;
+			int annotationsLength2 = annos2!=null ? annos2.length : 0;
+
+			if (annotationsLength1 != annotationsLength2) {
+				return true;
+			}			
+		}
+		
+		return false;
+	}
+
+
 	
 	after(FieldDeclaration t, MethodScope initializationScope, FlowContext flowContext, FlowInfo flowInfo) 
 		returning(FlowInfo result) : 
@@ -799,6 +835,29 @@ privileged public aspect CheckNPE {
 			}
 	}
 	
+	after(JavaElementDeltaBuilder t, JavaElementInfo oldInfo, JavaElementInfo newInfo, IJavaElement newElement) returning: 
+		call(void findContentChange(JavaElementInfo, JavaElementInfo, IJavaElement)) && args(oldInfo, newInfo, newElement) && target(t) {
+
+		if (oldInfo instanceof SourceMethodElementInfo && newInfo instanceof SourceMethodElementInfo) {
+			SourceMethodElementInfo oldSourceMethodInfo = (SourceMethodElementInfo)oldInfo;
+			SourceMethodElementInfo newSourceMethodInfo = (SourceMethodElementInfo)newInfo;
+			if (oldSourceMethodInfo.originalArguments!=null && newSourceMethodInfo.originalArguments!=null && oldSourceMethodInfo.originalArguments.length==newSourceMethodInfo.originalArguments.length) {
+				int i=0;
+				for (Argument oldArgument : oldSourceMethodInfo.originalArguments) {
+					Argument newArgument = newSourceMethodInfo.originalArguments[i];
+					int oldAnnotationsLength = oldArgument.annotations!=null ? oldArgument.annotations.length : 0;
+					int newAnnotationsLength = newArgument.annotations!=null ? newArgument.annotations.length : 0;
+					if (oldAnnotationsLength!=newAnnotationsLength) {
+						t.delta.changed(newElement, IJavaElementDelta.F_CONTENT);
+						return;
+					}
+					i++;
+				}
+
+			}
+		}
+	}
+
 	after(CompilerOptions t, boolean newval): 
 		set(public boolean CompilerOptions.storeAnnotations) && args(newval) && target(t) {
 		

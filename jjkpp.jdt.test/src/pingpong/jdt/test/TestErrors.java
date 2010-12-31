@@ -1,5 +1,6 @@
 package pingpong.jdt.test;
 
+import java.io.File;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
@@ -15,14 +16,18 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceVisitor;
+import org.eclipse.core.resources.IWorkspace;
+import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IEditorDescriptor;
 import org.eclipse.ui.IEditorPart;
@@ -30,10 +35,14 @@ import org.eclipse.ui.IEditorRegistry;
 import org.eclipse.ui.IMarkerResolution;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.dialogs.IOverwriteQuery;
 import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.part.FileEditorInput;
 import org.eclipse.ui.texteditor.AbstractTextEditor;
+import org.eclipse.ui.wizards.datatransfer.FileSystemStructureProvider;
+import org.eclipse.ui.wizards.datatransfer.ImportOperation;
 
+import pingpong.firstfix.Action1;
 import pingpong.jdt.core.classes.NullibilityAnnos;
 
 public class TestErrors extends TestCase {
@@ -123,6 +132,16 @@ public class TestErrors extends TestCase {
 										// System.err.println(e.getMessage());
 										throw e;
 									}
+								}  else if (errorContent.contains("FIRSTFIX")) {
+									Action1 action1=new Action1();
+									action1.selectionChanged(null, new StructuredSelection(marker));
+									action1.run(null);
+									SaveOpenFilesHandler handler=new SaveOpenFilesHandler();
+									handler.showSaveDialog(project);
+									try {
+										waitForBuild();
+									} catch (InterruptedException e) {
+									}
 								}
 								markers.remove(marker);
 							}
@@ -206,6 +225,13 @@ public class TestErrors extends TestCase {
 		if (build.length == 1) {
 			build[0].join();
 			waitForBuild();
+		}
+	}
+	
+	class OverwriteQuery implements IOverwriteQuery{
+		@Override
+		public String queryOverwrite(String pathString) {
+		return ALL;
 		}
 	}
 
