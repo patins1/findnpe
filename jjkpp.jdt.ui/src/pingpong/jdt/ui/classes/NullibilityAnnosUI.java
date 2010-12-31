@@ -376,7 +376,7 @@ public class NullibilityAnnosUI extends ProposalCollector {
 		//		annot.setTypeName(ast.newName(marker)); //$NON-NLS-1$
 		// rewrite.getListRewrite(decl, modifiers).insertFirst(annot, null);
 
-		String label = "Mark " + varType + " " + " as " + marker;
+		String label = "Mark " + varType + " as " + marker;
 		// Image image = JavaPluginImages
 		// .get(JavaPluginImages.IMG_CORRECTION_CHANGE);
 		NullibilityProposalStructure proposal = new NullibilityProposalStructure(label, context.cu, decl, 15, marker, modifiers);
