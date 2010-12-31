@@ -369,25 +369,9 @@ public class NullibilityAnnosUI extends ProposalCollector {
 			}
 		}
 
-		// AST ast = decl.getAST();
-		// ASTRewrite rewrite = ASTRewrite.create(ast);
-		//
-		// Annotation annot = ast.newMarkerAnnotation();
-		//		annot.setTypeName(ast.newName(marker)); //$NON-NLS-1$
-		// rewrite.getListRewrite(decl, modifiers).insertFirst(annot, null);
-
 		String label = "Mark " + varType + " as " + marker;
-		// Image image = JavaPluginImages
-		// .get(JavaPluginImages.IMG_CORRECTION_CHANGE);
 		NullibilityProposalStructure proposal = new NullibilityProposalStructure(label, context.cu, decl, 15, marker, modifiers);
-		// ASTRewriteCorrectionProposal proposal = new
-		// ASTRewriteCorrectionProposal(
-		// label, cu, rewrite, 15, image);
 		proposals.add(proposal);
-
-		// ImportRewrite imports = proposal
-		// .createImportRewrite((CompilationUnit) decl.getRoot());
-		// imports.addImport("pingpong.annotations." + marker);
 	}
 
 	private MethodDeclaration findBetterMethod(NPContext context, MethodDeclaration mdecl, int param) throws JavaModelException {
