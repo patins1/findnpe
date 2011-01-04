@@ -185,9 +185,7 @@ public class NullibilityAnnosUI extends ProposalCollector {
 		if (selectedNode instanceof MethodInvocation) {
 			MethodInvocation methodInvocation = (MethodInvocation) selectedNode;
 			IMethodBinding methodBinding = methodInvocation.resolveMethodBinding();
-
 			addNullibilityProposals(context, methodBinding, methodBinding.getDeclaringClass(), -1, selectedNode, marker);
-
 		}
 		if (selectedNode instanceof SuperMethodInvocation) {
 			SuperMethodInvocation methodInvocation = (SuperMethodInvocation) selectedNode;
@@ -287,8 +285,8 @@ public class NullibilityAnnosUI extends ProposalCollector {
 	}
 
 	@Override
-	protected void addMarker2(NPContext context, ASTNode variableDeclaration, String marker) throws JavaModelException {
-		if (variableDeclaration == null)
+	protected void addMarker2(NPContext context, ASTNode declaration, String marker) throws JavaModelException {
+		if (declaration == null)
 			return;
 
 		String oppositeMarker = marker.equals("NonNull") ? "CanBeNull" : "NonNull";
@@ -296,27 +294,27 @@ public class NullibilityAnnosUI extends ProposalCollector {
 		ChildListPropertyDescriptor modifiers;
 		ASTNode decl;
 		IAnnotationBinding[] existingAnnots = null;
-		if (variableDeclaration.getParent() instanceof VariableDeclarationStatement && variableDeclaration instanceof VariableDeclaration) {
-			VariableDeclaration varDecl = (VariableDeclaration) variableDeclaration;
-			decl = variableDeclaration.getParent();
+		if (declaration.getParent() instanceof VariableDeclarationStatement && declaration instanceof VariableDeclaration) {
+			VariableDeclaration varDecl = (VariableDeclaration) declaration;
+			decl = declaration.getParent();
 			modifiers = VariableDeclarationStatement.MODIFIERS2_PROPERTY;
 			varType = "variable " + varDecl.getName().getIdentifier();
 			existingAnnots = varDecl.resolveBinding().getAnnotations();
-		} else if (variableDeclaration.getParent() instanceof SingleVariableDeclaration && variableDeclaration instanceof VariableDeclaration) {
-			VariableDeclaration varDecl = (VariableDeclaration) variableDeclaration;
-			decl = (SingleVariableDeclaration) variableDeclaration.getParent();
+		} else if (declaration.getParent() instanceof SingleVariableDeclaration && declaration instanceof VariableDeclaration) {
+			VariableDeclaration varDecl = (VariableDeclaration) declaration;
+			decl = (SingleVariableDeclaration) declaration.getParent();
 			modifiers = VariableDeclarationStatement.MODIFIERS2_PROPERTY;
 			varType = "variable " + varDecl.getName().getIdentifier();
 			existingAnnots = varDecl.resolveBinding().getAnnotations();
-		} else if (variableDeclaration.getParent() instanceof FieldDeclaration && variableDeclaration instanceof VariableDeclaration) {
-			VariableDeclaration varDecl = (VariableDeclaration) variableDeclaration;
-			decl = (FieldDeclaration) variableDeclaration.getParent();
+		} else if (declaration.getParent() instanceof FieldDeclaration && declaration instanceof VariableDeclaration) {
+			VariableDeclaration varDecl = (VariableDeclaration) declaration;
+			decl = (FieldDeclaration) declaration.getParent();
 			modifiers = FieldDeclaration.MODIFIERS2_PROPERTY;
 			varType = "field " + varDecl.getName().getIdentifier();
 			existingAnnots = varDecl.resolveBinding().getAnnotations();
-		} else if (variableDeclaration.getParent() instanceof MethodDeclaration && variableDeclaration instanceof SingleVariableDeclaration) {
-			SingleVariableDeclaration varDecl = (SingleVariableDeclaration) variableDeclaration;
-			MethodDeclaration mdecl = (MethodDeclaration) variableDeclaration.getParent();
+		} else if (declaration.getParent() instanceof MethodDeclaration && declaration instanceof SingleVariableDeclaration) {
+			SingleVariableDeclaration varDecl = (SingleVariableDeclaration) declaration;
+			MethodDeclaration mdecl = (MethodDeclaration) declaration.getParent();
 			int param = mdecl.parameters().indexOf(varDecl);
 			if (param == -1) {
 				return;
@@ -363,11 +361,11 @@ public class NullibilityAnnosUI extends ProposalCollector {
 			} else {
 				decl = (MethodDeclaration) varDecl.getParent();
 				modifiers = mdecl.getModifiersProperty();
-				existingAnnots = mdecl.resolveBinding().getAnnotations();
 				varType = "parameter " + mdecl.getName().getIdentifier() + "(" + paramName.getIdentifier() + ")";
+				existingAnnots = mdecl.resolveBinding().getAnnotations();
 			}
-		} else if (variableDeclaration instanceof MethodDeclaration) {
-			MethodDeclaration mdecl = (MethodDeclaration) variableDeclaration;
+		} else if (declaration instanceof MethodDeclaration) {
+			MethodDeclaration mdecl = (MethodDeclaration) declaration;
 			String methodName = mdecl.getName().getIdentifier();
 			NPContext betterContext = context.duplicate();
 			MethodDeclaration betterMethod = findBetterMethod(betterContext, mdecl, -1);
@@ -388,8 +386,8 @@ public class NullibilityAnnosUI extends ProposalCollector {
 			modifiers = mdecl.getModifiersProperty();
 			varType = "method " + methodName;
 			existingAnnots = mdecl.resolveBinding().getAnnotations();
-		} else if (variableDeclaration instanceof TypeDeclaration) {
-			TypeDeclaration mdecl = (TypeDeclaration) variableDeclaration;
+		} else if (declaration instanceof TypeDeclaration) {
+			TypeDeclaration mdecl = (TypeDeclaration) declaration;
 			String methodName = mdecl.getName().getIdentifier();
 			decl = mdecl;
 			modifiers = mdecl.getModifiersProperty();
