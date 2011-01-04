@@ -11,6 +11,7 @@ import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.Annotation;
 import org.eclipse.jdt.core.dom.Assignment;
+import org.eclipse.jdt.core.dom.CastExpression;
 import org.eclipse.jdt.core.dom.ChildListPropertyDescriptor;
 import org.eclipse.jdt.core.dom.ClassInstanceCreation;
 import org.eclipse.jdt.core.dom.CompilationUnit;
@@ -171,6 +172,11 @@ public class NullibilityAnnosUI extends ProposalCollector {
 	}
 
 	protected void annotate(NPContext context, ASTNode selectedNode, String marker) throws CoreException {
+		while (selectedNode instanceof CastExpression) {
+			// testCastProposal
+			CastExpression cast=(CastExpression) selectedNode;
+			selectedNode = cast.getExpression();
+		}
 		if (selectedNode instanceof SimpleName) {
 			SimpleName name = (SimpleName) selectedNode;
 			IBinding nameBinding = name.resolveBinding();

@@ -1,5 +1,7 @@
 package topPackage;
 
+import java.util.Random;
+
 import findnpe.annotations.CanBeNull;
 import findnpe.annotations.NonNull;
 
@@ -91,6 +93,12 @@ public class CheckNPETest {
 	void testBinaryExpression() {
 		Integer i = null;
 		Integer j = i + 8; /* error1 */
+	}
+
+	void testCastProposal() {
+		Object o = new Random().nextBoolean() ? "" : null;
+		@NonNull
+		String s = (String) o; /* error1 */
 	}
 
 }
