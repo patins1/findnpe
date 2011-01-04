@@ -1,10 +1,11 @@
 package topPackage.annotation;
 
 import findnpe.annotations.CanBeNull;
+import findnpe.annotations.NonNull;
 import findnpe.annotations.NonNullByDefault;
 
 @NonNullByDefault
-public class ClassAnnotationTest {
+abstract public class ClassAnnotationTest {
 
 	public ClassAnnotationTest(@CanBeNull String s) {
 
@@ -24,6 +25,25 @@ public class ClassAnnotationTest {
 
 	protected void testReturnNull(String param1) {
 		testReturnNull(null); /* error1 easy */
+	}
+
+	@CanBeNull
+	protected String testOverrideProposal() {
+		return null; 
+	}
+
+	@CanBeNull
+	abstract protected String testAbstractOverrideProposal();
+
+	@NonNull
+	protected String testNoOverrideProposal() {
+		return ""; 
+	}
+
+	protected void testParameterOverrideProposal(@NonNull String s) {
+	}
+
+	protected void testNoParameterOverrideProposal(@CanBeNull String s) {
 	}
 
 	class ClassAnnotationTest1 {
@@ -61,6 +81,11 @@ public class ClassAnnotationTest {
 
 		protected String testReturnNull() {
 			return null; /* error1 easy */
+		}
+
+		@Override
+		protected String testAbstractOverrideProposal() {
+			return null;
 		}
 
 	}

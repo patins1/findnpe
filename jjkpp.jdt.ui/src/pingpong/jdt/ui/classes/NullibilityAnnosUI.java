@@ -189,6 +189,11 @@ public class NullibilityAnnosUI extends ProposalCollector {
 			addNullibilityProposals(context, methodBinding, methodBinding.getDeclaringClass(), -1, selectedNode, marker);
 
 		}
+		if (selectedNode instanceof SuperMethodInvocation) {
+			SuperMethodInvocation methodInvocation = (SuperMethodInvocation) selectedNode;
+			IMethodBinding methodBinding = methodInvocation.resolveMethodBinding();
+			addNullibilityProposals(context, methodBinding, methodBinding.getDeclaringClass(), -1, selectedNode, marker);
+		}
 		if (selectedNode instanceof FieldAccess) {
 			FieldAccess name = (FieldAccess) selectedNode;
 			IVariableBinding nameBinding = name.resolveFieldBinding();
@@ -316,18 +321,39 @@ public class NullibilityAnnosUI extends ProposalCollector {
 			if (param == -1) {
 				return;
 			}
+			if (!NullibilityAnnos.USE_PARAM_ANNOS) {
+				String suffix = "Param" + (param + 1);
+				marker = marker + suffix;
+				oppositeMarker = oppositeMarker + suffix;
+			}
 			SimpleName paramName = varDecl.getName();
-			MethodDeclaration betterMethod = findBetterMethod(context, mdecl, param);
+			NPContext betterContext = context.duplicate();
+			MethodDeclaration betterMethod = findBetterMethod(betterContext, mdecl, param);
 			if (betterMethod != null) {
-				mdecl = betterMethod;
-				if (param >= mdecl.parameters().size()) {
+				if (param >= betterMethod.parameters().size()) {
 					return;
 				}
-				Object superParam = mdecl.parameters().get(param);
+				Object superParam = betterMethod.parameters().get(param);
 				if (!(superParam instanceof SingleVariableDeclaration)) {
 					return;
 				}
-				varDecl = (SingleVariableDeclaration) superParam;
+				SingleVariableDeclaration betterVarDecl = (SingleVariableDeclaration) superParam;
+				if (NullibilityAnnos.USE_PARAM_ANNOS) {
+					existingAnnots = betterVarDecl.resolveBinding().getAnnotations();					
+				} else {
+					existingAnnots = betterMethod.resolveBinding().getAnnotations();					
+				}
+				if (canAnnotate(existingAnnots, marker, oppositeMarker)) {
+					mdecl = betterMethod;
+					varDecl = betterVarDecl;
+					context = betterContext;
+				} else 
+				if (marker.startsWith("NonNull")) {
+					// testNoParameterOverrideProposal()
+					return;
+				} else {
+					// testParameterOverrideProposal()
+				}					
 			}
 			if (NullibilityAnnos.USE_PARAM_ANNOS) {
 				decl = varDecl;
@@ -337,19 +363,26 @@ public class NullibilityAnnosUI extends ProposalCollector {
 			} else {
 				decl = (MethodDeclaration) varDecl.getParent();
 				modifiers = mdecl.getModifiersProperty();
-				String suffix = "Param" + (param + 1);
 				existingAnnots = mdecl.resolveBinding().getAnnotations();
-				marker = marker + suffix;
-				oppositeMarker = oppositeMarker + suffix;
 				varType = "parameter " + mdecl.getName().getIdentifier() + "(" + paramName.getIdentifier() + ")";
 			}
 		} else if (variableDeclaration instanceof MethodDeclaration) {
 			MethodDeclaration mdecl = (MethodDeclaration) variableDeclaration;
 			String methodName = mdecl.getName().getIdentifier();
-			MethodDeclaration betterMethod = findBetterMethod(context, mdecl, -1);
+			NPContext betterContext = context.duplicate();
+			MethodDeclaration betterMethod = findBetterMethod(betterContext, mdecl, -1);
 			if (betterMethod != null) {
-				mdecl = betterMethod;
-				methodName = betterMethod.resolveBinding().getDeclaringClass().getName() + "." + methodName;
+				if (canAnnotate(betterMethod.resolveBinding().getAnnotations(), marker, oppositeMarker)) {
+					mdecl = betterMethod;
+					methodName = betterMethod.resolveBinding().getDeclaringClass().getName() + "." + methodName;
+					context = betterContext;
+				} else 
+				if ("CanBeNull".equals(marker)) {
+					// testNoOverrideProposal()
+					return;
+				} else {
+					// testOverrideProposal()
+				}
 			}
 			decl = mdecl;
 			modifiers = mdecl.getModifiersProperty();
@@ -366,18 +399,26 @@ public class NullibilityAnnosUI extends ProposalCollector {
 			return;
 		}
 
-		if (existingAnnots != null) {
-			if (NullibilityAnnos.hasSolidAnnotation(existingAnnots, oppositeMarker)) {
-				return;
-			}
-			if (NullibilityAnnos.hasSolidAnnotation(existingAnnots, marker)) {
-				return;
-			}
+		if (!canAnnotate(existingAnnots, marker, oppositeMarker)) {
+			return;
 		}
 
 		String label = "Mark " + varType + " as " + marker;
 		NullibilityProposalStructure proposal = new NullibilityProposalStructure(label, context.cu, decl, 15, marker, modifiers);
 		proposals.add(proposal);
+	}
+
+	private boolean canAnnotate(IAnnotationBinding[] existingAnnots,
+			String marker, String oppositeMarker) {
+		if (existingAnnots != null) {
+			if (NullibilityAnnos.hasSolidAnnotation(existingAnnots, oppositeMarker)) {
+				return false;
+			}
+			if (NullibilityAnnos.hasSolidAnnotation(existingAnnots, marker)) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	private MethodDeclaration findBetterMethod(NPContext context, MethodDeclaration mdecl, int param) throws JavaModelException {

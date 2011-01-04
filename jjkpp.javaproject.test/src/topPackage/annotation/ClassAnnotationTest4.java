@@ -14,4 +14,9 @@ public class ClassAnnotationTest4 extends ClassAnnotationTest {
 		return null; /* error0 easy */
 	}
 
+	@Override
+	protected String testAbstractOverrideProposal() {
+		return null;
+	}
+
 }

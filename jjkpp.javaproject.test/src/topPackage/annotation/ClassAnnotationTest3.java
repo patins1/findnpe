@@ -1,6 +1,7 @@
 package topPackage.annotation;
 
 import findnpe.annotations.CanBeNull;
+import findnpe.annotations.NonNull;
 
 public class ClassAnnotationTest3 extends ClassAnnotationTest {
 
@@ -14,6 +15,32 @@ public class ClassAnnotationTest3 extends ClassAnnotationTest {
 
 	protected String testReturnNull() {
 		return null; /* error1 easy */
+	}
+
+	@Override
+	protected String testOverrideProposal() {
+		testOverrideProposal().toString();  /* error1 */
+		return null;
+	}
+
+	@Override
+	protected String testAbstractOverrideProposal() {
+		testOverrideProposal().toString();  /* error1 */
+		return null;
+	}
+
+	@Override
+	protected String testNoOverrideProposal() {
+		return null; /* error0 easy */
+	}
+
+	@Override
+	protected void testParameterOverrideProposal(String s) {
+		testParameterOverrideProposal(null);  /* error1 easy */
+	}
+
+	protected void testNoParameterOverrideProposal(String s) {
+		s.toString();  /* error0 */	
 	}
 
 }
