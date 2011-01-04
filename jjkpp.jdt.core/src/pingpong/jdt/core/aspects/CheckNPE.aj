@@ -2,6 +2,8 @@ package pingpong.jdt.core.aspects;
 
 
 
+import java.util.Arrays;
+
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.ISourceElementRequestor.MethodInfo;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
@@ -670,11 +672,7 @@ privileged public aspect CheckNPE {
 		for (int index=0; index<paramCount; index++) {
 			IBinaryAnnotation[] annos1=currentMethodInfo.getParameterAnnotations(index);
 			IBinaryAnnotation[] annos2=otherMethodInfo.getParameterAnnotations(index);
-	
-			int annotationsLength1 = annos1!=null ? annos1.length : 0;
-			int annotationsLength2 = annos2!=null ? annos2.length : 0;
-
-			if (annotationsLength1 != annotationsLength2) {
+			if (!Arrays.equals(annos1, annos2)) {
 				return true;
 			}			
 		}
@@ -839,21 +837,15 @@ privileged public aspect CheckNPE {
 		call(void findContentChange(JavaElementInfo, JavaElementInfo, IJavaElement)) && args(oldInfo, newInfo, newElement) && target(t) {
 
 		if (oldInfo instanceof SourceMethodElementInfo && newInfo instanceof SourceMethodElementInfo) {
-			SourceMethodElementInfo oldSourceMethodInfo = (SourceMethodElementInfo)oldInfo;
-			SourceMethodElementInfo newSourceMethodInfo = (SourceMethodElementInfo)newInfo;
-			if (oldSourceMethodInfo.originalArguments!=null && newSourceMethodInfo.originalArguments!=null && oldSourceMethodInfo.originalArguments.length==newSourceMethodInfo.originalArguments.length) {
-				int i=0;
-				for (Argument oldArgument : oldSourceMethodInfo.originalArguments) {
-					Argument newArgument = newSourceMethodInfo.originalArguments[i];
-					int oldAnnotationsLength = oldArgument.annotations!=null ? oldArgument.annotations.length : 0;
-					int newAnnotationsLength = newArgument.annotations!=null ? newArgument.annotations.length : 0;
-					if (oldAnnotationsLength!=newAnnotationsLength) {
+			Argument[] oldArguments = ((SourceMethodElementInfo)oldInfo).originalArguments;
+			Argument[] newArguments = ((SourceMethodElementInfo)newInfo).originalArguments;
+			if (oldArguments!=null && newArguments!=null && oldArguments.length==newArguments.length && oldArguments!=newArguments) {
+				for (int i = 0; i < oldArguments.length; i++) {
+					if (NullibilityAnnos.hasSolidAnnotation(oldArguments[i].annotations)!=NullibilityAnnos.hasSolidAnnotation(newArguments[i].annotations)) {
 						t.delta.changed(newElement, IJavaElementDelta.F_CONTENT);
 						return;
 					}
-					i++;
 				}
-
 			}
 		}
 	}

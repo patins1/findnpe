@@ -385,7 +385,7 @@ public class NullibilityAnnos {
 	}
 
 	@SuppressWarnings("unused")
-	private static int hasSolidAnnotation(Annotation[] annos) {
+	public static int hasSolidAnnotation(Annotation[] annos) {
 		if (enableAnnotations())
 			if (annos != null)
 				for (int i = 0; i < annos.length; i++) {

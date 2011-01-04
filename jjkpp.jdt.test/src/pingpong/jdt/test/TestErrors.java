@@ -1,6 +1,13 @@
 package pingpong.jdt.test;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.URL;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
@@ -16,14 +23,13 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceVisitor;
-import org.eclipse.core.resources.IWorkspace;
-import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
@@ -35,12 +41,9 @@ import org.eclipse.ui.IEditorRegistry;
 import org.eclipse.ui.IMarkerResolution;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.dialogs.IOverwriteQuery;
 import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.part.FileEditorInput;
 import org.eclipse.ui.texteditor.AbstractTextEditor;
-import org.eclipse.ui.wizards.datatransfer.FileSystemStructureProvider;
-import org.eclipse.ui.wizards.datatransfer.ImportOperation;
 
 import pingpong.firstfix.Action1;
 import pingpong.jdt.core.classes.NullibilityAnnos;
@@ -51,13 +54,17 @@ public class TestErrors extends TestCase {
 
 	int totalChecks = 0;
 
-	public void testErrors() throws CoreException, InterruptedException {
+	public void testErrors() throws CoreException, InterruptedException, IOException {
 		Display.getCurrent().update();
 		PlatformUI.getWorkbench().showPerspective("org.eclipse.jdt.ui.JavaPerspective", PlatformUI.getWorkbench().getActiveWorkbenchWindow());
 		Display.getCurrent().update();
 		final IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
 
-		IProjectDescription description = ResourcesPlugin.getWorkspace().loadProjectDescription(new Path("C:/dev/jjkpp/jjkpp.javaproject.test/.project"));
+		URL url = FileLocator.toFileURL(FileLocator.find(Platform.getBundle("pingpong.javaproject.test"), new Path(""), Collections.EMPTY_MAP));
+		File sour = new File(url.getPath()).getAbsoluteFile();
+		File dest = new File(ResourcesPlugin.getWorkspace().getRoot().getRawLocationURI().toURL().getPath(),"pingpong.javaproject.test");
+		copyDirectory(sour,dest);
+		IProjectDescription description = ResourcesPlugin.getWorkspace().loadProjectDescription(new FileInputStream(new File(dest,".project")));
 		project = ResourcesPlugin.getWorkspace().getRoot().getProject(description.getName());
 		project.create(description, new NullProgressMonitor());
 		this.project.open(new NullProgressMonitor());
@@ -227,12 +234,31 @@ public class TestErrors extends TestCase {
 			waitForBuild();
 		}
 	}
-	
-	class OverwriteQuery implements IOverwriteQuery{
-		@Override
-		public String queryOverwrite(String pathString) {
-		return ALL;
-		}
-	}
-
+    public void copyDirectory(File sourceLocation , File targetLocation) throws IOException {
+        
+        if (sourceLocation.isDirectory()) {
+            if (!targetLocation.exists()) {
+                targetLocation.mkdir();
+            }
+            
+            String[] children = sourceLocation.list();
+            for (int i=0; i<children.length; i++) {
+                copyDirectory(new File(sourceLocation, children[i]),
+                        new File(targetLocation, children[i]));
+            }
+        } else {
+            
+            InputStream in = new FileInputStream(sourceLocation);
+            OutputStream out = new FileOutputStream(targetLocation);
+            
+            // Copy the bits from instream to outstream
+            byte[] buf = new byte[1024];
+            int len;
+            while ((len = in.read(buf)) > 0) {
+                out.write(buf, 0, len);
+            }
+            in.close();
+            out.close();
+        }
+    }
 }
