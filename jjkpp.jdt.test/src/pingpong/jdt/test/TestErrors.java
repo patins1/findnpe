@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
@@ -93,6 +95,7 @@ public class TestErrors extends TestCase {
 						IDocument doc = ed.getDocumentProvider().getDocument(ed.getEditorInput());
 						String content = doc.get();
 						Display.getCurrent().update();
+						Collection<IMarker> firstfixes = new ArrayList<IMarker>();
 						Set<IMarker> markers = findMarkers(file.findMarkers("org.eclipse.jdt.core.problem", true, IResource.DEPTH_ZERO));
 						int commentLineNumber = 0;
 						for (String line : content.split("\n")) {
@@ -140,15 +143,7 @@ public class TestErrors extends TestCase {
 										throw e;
 									}
 								}  else if (errorContent.contains("FIRSTFIX")) {
-									Action1 action1=new Action1();
-									action1.selectionChanged(null, new StructuredSelection(marker));
-									action1.run(null);
-									SaveOpenFilesHandler handler=new SaveOpenFilesHandler();
-									handler.showSaveDialog(project);
-									try {
-										waitForBuild();
-									} catch (InterruptedException e) {
-									}
+									firstfixes.add(marker);	
 								}
 								markers.remove(marker);
 							}
@@ -161,6 +156,21 @@ public class TestErrors extends TestCase {
 								e.printStackTrace();
 							}
 							Assert.fail("Too many errors: resource=" + resource.getProjectRelativePath() + " message=" + marker.getAttribute("message") + " line=" + marker.getAttribute("lineNumber", -1));
+						}
+						for (IMarker marker:firstfixes) {
+							int lineNumber = marker.getAttribute("lineNumber", -1);
+							Action1 action1=new Action1();
+							action1.selectionChanged(null, new StructuredSelection(marker));
+							action1.run(null);
+							SaveOpenFilesHandler handler=new SaveOpenFilesHandler();
+							handler.showSaveDialog(project);
+							try {
+								waitForBuild();
+							} catch (InterruptedException e) {
+							}
+							Set<IMarker> markers2 = findMarkers(file.findMarkers("org.eclipse.jdt.core.problem", true, IResource.DEPTH_ZERO));
+							IMarker marker2 = findMarker(markers2, lineNumber);
+							Assert.assertNull("Expected problem to be solved",marker2);
 						}
 					}
 					return true;

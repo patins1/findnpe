@@ -19,4 +19,8 @@ public class ClassAnnotationTest4 extends ClassAnnotationTest {
 		return null;
 	}
 
+	@Override
+	protected void testAbstractParameterOverrideProposal2(String s) {
+	}
+
 }

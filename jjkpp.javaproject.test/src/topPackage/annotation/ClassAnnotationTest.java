@@ -35,6 +35,8 @@ abstract public class ClassAnnotationTest {
 	@CanBeNull
 	abstract protected String testAbstractOverrideProposal();
 
+	abstract protected void testAbstractParameterOverrideProposal2(String s);
+
 	@NonNull
 	protected String testNoOverrideProposal() {
 		return ""; 
@@ -86,6 +88,10 @@ abstract public class ClassAnnotationTest {
 		@Override
 		protected String testAbstractOverrideProposal() {
 			return null;
+		}
+
+		@Override
+		protected void testAbstractParameterOverrideProposal2(String s) {
 		}
 
 	}

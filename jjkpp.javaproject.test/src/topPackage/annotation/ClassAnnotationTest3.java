@@ -25,8 +25,13 @@ public class ClassAnnotationTest3 extends ClassAnnotationTest {
 
 	@Override
 	protected String testAbstractOverrideProposal() {
-		testOverrideProposal().toString();  /* error1 */
-		return null;
+		testAbstractOverrideProposal().toString();  /* error1 */
+		return "";
+	}
+
+	@Override
+	protected void testAbstractParameterOverrideProposal2(String s) {
+		testAbstractParameterOverrideProposal2(null); /* error1 easy FIRSTFIX */
 	}
 
 	@Override
@@ -42,5 +47,6 @@ public class ClassAnnotationTest3 extends ClassAnnotationTest {
 	protected void testNoParameterOverrideProposal(String s) {
 		s.toString();  /* error0 */	
 	}
+
 
 }
