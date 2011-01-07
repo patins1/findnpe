@@ -356,7 +356,10 @@ public class NullibilityAnnosUI extends ProposalCollector {
 			if (NullibilityAnnos.USE_PARAM_ANNOS) {
 				decl = varDecl;
 				modifiers = SingleVariableDeclaration.MODIFIERS2_PROPERTY;
-				varType = "parameter " + paramName.getIdentifier();
+				if (marker.startsWith("CanBeNull"))
+					varType = "parameter " + mdecl.getName().getIdentifier() + "." + paramName.getIdentifier();
+				else
+					varType = "parameter " + paramName.getIdentifier();
 				existingAnnots = varDecl.resolveBinding().getAnnotations();
 			} else {
 				decl = (MethodDeclaration) varDecl.getParent();
