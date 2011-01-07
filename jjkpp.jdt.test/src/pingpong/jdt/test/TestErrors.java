@@ -18,6 +18,7 @@ import junit.framework.Assert;
 import junit.framework.AssertionFailedError;
 import junit.framework.TestCase;
 
+import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IMarker;
@@ -47,7 +48,7 @@ import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.part.FileEditorInput;
 import org.eclipse.ui.texteditor.AbstractTextEditor;
 
-import pingpong.firstfix.Action1;
+import pingpong.firstfix.FirstFixHandler;
 import pingpong.jdt.core.classes.NullibilityAnnos;
 
 public class TestErrors extends TestCase {
@@ -159,9 +160,12 @@ public class TestErrors extends TestCase {
 						}
 						for (IMarker marker:firstfixes) {
 							int lineNumber = marker.getAttribute("lineNumber", -1);
-							Action1 action1=new Action1();
-							action1.selectionChanged(null, new StructuredSelection(marker));
-							action1.run(null);
+							FirstFixHandler action1=new FirstFixHandler();
+							try {
+								action1.execute(new IMarker[]{marker});
+							} catch (ExecutionException e1) {
+								e1.printStackTrace();
+							}
 							SaveOpenFilesHandler handler=new SaveOpenFilesHandler();
 							handler.showSaveDialog(project);
 							try {
