@@ -5,5 +5,6 @@
         <aspect name="pingpong.jdt.core.aspects.HandleFields" />
         <aspect name="pingpong.jdt.core.aspects.HandleIterations" />
         <aspect name="pingpong.jdt.core.aspects.HandleNullStatusMethod" />
+        <aspect name="pingpong.jdt.core.aspects.HandleParameters" />
     </aspects>
 </aspectj>

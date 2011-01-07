@@ -230,6 +230,10 @@ public class NullibilityAnnos {
 		return enableNullibility() && true;
 	}
 
+	public static boolean enableParameterAnnotations() {
+		return enableAnnotations() && USE_PARAM_ANNOS;
+	}
+
 	public static boolean enableInterpretationNonNull() {
 		return enableNullibility() && true;
 	}

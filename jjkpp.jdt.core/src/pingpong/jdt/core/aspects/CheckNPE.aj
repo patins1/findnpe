@@ -65,9 +65,7 @@ privileged public aspect CheckNPE {
 	// in the following precedence list, each aspect has a replace-advice 
 	// which would hide an advice of any aspect to its left, so the precedence is required; 
 	// replace-advices for analyseCode() have comments with "custom code" text in their body
-	declare precedence : HandleIterations, CheckNPE, HandleNullStatusMethod;
-
-	private Argument[] SourceMethodElementInfo.originalArguments;
+	declare precedence : HandleIterations, CheckNPE, HandleParameters, HandleNullStatusMethod;
 
 	before(MethodDeclaration t, ClassScope classScope, InitializationFlowContext initializationContext, FlowInfo flowInfo) : 
 		call(void analyseCode(ClassScope, InitializationFlowContext, FlowInfo)) && target(t) && args(classScope,initializationContext,flowInfo) {
@@ -657,50 +655,6 @@ privileged public aspect CheckNPE {
 			}
 		}
 	}	
-
-	boolean around(ClassFileReader t, org.eclipse.jdt.internal.compiler.classfmt.MethodInfo currentMethodInfo, org.eclipse.jdt.internal.compiler.classfmt.MethodInfo otherMethodInfo) : 
-		call(boolean hasStructuralMethodChanges(org.eclipse.jdt.internal.compiler.classfmt.MethodInfo, org.eclipse.jdt.internal.compiler.classfmt.MethodInfo)) && args(currentMethodInfo, otherMethodInfo) && target(t) {
-
-		boolean result=proceed(t,currentMethodInfo,otherMethodInfo);
-		if (result)
-			return true;
-		AnnotationInfo[][] parameterAnnotations1 = null;
-		if (currentMethodInfo instanceof org.eclipse.jdt.internal.compiler.classfmt.MethodInfoWithParameterAnnotations) {
-			parameterAnnotations1=((org.eclipse.jdt.internal.compiler.classfmt.MethodInfoWithParameterAnnotations)currentMethodInfo).parameterAnnotations;
-		}
-		AnnotationInfo[][] parameterAnnotations2 = null;
-		if (otherMethodInfo instanceof org.eclipse.jdt.internal.compiler.classfmt.MethodInfoWithParameterAnnotations) {
-			parameterAnnotations2=((org.eclipse.jdt.internal.compiler.classfmt.MethodInfoWithParameterAnnotations)otherMethodInfo).parameterAnnotations;
-		}
-//		org.eclipse.jdt.internal.compiler.classfmt.MethodInfoWithAnnotations x=(org.eclipse.jdt.internal.compiler.classfmt.MethodInfoWithParameterAnnotations)currentMethodInfo;
-		
-		if ((parameterAnnotations1==null) != (parameterAnnotations2==null)) {
-			// if one version has parameter annotations, the other not, report a change;
-			// note that MethodInfoWithParameterAnnotations is exactly instantiated if there is at least one parameter annotation
-			// testAbstractParameterOverrideProposal2()
-			return true;
-		}
-		if (parameterAnnotations1==null) {
-			// if both have no parameter annotations, report no change
-			return false;
-		}
-		if (parameterAnnotations1.length != parameterAnnotations2.length) {
-			// this case should not happen
-			return false;
-		}
-		
-		for (int index=0; index<parameterAnnotations1.length; index++) {
-			IBinaryAnnotation[] annos1=parameterAnnotations1[index];
-			IBinaryAnnotation[] annos2=parameterAnnotations2[index];
-			if (!Arrays.equals(annos1, annos2)) {
-				return true;
-			}			
-		}
-		
-		return false;
-	}
-
-
 	
 	after(FieldDeclaration t, MethodScope initializationScope, FlowContext flowContext, FlowInfo flowInfo) 
 		returning(FlowInfo result) : 
@@ -827,56 +781,6 @@ privileged public aspect CheckNPE {
 				}
 			}
 	}
-
-	after(CompilationUnitStructureRequestor t, MethodInfo methodInfo, SourceMethod handle) returning (SourceMethodElementInfo result) : 
-		call(SourceMethodElementInfo createMethodInfo(MethodInfo, SourceMethod)) && args(methodInfo,handle) && target(t) {
-
-		// AttactTest.testNonNullParam()
-		if (NullibilityAnnos.enableAnnotations() && NullibilityAnnos.USE_PARAM_ANNOS)
-			if (methodInfo.node != null) {
-				result.originalArguments = methodInfo.node.arguments;
-			}
-	}
-
-	after(SourceTypeConverter t, SourceMethod methodHandle, SourceMethodElementInfo methodInfo, CompilationResult compilationResult) returning (AbstractMethodDeclaration result) : 
-		call(AbstractMethodDeclaration convert(SourceMethod, SourceMethodElementInfo, CompilationResult)) && args(methodHandle,methodInfo,compilationResult) && target(t) {
-
-		// AttactTest.testNonNullParam()
-		if (NullibilityAnnos.enableAnnotations() && NullibilityAnnos.USE_PARAM_ANNOS)
-			if (methodInfo.originalArguments != null && result.arguments != null && methodInfo.originalArguments.length == result.arguments.length) {
-				for (int i=result.arguments.length-1; i>=0; i--) {
-					Argument argument = result.arguments[i];
-					Argument originalArgument = methodInfo.originalArguments[i];
-					if (argument.annotations == null)
-						argument.annotations = originalArgument.annotations;
-				}
-			}
-	}
-	
-	after(JavaElementDeltaBuilder t, JavaElementInfo oldInfo, JavaElementInfo newInfo, IJavaElement newElement) returning: 
-		call(void findContentChange(JavaElementInfo, JavaElementInfo, IJavaElement)) && args(oldInfo, newInfo, newElement) && target(t) {
-
-		if (oldInfo instanceof SourceMethodElementInfo && newInfo instanceof SourceMethodElementInfo) {
-			Argument[] oldArguments = ((SourceMethodElementInfo)oldInfo).originalArguments;
-			Argument[] newArguments = ((SourceMethodElementInfo)newInfo).originalArguments;
-			if (oldArguments!=null && newArguments!=null && oldArguments.length==newArguments.length && oldArguments!=newArguments) {
-				for (int i = 0; i < oldArguments.length; i++) {
-					if (NullibilityAnnos.hasSolidAnnotation(oldArguments[i].annotations)!=NullibilityAnnos.hasSolidAnnotation(newArguments[i].annotations)) {
-						t.delta.changed(newElement, IJavaElementDelta.F_CONTENT);
-						return;
-					}
-				}
-			}
-		}
-	}
-
-	after(CompilerOptions t, boolean newval): 
-		set(public boolean CompilerOptions.storeAnnotations) && args(newval) && target(t) {
-		
-		if (NullibilityAnnos.enableAnnotations()) 	
-		if (!t.storeAnnotations)
-			t.storeAnnotations=true; 
-	 }
 	
 	before(Expression t, BlockScope scope, FlowContext flowContext, FlowInfo flowInfo):
 		call(void checkNPE(BlockScope, FlowContext, FlowInfo)) && target(t) && args(scope,flowContext,flowInfo) {
