@@ -1,9 +1,9 @@
-object PageContainer2: TPageContainer2
+object PageContainer1: TPageContainer1
   Left = -4
   Top = -23
   Caption = 'site.dfm'
-  ClientHeight = 526
-  ClientWidth = 1280
+  ClientHeight = 775
+  ClientWidth = 1920
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clBlack
   Font.Height = -16
@@ -38,27 +38,26 @@ object PageContainer2: TPageContainer2
     Right = 0
     Bottom = 0
     UseIFrame = False
-    Title = 'PingPong - manage null pointers - control NPEs'
-    FTPURL = 'ftp://p8288468:5yMTPDtZ@www.kiegeland.com/pingpong/'
-    HTTPURL = 'http://pingpong.kiegeland.com'
+    Title = 'FindNPE - manage null pointer contracts'
+    FTPURL = 'ftp://p8288468:5yMTPDtZ@www.kiegeland.com/findnpe/'
+    HTTPURL = 'http://findnpe.kiegeland.com'
     GeneratedCSSFile = 'dfm2html.css'
     object Panel1: TdhPanel
       Left = 0
       Top = 0
       Width = 1232
-      Height = 676
+      Height = 764
       Style.Margin = '16'
       Style.BackgroundColor = 33554431
       AutoSizeXY = asNone
       object Label2: TdhLabel
         Left = 32
         Top = 32
-        Width = 769
+        Width = 696
         Height = 41
         Text = 
-          'PingPong <small>manage null pointers, control NPEs <i><i><Label1' +
-          '1><sup> for Java/Eclipse programmers</sup></Label11></i></i></sm' +
-          'all>'
+          'FindNPE <small>manage null pointer contracts <i><i><Label11><sup' +
+          '> for Java/Eclipse programmers</sup></Label11></i></i></small>'
         Style.FontSize = '36'
         Style.FontFamily = 'arial'
         Style.Effects.AntiAliasing = True
@@ -66,7 +65,7 @@ object PageContainer2: TPageContainer2
       end
       object Link1: TdhLink
         Left = 32
-        Top = 240
+        Top = 280
         Width = 33
         Height = 18
         Text = 'FAQ'
@@ -78,7 +77,7 @@ object PageContainer2: TPageContainer2
       end
       object Link2: TdhLink
         Left = 32
-        Top = 200
+        Top = 240
         Width = 72
         Height = 18
         Text = 'Installation'
@@ -98,11 +97,11 @@ object PageContainer2: TPageContainer2
         AutoSizeXY = asXY
         PreferDownStyles = True
         Options = [loDownIfMenu, loDownIfMouseDown, loDownIfURL]
-        LinkPage = usage
+        LinkPage = home
       end
       object Link6: TdhLink
         Left = 32
-        Top = 320
+        Top = 440
         Width = 40
         Height = 18
         Text = 'Order'
@@ -114,7 +113,7 @@ object PageContainer2: TPageContainer2
       object Panel2: TdhPanel
         Left = 160
         Top = 104
-        Height = 540
+        Height = 628
         Style.Border.Width = 1
         Style.Border.Color = 14590050
         Style.Border.Style = cbsSolid
@@ -127,12 +126,53 @@ object PageContainer2: TPageContainer2
           Top = 8
           Width = 24
           Height = 24
-          ActivePage = install
+          ActivePage = home
           FixedHeight = False
+          object home: TdhPage
+            Left = 8
+            Top = 16
+            Height = 600
+            AutoSizeXY = asNone
+            Anchors = [akLeft, akTop, akRight]
+            Right = 80
+            UseIFrame = False
+            object Label19: TdhLabel
+              Left = 8
+              Top = 16
+              Width = 920
+              Height = 108
+              Text = 
+                'FindNPE offers a solution for controlling null pointers in Java ' +
+                'code. Thus, the risk of NPEs (NullPointerExceptions)'#10'being throw' +
+                'n on customer'#39's side can be minimized. FindNPE offers annotation' +
+                's for a fine-grained control of which variables are allowed to b' +
+                'e null at runtime.'#10'Since FindNPE uses static analysis of the Jav' +
+                'a program at compile time, a program'#39's execution behavior is not' +
+                ' affected. '#10'<br><br>FindNPEs basic rule to reduce NPEs is: If th' +
+                'ere is a possibility that an object can be null, then compilatio' +
+                'n errors are produced at places where it is accessed.  '#10'This is ' +
+                'demonstrated in the following example:'
+              AutoSizeXY = asY
+            end
+            object Link14: TdhLink
+              Left = 8
+              Top = 152
+              Width = 505
+              Height = 51
+              ImageType = bitImage
+              Style.BackgroundImage.Path = 'images\rule1.GIF'
+              Style.BackgroundImage.State = isAnalyzed
+              Style.BackgroundImage.Width = 505
+              Style.BackgroundImage.Height = 51
+              AutoSizeXY = asXY
+              PreferDownStyles = True
+              Options = [loDownIfMenu, loDownIfMouseDown, loDownIfURL]
+            end
+          end
           object usage: TdhPage
             Left = 8
             Top = 16
-            Height = 2200
+            Height = 1744
             AutoSizeXY = asNone
             Anchors = [akLeft, akTop, akRight]
             Right = 8
@@ -141,22 +181,19 @@ object PageContainer2: TPageContainer2
               Left = 8
               Top = 16
               Width = 920
-              Height = 108
+              Height = 54
               Text = 
-                'If an object returned by a method call is not checked for null, ' +
-                'accessing this object can raise a NullPointerException (NPE), wh' +
-                'ich often interrupts the application in a way that some function' +
-                'ality cannot be used anymore. This is a well known problem for c' +
-                'omputer programs. PingPong tries to offer a solution for program' +
-                's which are written in the Java programming language and which a' +
-                're developed using Eclipse. '#10'<br/><br/>'#10'The following example pr' +
-                'oduces a NPE in line 24, if methodA returns null, which is decid' +
-                'ed on base of a random boolean value:'
+                'After installing FindNPE, errors like the example on the Inroduc' +
+                'tion page are shown. However such NPE hazards are generally quit' +
+                'e few. NPEs more likely happen by&nbsp;having methods which are ' +
+                'assumed to return a non-null value but in fact can return null. ' +
+                'Without preparation, also FindNPE cannot detect such inter-metho' +
+                'd NPE hazards: '
               AutoSizeXY = asY
             end
             object Image1: TdhLink
               Left = 16
-              Top = 136
+              Top = 88
               Width = 484
               Height = 190
               ImageType = bitImage
@@ -170,17 +207,19 @@ object PageContainer2: TPageContainer2
             end
             object Label12: TdhLabel
               Left = 8
-              Top = 360
+              Top = 320
               Width = 952
-              Height = 18
+              Height = 36
               Text = 
-                'To manage such situations, methodA now declares that it can retu' +
-                'rn null:'
+                'To make visible the obviously not reported problem, the first st' +
+                'ep is to annotate the class with @NonNullByDefault (which is equ' +
+                'ivalent to annotating each method /parameter / field of the clas' +
+                's with @NonNull):'
               AutoSizeXY = asY
             end
             object Link8: TdhLink
-              Left = 16
-              Top = 392
+              Left = 88
+              Top = 1040
               Width = 487
               Height = 188
               ImageType = bitImage
@@ -193,19 +232,22 @@ object PageContainer2: TPageContainer2
               Options = [loDownIfMenu, loDownIfMouseDown, loDownIfURL]
             end
             object Label13: TdhLabel
-              Left = 8
-              Top = 600
+              Left = 16
+              Top = 640
               Width = 952
-              Height = 36
+              Height = 54
               Text = 
-                'As doing so, the PingPong compiler now displays an error in line' +
-                ' 26, since s is accessed but s can be null as storing the result' +
-                ' of methodA. This can be solved by checking variable s on null:'
+                '@NonNull for a method means, that all return statements are chec' +
+                'ked to return a non-null value, so we have a violation of this c' +
+                'ontract in methodA. Similar, it would mean for parameters and fi' +
+                'elds, that they can only be assigned a non-null value. Now, to s' +
+                'olve the reported problem, one can annotate the method explicite' +
+                'ly with @CanBeNull by just applying the proposed quick fix:'
               AutoSizeXY = asY
             end
             object Link9: TdhLink
               Left = 16
-              Top = 648
+              Top = 1336
               Width = 505
               Height = 205
               ImageType = bitImage
@@ -217,72 +259,38 @@ object PageContainer2: TPageContainer2
               PreferDownStyles = True
               Options = [loDownIfMenu, loDownIfMouseDown, loDownIfURL]
             end
-            object Label14: TdhLabel
-              Left = 32
-              Top = 888
-              Width = 536
-              Height = 100
-              Text = 
-                'Imagine methodA did a "Ping" by saying that its returned value m' +
-                'ust be checked on null. Now, code not checking the returned valu' +
-                'e on null but using it must do a "Pong" since they have a compil' +
-                'ation error. So this code has to do a null check as in the prece' +
-                'ding example or it can trigger another "Ping", which continues t' +
-                'he PingPong game.'
-              Style.Border.Color = 14590050
-              Style.Border.Style = cbsSolid
-              Style.Padding = 9
-              Style.FontSize = '14'
-              Style.Margin = '0'
-              Style.TextAlign = ctaJustify
-              AutoSizeXY = asY
-            end
             object Label15: TdhLabel
               Left = 8
-              Top = 1040
+              Top = 1584
               Width = 952
-              Height = 36
+              Height = 90
               Text = 
-                'Now suppose the programmer wants to annotate for each method of ' +
-                'a Java class whether it can return null or not,'#10'which can be don' +
-                'e with annotations CanBeNull or NonNull. Suppose that he declare' +
-                'd methodA as never returning null:'
+                'The reason why such errors can not be fixed automatically, is ma' +
+                'inly because the error could also have been fixed differently by' +
+                ' coding that methodA not returns null but e.g.&nbsp;an empty str' +
+                'ing. So it has to be decided whether the calling method or the c' +
+                'alled method has to be fixed. This choice depends on what the pr' +
+                'ogrammer "had in mind"  whether the method is allowed to return ' +
+                'null or not allowed to do so. Of course it can also be that he n' +
+                'ever thought about it and  is forced to do so right now. The NPE' +
+                ' annotations can be used to explicitely express   the desired co' +
+                'ntract.'
               AutoSizeXY = asY
-            end
-            object Link10: TdhLink
-              Left = 16
-              Top = 1088
-              Width = 489
-              Height = 188
-              ImageType = bitImage
-              Style.BackgroundImage.Path = 'images\pic4.GIF'
-              Style.BackgroundImage.State = isAnalyzed
-              Style.BackgroundImage.Width = 489
-              Style.BackgroundImage.Height = 188
-              AutoSizeXY = asXY
-              PreferDownStyles = True
-              Options = [loDownIfMenu, loDownIfMouseDown, loDownIfURL]
             end
             object Label16: TdhLabel
               Left = 8
               Top = 1288
               Width = 952
-              Height = 108
+              Height = 18
               Text = 
-                'So actually the compiler error is no longer on line 26, at the c' +
-                'aller method, but on line 20, at the called method. The error is' +
-                ' that it declares to return only non-null values, but actually c' +
-                'an return null in line 20. So this was obviously not the right a' +
-                'nnotation to choose!'#10'<br/><br/>'#10'To fasten the process of definin' +
-                'g the correct annotation for each method returning a value, '#10'it ' +
-                'is recommended to define the @NonNullByDefault on the Java class' +
-                ', meaning that every method'#10'having not defined an annotation exp' +
-                'licitely is treated as having defined the @NonNull annotation:'
+                'Finally, the desired error is displayed, saying that &quot;s&quo' +
+                't; can be null when it is accessed.  The programmer can fix this' +
+                ' error like here:'
               AutoSizeXY = asY
             end
             object Link11: TdhLink
               Left = 16
-              Top = 1408
+              Top = 376
               Width = 487
               Height = 239
               ImageType = bitImage
@@ -294,33 +302,9 @@ object PageContainer2: TPageContainer2
               PreferDownStyles = True
               Options = [loDownIfMenu, loDownIfMouseDown, loDownIfURL]
             end
-            object Label17: TdhLabel
-              Left = 8
-              Top = 1664
-              Width = 952
-              Height = 36
-              Text = 
-                'The steps from above would typically follow. However to add the ' +
-                '@CanBeNull annotation, one can apply the first proposed fix to t' +
-                'he compilation error. So making your code null pointer aware can' +
-                ' be done in the programming-by-fixing manner.'
-              AutoSizeXY = asY
-            end
-            object Label18: TdhLabel
-              Left = 8
-              Top = 2024
-              Width = 952
-              Height = 36
-              Text = 
-                'Variables, method parameters and field members can also be assig' +
-                'ned the CanBeNull and NonNull annotations. The NonNullAsDefault ' +
-                'annotation applies also to method parameters and class fields, b' +
-                'ut not to local variables.'
-              AutoSizeXY = asY
-            end
             object Image2: TdhLink
-              Left = 16
-              Top = 1712
+              Left = 24
+              Top = 712
               Width = 734
               Height = 299
               ImageType = bitImage
@@ -331,6 +315,22 @@ object PageContainer2: TPageContainer2
               AutoSizeXY = asXY
               PreferDownStyles = True
               Options = [loDownIfMenu, loDownIfMouseDown, loDownIfURL]
+            end
+            object Label30: TdhLabel
+              Left = 168
+              Top = 1144
+              Width = 0
+              Height = 32
+              Text = 'Label30'
+              AutoSizeXY = asY
+            end
+            object Label32: TdhLabel
+              Left = 40
+              Top = 1120
+              Width = 100
+              Height = 18
+              Text = '=>'
+              AutoSizeXY = asY
             end
           end
           object install: TdhPage
@@ -346,30 +346,30 @@ object PageContainer2: TPageContainer2
               Top = 16
               Width = 191
               Height = 18
-              Text = 'Update Site for Eclipse 3.5:'
+              Text = 'Update Site for Eclipse 3.6:'
               AutoSizeXY = asXY
             end
             object Link5: TdhLink
               Left = 216
               Top = 16
-              Width = 286
+              Width = 272
               Height = 18
-              Text = 'http://pingpong.kiegeland.com/3.5/update'
+              Text = 'http://findnpe.kiegeland.com/3.6/update'
               AutoSizeXY = asXY
               PreferDownStyles = True
               Options = [loDownIfMenu, loDownIfMouseDown, loDownIfURL]
-              Link = 'http://TODO.de/updatesite'
+              Link = 'http://findnpe.kiegeland.com/3.6/update'
             end
             object Label9: TdhLabel
               Left = 16
               Top = 48
               Width = 392
-              Height = 90
+              Height = 108
               Text = 
                 'After installation, you should restart Eclipse and make sure, th' +
-                'at Preferences -> JDT Weaving is ENABLED.'#10'<br/><br/>'#10'The PingPon' +
-                'g annotations must be downloaded separately, see <Link15>Q2</Lin' +
-                'k15>.'
+                'at Preferences -> JDT Weaving is ENABLED.'#10'<br/><br/>'#10'The  FindNP' +
+                'E annotations must be downloaded separately and linked as a norm' +
+                'al JAR to the Java project, see <Link15>Q2</Link15>.'
               AutoSizeXY = asY
             end
             object StyleSheet4: TdhStyleSheet
@@ -414,11 +414,11 @@ object PageContainer2: TPageContainer2
                 'which was not there before:'#10'<br/>'#10'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;' +
                 '&nbsp;&nbsp;&nbsp;&nbsp;<Label5><code>The type %x% cannot be res' +
                 'olved. It is indirectly referenced from required .class files</c' +
-                'ode></Label5>'#10'<br/></b>'#10'<br/>'#10'The PingPong<sup></sup> compiler r' +
-                'equires to evaluate annotations from super classes of a referenc' +
-                'ed class. For this reason, the superclass must be in the build p' +
-                'ath of the project. To achieve this, you have to add a dependenc' +
-                'y to the project or plugin which contains this class file.'
+                'ode></Label5>'#10'<br/></b>'#10'<br/>'#10'FindNPE requires to evaluate annot' +
+                'ations from super classes of a referenced class. For this reason' +
+                ', the superclass must be in the build path of the project. To ac' +
+                'hieve this, you have to add a dependency to the project or plugi' +
+                'n which contains this class file.'
               AutoSizeXY = asY
             end
             object Q2: TdhLabel
@@ -429,14 +429,13 @@ object PageContainer2: TPageContainer2
               Text = 
                 '<big><big>Q2</big></big><br/> '#10'<br/><b>I get the error message :' +
                 #10'<br/>'#10'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<La' +
-                'bel5><code>The import pingpong cannot be resolved</code></Label5' +
-                '>'#10'<br/></b>'#10'<br/>'#10'You try to import one of the three annotations' +
-                ' CanBeNull, NonNull or NonNullByDefault, but they are unknown to' +
-                ' the Java compiler. As normal Java classes, annotations must be ' +
-                'on the build path. '#10'For this reason, download <Link7>pingpong.an' +
-                'notations.jar</Link7>, copy it to your Java project e.g. in its ' +
-                'root folder and choose "Add to build path" from the context menu' +
-                '. '
+                'bel5><code>The import findnpe cannot be resolved</code></Label5>' +
+                #10'<br/></b>'#10'<br/>'#10'You try to import one of the three annotations ' +
+                'CanBeNull, NonNull or NonNullByDefault, but they are unknown to ' +
+                'the Java compiler. As normal Java classes, annotations must be o' +
+                'n the build path. '#10'For this reason, download <Link7>findnpe.anno' +
+                'tations.jar</Link7>, copy it to your Java project e.g. in its ro' +
+                'ot folder and choose "Add to build path" from the context menu. '
               AutoSizeXY = asY
             end
           end
@@ -459,123 +458,62 @@ object PageContainer2: TPageContainer2
             end
             object Label20: TdhLabel
               Left = 72
-              Top = 80
-              Width = 480
-              Height = 18
-              Text = 'Objects which can be null cannot be accessed directly.'
-              AutoSizeXY = asY
-            end
-            object Image3: TdhLink
-              Left = 16
               Top = 112
-              Width = 505
-              Height = 51
-              ImageType = bitImage
-              Style.BackgroundImage.Path = 'images\rule1.GIF'
-              Style.BackgroundImage.State = isAnalyzed
-              Style.BackgroundImage.Width = 505
-              Style.BackgroundImage.Height = 51
-              AutoSizeXY = asXY
-              PreferDownStyles = True
-              Options = [loDownIfMenu, loDownIfMouseDown, loDownIfURL]
+              Width = 480
+              Height = 36
+              Text = 
+                'Means that the source code expression in question returns an obj' +
+                'ect which can be null, but this object is subsequently accessed.'
+              AutoSizeXY = asY
             end
             object Label21: TdhLabel
               Left = 72
-              Top = 280
+              Top = 328
               Width = 496
-              Height = 72
+              Height = 18
               Text = 
-                'NonNull-declared variables cannot be assigned a value which can ' +
-                'be null. Likewise, NonNull parameters cannot be passed a value w' +
-                'hich may be null and return statements of NonNull-declared metho' +
-                'ds are not allowed to return values which may be null.'
-              AutoSizeXY = asY
-            end
-            object Link14: TdhLink
-              Left = 16
-              Top = 376
-              Width = 243
-              Height = 33
-              ImageType = bitImage
-              Style.BackgroundImage.Path = 'images\pic7.GIF'
-              Style.BackgroundImage.State = isAnalyzed
-              Style.BackgroundImage.Width = 243
-              Style.BackgroundImage.Height = 33
-              AutoSizeXY = asXY
-              PreferDownStyles = True
-              Options = [loDownIfMenu, loDownIfMouseDown, loDownIfURL]
-            end
-            object Label22: TdhLabel
-              Left = 32
-              Top = 176
-              Width = 648
-              Height = 68
-              Text = 
-                'NOTE: It is assumed, that non-annotated methods/parameters/class' +
-                ' fields return a value not equal to null. Thus "old code" is tru' +
-                'sted to be not responsibile for null pointers. You can migrate o' +
-                'ld code by using PingPong annotations, thus control all null poi' +
-                'nters generated by old code.'
-              Style.Border.Color = 14590050
-              Style.Border.Style = cbsSolid
-              Style.Padding = 9
-              Style.FontSize = '14'
-              Style.Margin = '0'
-              Style.TextAlign = ctaJustify
+                'Like the previous one, but with the hint that the expression is ' +
+                'always null'
               AutoSizeXY = asY
             end
             object Label23: TdhLabel
               Left = 8
               Top = 80
-              Width = 48
+              Width = 99
               Height = 18
-              Text = 'Rule 1:'
+              Text = '"NPE Hazard"'
               Use = rule
               AutoSizeXY = asXY
             end
             object Label24: TdhLabel
               Left = 8
-              Top = 280
-              Width = 48
+              Top = 296
+              Width = 337
               Height = 18
-              Text = 'Rule 2:'
+              Text = '"Expected NonNull value, but value is always null"'
               Use = rule
               AutoSizeXY = asXY
             end
-            object Label19: TdhLabel
-              Left = 8
-              Top = 432
-              Width = 48
-              Height = 18
-              Text = 'Rule 3:'
-              Use = rule
-              AutoSizeXY = asXY
-            end
-            object Label30: TdhLabel
-              Left = 80
-              Top = 432
+            object Label22: TdhLabel
+              Left = 72
+              Top = 200
               Width = 480
               Height = 72
               Text = 
-                'Even when not using PingPong annotations, nullibility problems w' +
-                'ithin your code may be reported. In the following example, a NPE' +
-                ' would be thrown if the while-body would be executed a second ti' +
-                'me, so an error is reported.'
+                'Means that the source code expression in question returns an obj' +
+                'ect which can be null, but it is returned by a method / passed t' +
+                'o a parameter / assigned to a field / variable, which is declare' +
+                'd as @NonNull.'
               AutoSizeXY = asY
             end
-            object Image4: TdhLink
-              Left = 16
-              Top = 520
-              Width = 275
-              Height = 86
-              ImageType = bitImage
-              Style.BackgroundImage.Path = 'images\pic8.GIF'
-              Style.BackgroundImage.State = isAnalyzed
-              Style.BackgroundImage.Width = 275
-              Style.BackgroundImage.Height = 86
+            object Label31: TdhLabel
+              Left = 8
+              Top = 168
+              Width = 175
+              Height = 18
+              Text = '"Expected NonNull value"'
+              Use = rule
               AutoSizeXY = asXY
-              PreferDownStyles = True
-              Options = [loDownIfMenu, loDownIfMouseDown, loDownIfURL]
             end
           end
           object contact: TdhPage
@@ -702,32 +640,32 @@ object PageContainer2: TPageContainer2
                   Align = alTop
                   Right = 0
                   InnerHTML = 
-                    '<?php'#13#10#9'$recipient = "pingpong@kiegeland.com";'#13#10#9'$subject = "Con' +
-                    'tact form";'#13#10#13#10#9'if ($_POST["access"]!="dfm2html")  $err="Page in' +
-                    'correctly accessed (e.g. by a bot)"; else'#13#10#9'if ($_POST["name"] =' +
-                    '= "")  $err="You must specify a name!"; else'#13#10#9'if ($_POST["messa' +
-                    'ge"] == "")  $err="You must specify a message!"; else'#13#10#9'if ($rec' +
-                    'ipient == "your@email.com") $err="No recipient defined by the we' +
-                    'b designer!"; else'#13#10#9'$err="";'#13#10#9'if ($err=="") {'#13#10#9#9'$msg= "";'#13#10#9#9 +
-                    'foreach($_POST as $key=> $val) {'#13#10#9#9#9'if ($key != "access") $msg ' +
-                    '.= $key." : ".$val."\n\n";'#13#10#9#9'}'#13#10#9#9'$header='#39#39';'#13#10#9#9'if (isset($_PO' +
-                    'ST["email"])) $header .= '#39'From:'#39'.$_POST['#39'email'#39']."\n";'#13#10#13#10#9#9'if (' +
-                    'count($_FILES)>0) {'#13#10#13#10#9#9'$boundary = strtoupper(md5(uniqid(time(' +
-                    '))));'#13#10#13#10#9#9'$header .= "MIME-Version: 1.0\n";'#13#10#9#9'$header .= "Cont' +
-                    'ent-Type: multipart/mixed; boundary=$boundary\n\n";'#13#10#9#9'$header .' +
-                    '= "This is a multi-part message in MIME format.\n\n";'#13#10#9#9'$header' +
-                    ' .= "--$boundary\n";'#13#10#9#9'$header .= "Content-Type: text/plain\n";' +
-                    #13#10#9#9'$header .= "Content-Transfer-Encoding: 8bit\n\n";'#13#10#9#9'$header' +
-                    ' .= "$msg\n";'#13#10#9#9'$msg='#39#39';'#13#10#13#10#9#9#13#10#9#9'foreach ($_FILES as $filefiel' +
-                    'd => $file) if (is_uploaded_file($file['#39'tmp_name'#39'])) {'#13#10#9#9#9#13#10#9#9#9 +
-                    '$content=chunk_split(base64_encode(fread(fopen($file['#39'tmp_name'#39']' +
-                    ',"r"),filesize($file['#39'tmp_name'#39']))));'#13#10#13#10#9#9#9'$header .= "--$bound' +
-                    'ary\n";'#13#10#9#9#9'$header .= "Content-Type: ".$file['#39'type'#39']."; name=\"' +
-                    '".$file['#39'name'#39']."\"\n";'#13#10#9#9#9'$header .= "Content-Transfer-Encodin' +
-                    'g: base64\n";'#13#10#9#9#9'$header .= "Content-Disposition: attachment; f' +
-                    'ilename=\"".$file['#39'name'#39']."\"\n\n";'#13#10#9#9#9'$header .= "$content\n";' +
-                    #13#10#13#10#9#9'}'#13#10#9#9'$header .= "--$boundary--";'#13#10#9#9'}'#13#10#9#9'mail($recipient, ' +
-                    '$subject, $msg, $header);'#13#10#13#10'?>'
+                    '<?php'#13#10#9'$recipient = "joerg@kiegeland.com";'#13#10#9'$subject = "Contac' +
+                    't form";'#13#10#13#10#9'if ($_POST["access"]!="dfm2html")  $err="Page incor' +
+                    'rectly accessed (e.g. by a bot)"; else'#13#10#9'if ($_POST["name"] == "' +
+                    '")  $err="You must specify a name!"; else'#13#10#9'if ($_POST["message"' +
+                    '] == "")  $err="You must specify a message!"; else'#13#10#9'if ($recipi' +
+                    'ent == "your@email.com") $err="No recipient defined by the web d' +
+                    'esigner!"; else'#13#10#9'$err="";'#13#10#9'if ($err=="") {'#13#10#9#9'$msg= "";'#13#10#9#9'for' +
+                    'each($_POST as $key=> $val) {'#13#10#9#9#9'if ($key != "access") $msg .= ' +
+                    '$key." : ".$val."\n\n";'#13#10#9#9'}'#13#10#9#9'$header='#39#39';'#13#10#9#9'if (isset($_POST[' +
+                    '"email"])) $header .= '#39'From:'#39'.$_POST['#39'email'#39']."\n";'#13#10#13#10#9#9'if (cou' +
+                    'nt($_FILES)>0) {'#13#10#13#10#9#9'$boundary = strtoupper(md5(uniqid(time()))' +
+                    ');'#13#10#13#10#9#9'$header .= "MIME-Version: 1.0\n";'#13#10#9#9'$header .= "Content' +
+                    '-Type: multipart/mixed; boundary=$boundary\n\n";'#13#10#9#9'$header .= "' +
+                    'This is a multi-part message in MIME format.\n\n";'#13#10#9#9'$header .=' +
+                    ' "--$boundary\n";'#13#10#9#9'$header .= "Content-Type: text/plain\n";'#13#10#9 +
+                    #9'$header .= "Content-Transfer-Encoding: 8bit\n\n";'#13#10#9#9'$header .=' +
+                    ' "$msg\n";'#13#10#9#9'$msg='#39#39';'#13#10#13#10#9#9#13#10#9#9'foreach ($_FILES as $filefield =' +
+                    '> $file) if (is_uploaded_file($file['#39'tmp_name'#39'])) {'#13#10#9#9#9#13#10#9#9#9'$co' +
+                    'ntent=chunk_split(base64_encode(fread(fopen($file['#39'tmp_name'#39'],"r' +
+                    '"),filesize($file['#39'tmp_name'#39']))));'#13#10#13#10#9#9#9'$header .= "--$boundary' +
+                    '\n";'#13#10#9#9#9'$header .= "Content-Type: ".$file['#39'type'#39']."; name=\"".$' +
+                    'file['#39'name'#39']."\"\n";'#13#10#9#9#9'$header .= "Content-Transfer-Encoding: ' +
+                    'base64\n";'#13#10#9#9#9'$header .= "Content-Disposition: attachment; file' +
+                    'name=\"".$file['#39'name'#39']."\"\n\n";'#13#10#9#9#9'$header .= "$content\n";'#13#10#13 +
+                    #10#9#9'}'#13#10#9#9'$header .= "--$boundary--";'#13#10#9#9'}'#13#10#9#9'mail($recipient, $su' +
+                    'bject, $msg, $header);'#13#10#13#10'?>'
                   GenerateContainer = False
                 end
                 object Label28: TdhLabel
@@ -776,12 +714,9 @@ object PageContainer2: TPageContainer2
                 object StyleSheet3: TdhStyleSheet
                   Left = 16
                   Top = 152
-                  Width = 28
-                  Height = 28
-                  Expanded = False
-                  ExpandedWidth = 100
-                  ExpandedHeight = 100
-                  Expanded = False
+                  Width = 100
+                  Height = 100
+                  Expanded = True
                   object Link23: TdhLink
                     Left = 0
                     Top = 0
@@ -800,9 +735,9 @@ object PageContainer2: TPageContainer2
             end
             object Text3: TdhLabel
               Left = 16
-              Width = 216
+              Width = 143
               Height = 18
-              Text = 'PingPong &copy; J. Kiegeland 2010'
+              Text = '&copy; J. Kiegeland 2010'
               Style.Effects.Enabled = True
               Style.Effects.AntiAliasing = True
               Style.Effects.Text = etInclude
@@ -811,11 +746,60 @@ object PageContainer2: TPageContainer2
               Bottom = 299
             end
           end
+          object advanced: TdhPage
+            Left = 8
+            Top = 16
+            Height = 504
+            AutoSizeXY = asNone
+            Anchors = [akLeft, akTop, akRight]
+            Right = 72
+            UseIFrame = False
+            object Label1: TdhLabel
+              Left = 16
+              Top = 24
+              Width = 496
+              Height = 19
+              Text = 'Advanced features:'
+              Style.FontWeight = cfwBold
+              AutoSizeXY = asY
+            end
+            object Label4: TdhLabel
+              Left = 32
+              Top = 64
+              Width = 760
+              Height = 338
+              Text = 
+                '<ul>'#10#10'<li>Checking of loops: In some situations, it may be that ' +
+                'some variables surely contain no nullpointers in the first itera' +
+                'tion of a loop, but in the second (or third, ...) they could be ' +
+                'null (by the logic executed in a previous iteration).  Such spec' +
+                'ial cases are recognized and NPE hazards reported accordingly. N' +
+                'ested loops are also handled, so there are really no "leaks" in ' +
+                'detecting NPE hazards.</li><br/>'#10#10'<li>Private fields: Privat cla' +
+                'ss fields can be handled as local variables to some extend. So a' +
+                'fter checking a private field against NULL, it can be savely acc' +
+                'essed.</li><br/>'#10#10'<li>Overriding: when a method is overriden in ' +
+                'a subclass, different FindNPE annotations can be declared to the' +
+                ' method declaration, with the restriction, that they must be com' +
+                'patible with the FindNPE annotations on the overridden method. T' +
+                'his follows exactly the rationale, why  the return type of an ov' +
+                'erriding method is allowed to be     a sub class of the return t' +
+                'ype of the overridden method (but not the other way round).</li>' +
+                '<br/>'#10#10'<li>Incremental compilation: as FindNPE is integrated int' +
+                'o Eclipse'#39's Java compiler (JDT), it benefits from JDT'#39's incremen' +
+                'tal compilation&nbsp;capability and automatically inherits the c' +
+                'apability, that Java source files do not need to be saved in ord' +
+                'er that NPE hazards can be checked. So NPE hazards are reported ' +
+                '&quot;while you type&quot; and often can be solved by proposed q' +
+                'uick fixes.</li>'#10#10'</ul>'
+              AutoSizeXY = asY
+            end
+          end
         end
       end
       object StyleSheet2: TdhStyleSheet
         Left = 40
-        Top = 344
+        Top = 464
         Width = 28
         Height = 28
         Expanded = False
@@ -855,7 +839,7 @@ object PageContainer2: TPageContainer2
       end
       object Link12: TdhLink
         Left = 32
-        Top = 280
+        Top = 320
         Width = 54
         Height = 18
         Text = 'Contact'
@@ -867,26 +851,47 @@ object PageContainer2: TPageContainer2
       end
       object Link13: TdhLink
         Left = 32
-        Top = 160
-        Width = 62
+        Top = 200
+        Width = 67
         Height = 18
-        Text = 'Features'
+        Text = 'Problems'
         Use = Link4
         AutoSizeXY = asXY
         PreferDownStyles = True
         Options = [loDownIfMenu, loDownIfMouseDown, loDownIfURL]
         LinkPage = features
       end
+      object Link16: TdhLink
+        Left = 32
+        Top = 360
+        Width = 70
+        Height = 18
+        Text = 'Advanced'
+        Use = Link4
+        AutoSizeXY = asXY
+        PreferDownStyles = True
+        Options = [loDownIfMenu, loDownIfMouseDown, loDownIfURL]
+        LinkPage = advanced
+      end
+      object Link17: TdhLink
+        Left = 32
+        Top = 160
+        Width = 102
+        Height = 18
+        Text = 'Getting started'
+        Use = Link4
+        AutoSizeXY = asXY
+        PreferDownStyles = True
+        Options = [loDownIfMenu, loDownIfMouseDown, loDownIfURL]
+        LinkPage = usage
+      end
     end
     object StyleSheet1: TdhStyleSheet
-      Left = 840
-      Top = 328
-      Width = 28
-      Height = 28
-      Expanded = False
-      ExpandedWidth = 100
-      ExpandedHeight = 100
-      Expanded = False
+      Left = 1048
+      Top = 552
+      Width = 100
+      Height = 100
+      Expanded = True
       object Label3: TdhLabel
         Left = 0
         Top = 0
@@ -931,7 +936,7 @@ object PageContainer2: TPageContainer2
         Right = 0
         PreferDownStyles = True
         Options = [loDownIfMenu, loDownIfMouseDown, loDownIfURL]
-        Link = './pingpong.annotations.jar'
+        Link = 'http://findnpe.kiegeland.com/findnpe.annotations.jar'
       end
     end
   end
